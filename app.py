@@ -1,5 +1,6 @@
 from flask import Flask, render_template, jsonify
 from backend.routes.auth_routes import auth
+import secrets;
 
 app = Flask(__name__, static_folder='static', template_folder='/frontend/templates');
 app.register_blueprint(auth, url_prefix = "auth");
