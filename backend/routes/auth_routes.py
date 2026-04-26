@@ -1,4 +1,5 @@
 from flask import Flask, render_template, jsonify, request, session, flash, Blueprint;
+from backend.services import auth_services as auth
 
 auth = Blueprint("auth", __name__, template_folder="../../frontend/templates")
 
@@ -13,8 +14,10 @@ def login():
         data = request.get_json()
         username = data.get('username')
         password = data.get('password')
-
         
+        if (auth.verify_login(username=username, password=password)):
+            return jsonify({"message" : "Logged in succesfully"}), 200
+
 
 @auth.route("/logout", methods = ['POST'])
 def logout():

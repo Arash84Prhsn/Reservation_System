@@ -1,20 +1,15 @@
-from flask import Flask, render_template, jsonify
-from backend.routes.auth_routes import auth
-import secrets;
+from flask import Flask
+from database.connection import init_db
 
-app = Flask(__name__, static_folder='static', template_folder='/frontend/templates');
-app.register_blueprint(auth, url_prefix = "auth");
+app = Flask(__name__)
 
-# Serve your main HTML page
-@app.route("/")
-def index():
-    return render_template("index.html")
+# Initialize database when app starts
+init_db()
 
+@app.route('/')
+def home():
+    return "<h1>Reservation System is running!</h1>"
 
-# API endpoints
-@app.route("/api/message")
-def get_users():
-    return jsonify({"message": "Hello World!"})
-
-if __name__ == "__main__":
-    app.run(port=5000)
+if __name__ == '__main__':
+    print("Starting Reservation System...")
+    app.run(debug=True, port=5000)
