@@ -2,8 +2,7 @@ from backend.models import User;
 from database.connection import get_session;
 from datetime import datetime;
 import bcrypt
-import hashlib
-import secrets
+
 
 class UserService:
     """Provides simpe services for the user model, Thing such as password hashing, verifying
