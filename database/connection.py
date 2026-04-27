@@ -11,7 +11,7 @@ engine = create_engine(f'sqlite:///{DB_PATH}', echo=False)
 # Create session factory
 SessionLocal = sessionmaker(bind=engine)
 
-def get_session():
+def get_db_session():
     """Get a database session"""
     return SessionLocal()
 

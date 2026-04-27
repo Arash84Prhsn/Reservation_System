@@ -1,16 +1,19 @@
-from flask import Flask, render_template
+from flask import Flask
 from flask_cors import CORS
 from database.connection import init_db
+from database.seed import seed_seats
+from backend.routes import blueprints
 
 app = Flask(__name__)
 CORS(app)
+app.secret_key = "The-emperor-protects"
+
+for bp in blueprints:
+    app.register_blueprint(bp);
 
 # Initialize database when app starts
 init_db()
-
-@app.route('/')
-def home():
-    return "<h1>Reservation System is running!</h1>"
+seed_seats()
 
 if __name__ == '__main__':
     print("Starting Reservation System...")

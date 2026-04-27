@@ -28,3 +28,4 @@ class Seat(Base):
     
     def __repr__(self):
         return f"<Seat(seat_number={self.seat_number}, type='{self.seat_type}')>"
+    
