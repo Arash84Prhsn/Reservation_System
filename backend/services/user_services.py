@@ -101,4 +101,35 @@ class UserService:
             user.last_login = datetime.now()
             session.commit()
             session.close();
-    
+
+    @staticmethod
+    def create_user(username, password, email=None, phone=None, association = None):
+        """Creates a new user in the database. the ID is set automatically"""
+        session = get_db_session()
+
+        try:
+            # Hash the password first
+            password_hash = UserService.hash_password(password)
+
+            # Now attempt creating said new user
+            newUser = User(
+                username=username,
+                password=password_hash,
+                email=email,
+                phone=phone,
+                association=association
+            )
+
+            session.add(newUser)
+            session.commit()
+            # This refresh gives the user their ID
+            session.refresh()
+
+            return newUser
+        
+        except Exception as e:
+            session.rollback()
+            raise e
+        
+        finally:
+            session.close();

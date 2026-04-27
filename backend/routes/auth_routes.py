@@ -19,14 +19,50 @@ def register():
     phone = data.get('phone')
     association = data.get('association')
 
-    if not email and phone :
-        return jsonify({
-            'success' : False,
-            'message' : 'Either email or phone number is required'
-        }), 400
+    # check the fields to make sure they are actually entered by the user
+    if not username:
+        return jsonify({'success' : False, 'message' : 'username required'}), 400
     
-    if not username
+    if not password:
+        return jsonify({'success' : False, 'message' : 'password required'}), 400
+    
+    if not email and not phone:
+        return jsonify({'success' : False, 'message' : 'email or phone number is needed'}), 400
+    
+    # Check the password to make sure it's secure enough
+    is_valid, msg = UserService.validate_password(password)
+    if not is_valid:
+        return jsonify({'success' : False, 'message' : msg}), 400
+    
+    if UserService.username_exists(username):
+        return jsonify({'success' : False, 'message' : "Username already exists"}), 409
+    
+    if email and UserService.email_exists(email):
+        return jsonify({'success' : False, 'message' : "Email already exists"}), 409
+    
+    if phone and UserService.phone_exists(phone):
+        return jsonify({'success' : False, 'message' : "Phone number already exists"}), 409
+    
+    try:
+        newUser = UserService.create_user(
+            username=username,
+            password=password,
+            email=email,
+            phone=phone,
+            association=association
+        )
 
+        return jsonify({
+            'success' : True,
+            'message' : 'Registration successful! You can now log in to your new account.',
+            'data' : {
+                'username' : newUser.username,
+                'association' : newUser.association
+            }
+        }), 201
+    
+    except Exception as e:
+        return jsonify({'success' : False, 'message' : str(e)}), 500
 
 
 # The login api. this is what should be called when somebody presses on the login button.
@@ -69,6 +105,23 @@ def login():
         }
     }), 200
 
+@auth_bp.route('/me', methods=['GET'])
+def get_current_user():
+    if not session.get('logged_in'):
+        return jsonify({'authenticated' : False}), 401
+    
+    return jsonify({
+        'authenticated' : True,
+        'user' : {
+            'id' : session.get('user_id'),
+            'username' : session.get('username'),
+            'association' : session.get('association'),
+            'email' : session.get('email'),
+            'phone' : session.get('phone')
+        }
+    })
+    
+# The log out route. This is what should be fethced when the user wants to log ot of their account.
 @auth_bp.route('/logout', methods=['POST'])
 def logout(): 
     # for logging out simply clear out the current session

@@ -4,10 +4,12 @@ from database.connection import init_db
 from database.seed import seed_seats
 from backend.routes import blueprints
 
+# initialize the app
 app = Flask(__name__)
 CORS(app)
-app.secret_key = "The-emperor-protects"
+app.secret_key = "The-Emperor-Protects"
 
+# register all the blueprints specified in the backend/routes/__init__.py
 for bp in blueprints:
     app.register_blueprint(bp);
 
