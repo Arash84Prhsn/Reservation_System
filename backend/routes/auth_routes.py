@@ -77,9 +77,7 @@ def login():
     if not username or not password:
         return jsonify({'success': False, 'message': 'Username and password required'}), 400
     
-    
     user = UserService.get_user_by_username(username)
-    
     
     if not user or not UserService.verify_password(password, user.password_hash):
         return jsonify({'success': False, 'message': 'Invalid username or password'}), 401

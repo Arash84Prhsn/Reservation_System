@@ -61,7 +61,12 @@ class UserService:
             
     @staticmethod
     def get_user_byID(user_id):
-        """Returns the user object identified through its ID."""
+        """
+        Returns user object identified by the id.
+        
+        :param user_id: the id by which the `User` object will be retrived
+        :return: the found `User` object. None if not found.
+        """
         session = get_db_session()
         user = session.query(User).filter_by(id=user_id).first()
         session.close()
@@ -69,7 +74,12 @@ class UserService:
 
     @staticmethod
     def get_user_byUsername(name):
-        """Returns user object identified by the username"""
+        """
+        Returns user object identified by the username
+        
+        :param name: the username by which the `User` object will be retrived
+        :return: the found `User` object. None if not found.
+        """
         session = get_db_session()
         user = session.query(User).filter_by(username=name).first()
         session.close()
@@ -77,7 +87,12 @@ class UserService:
 
     @staticmethod
     def get_user_byEmail(mail):
-        """Returns user object identified by the email"""
+        """
+        Returns user object identified by the email
+        
+        :param mail: the email by which the `User` object will be retrived
+        :return: the found `User` object. None if not found.
+        """
         session = get_db_session()
         user = session.query(User).filter_by(email=mail).first()
         session.close()
@@ -85,7 +100,12 @@ class UserService:
 
     @staticmethod
     def get_user_byPhone(ph):
-        """Returns user object identified by the phone number"""
+        """
+        Returns user object identified by the phone number
+        
+        :param ph: the phone number by which the `User` object will be retrived.
+        :return: the found `User` object. None if not found.
+        """
         session = get_db_session()
         user = session.query(User).filter_by(phone=ph).first()
         session.close()
@@ -93,7 +113,11 @@ class UserService:
 
     @staticmethod
     def update_last_login(user_id):
-        """Updates the last login time of a user identified by their ID"""
+        """
+        Updates the last login time of a user identified by their ID
+        
+        :param user_id: The id of the `User` object that we want to update.
+        """
         user = UserService.get_user_byID(user_id)
 
         if user:
@@ -104,7 +128,17 @@ class UserService:
 
     @staticmethod
     def create_user(username, password, email=None, phone=None, association = None):
-        """Creates a new user in the database. the ID is set automatically"""
+        """
+        Creates a new user in the database. the ID is set automatically. Either `email` or `phone`
+        is required for creating a new `User` object. Raises an error in case something goes wrong.
+
+        :param username: Required. The username of the new `User` object.
+        :param password: Required. The password of the new `User` object.
+        :param email: Email of the new `User` object.
+        :param phone: Phone number of the new `User` object.
+        :param association: The association of the new `User` object.
+        :returns: The newly created `User` object
+        """
         session = get_db_session()
 
         try:
