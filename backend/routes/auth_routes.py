@@ -68,6 +68,7 @@ def register():
 # The login api. this is what should be called when somebody presses on the login button.
 @auth_bp.route('/login', methods=['POST'])
 def login():
+    
     data = request.get_json()
     
     # Validate input exists
@@ -103,7 +104,7 @@ def login():
         }
     }), 200
 
-@auth_bp.route('/me', methods=['GET'])
+@auth_bp.route('/profile', methods=['GET'])
 def get_current_user():
     if not session.get('logged_in'):
         return jsonify({'authenticated' : False}), 401
@@ -122,7 +123,10 @@ def get_current_user():
 # The log out route. This is what should be fethced when the user wants to log ot of their account.
 @auth_bp.route('/logout', methods=['POST'])
 def logout(): 
+    # Firstly check that the user is actually logged in
+    if not session.get('logged_in'):
+        return jsonify({'success' : False, 'message' : 'You are not logged in'}), 401
     # for logging out simply clear out the current session
     session.clear()
-    return jsonify({'success' : True, 'message' : 'logged out successfully'}), 200
+    return jsonify({'success' : True, 'message' : 'Logged out successfully'}), 200
 
