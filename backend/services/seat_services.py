@@ -1,7 +1,7 @@
 from database import get_db_session
 from backend.models.seats import Seat
 
-class SeatService:
+class SeatServices:
 
     @staticmethod
     def get_all_seats():
@@ -36,8 +36,5 @@ class SeatService:
         with get_db_session() as session:
             seat = session.query(Seat).filter(Seat.id==seat_id).first()
 
-        # if the seat does not exist in the database return nothing.
-        if not seat:
-            return None
-
         return seat
+    

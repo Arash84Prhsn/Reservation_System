@@ -39,9 +39,11 @@ class User(Base):
         """Get max reservations per day based on association"""
         limits = {
             None: 1,
-            'A': 1,
-            'B': 2,
-            'C': 3
+            'Student': 1,
+            'DataScience_competitions': 1,
+            "Master's_student" : 1,
+            'PhD_student' : 2,
+            'Dotin': 3
         }
         return limits.get(self.association, 1)
     

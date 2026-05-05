@@ -6,7 +6,6 @@ class Seat(Base):
     __tablename__ = 'seats'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    seat_number = Column(Integer, unique=True, nullable=False)
     seat_type = Column(String, nullable=False)  # 'manager', 'optimization', 'byol', 'normal'
     is_reservable = Column(Boolean, default=True)
     
@@ -17,7 +16,6 @@ class Seat(Base):
         """Convert seat to dictionary"""
         return {
             'id': self.id,
-            'seat_number': self.seat_number,
             'seat_type': self.seat_type,
             'is_reservable': self.is_reservable
         }
@@ -27,5 +25,5 @@ class Seat(Base):
         return self.is_reservable and self.seat_type != 'manager'
     
     def __repr__(self):
-        return f"<Seat(seat_number={self.seat_number}, type='{self.seat_type}')>"
+        return f"<Seat(seat_number={self.id}, type='{self.seat_type}')>"
     

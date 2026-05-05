@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify, session;
 from backend.services.user_services import UserService
-from database import get_db_session
 
 # Create the blueprint that will be registered in app.py
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
@@ -78,7 +77,7 @@ def login():
     if not username or not password:
         return jsonify({'success': False, 'message': 'Username and password required'}), 400
     
-    user = UserService.get_user_by_username(username)
+    user = UserService.get_user_byUsername(username)
     
     if not user or not UserService.verify_password(password, user.password_hash):
         return jsonify({'success': False, 'message': 'Invalid username or password'}), 401
@@ -103,22 +102,6 @@ def login():
             'phone' : user.phone
         }
     }), 200
-
-@auth_bp.route('/profile', methods=['GET'])
-def get_current_user():
-    if not session.get('logged_in'):
-        return jsonify({'authenticated' : False}), 401
-    
-    return jsonify({
-        'authenticated' : True,
-        'user' : {
-            'id' : session.get('user_id'),
-            'username' : session.get('username'),
-            'association' : session.get('association'),
-            'email' : session.get('email'),
-            'phone' : session.get('phone')
-        }
-    })
     
 # The log out route. This is what should be fethced when the user wants to log ot of their account.
 @auth_bp.route('/logout', methods=['POST'])

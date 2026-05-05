@@ -122,6 +122,7 @@ class UserService:
 
         if user:
             session = get_db_session()
+            user = session.merge(user)
             user.last_login = datetime.now()
             session.commit()
             session.close();
@@ -148,7 +149,7 @@ class UserService:
             # Now attempt creating said new user
             newUser = User(
                 username=username,
-                password=password_hash,
+                password_hash=password_hash,
                 email=email,
                 phone=phone,
                 association=association
@@ -157,7 +158,7 @@ class UserService:
             session.add(newUser)
             session.commit()
             # This refresh gives the user their ID
-            session.refresh()
+            session.refresh(newUser)
 
             return newUser
         
