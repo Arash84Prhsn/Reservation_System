@@ -35,17 +35,29 @@ class User(Base):
             'last_login': self.last_login.isoformat() if self.last_login else None
         }
     
-    def get_reservation_limit(self):
+    def get_reservation_seat_limit(self):
         """Get max reservations per day based on association"""
         limits = {
             None: 1,
             'Student': 1,
-            'DataScience_competitions': 1,
-            "Master's_student" : 1,
-            'PhD_student' : 2,
+            'DataScience competitions': 1,
+            "Master's student" : 1,
+            'PhD student' : 2,
             'Dotin': 3
         }
         return limits.get(self.association, 1)
+    
+    # def get_reservation_time_limit(self):
+    #     """Get the max reservation time for a seat in a day by hours"""
+    #     limits = {
+    #         None : 3,
+    #         'Student' : 3,
+    #         'DataScience competitions' : 4,
+    #         "Master's student" : 6,
+    #         'PhD student' : 6,
+    #         'Dotin' : 6
+    #     }
+    #     return limits(self.association, 3)
     
     def __repr__(self):
         return f"<User(id={self.id}, username='{self.username}')>"

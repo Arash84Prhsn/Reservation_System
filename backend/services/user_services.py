@@ -4,7 +4,7 @@ from datetime import datetime;
 import bcrypt
 
 
-class UserService:
+class UserServices:
     """Provides simpe services for the user model, Thing such as password hashing, verifying
     passwords, finding user objects by different attributes,..."""
 
@@ -118,7 +118,7 @@ class UserService:
         
         :param user_id: The id of the `User` object that we want to update.
         """
-        user = UserService.get_user_byID(user_id)
+        user = UserServices.get_user_byID(user_id)
 
         if user:
             session = get_db_session()
@@ -144,7 +144,7 @@ class UserService:
 
         try:
             # Hash the password first
-            password_hash = UserService.hash_password(password)
+            password_hash = UserServices.hash_password(password)
 
             # Now attempt creating said new user
             newUser = User(

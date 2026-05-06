@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session;
-from backend.services.user_services import UserService
+from backend.services.user_services import UserServices
+from email_validator import validate_email
 
 # Create the blueprint that will be registered in app.py
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
@@ -28,22 +29,30 @@ def register():
     if not email and not phone:
         return jsonify({'success' : False, 'message' : 'email or phone number is needed'}), 400
     
+    # In the case that the user has decided to provide an email address make sure to validate it
+    if email:
+        valid = validate_email(email)
+        if not valid:
+            return jsonify({'success' : False,
+                            'message' : "Email is not valid. Please enter a valid structure"}), 400
+
+
     # Check the password to make sure it's secure enough
-    is_valid, msg = UserService.validate_password(password)
+    is_valid, msg = UserServices.validate_password(password)
     if not is_valid:
         return jsonify({'success' : False, 'message' : msg}), 400
     
-    if UserService.username_exists(username):
+    if UserServices.username_exists(username):
         return jsonify({'success' : False, 'message' : "Username already exists"}), 409
     
-    if email and UserService.email_exists(email):
+    if email and UserServices.email_exists(email):
         return jsonify({'success' : False, 'message' : "Email already exists"}), 409
     
-    if phone and UserService.phone_exists(phone):
+    if phone and UserServices.phone_exists(phone):
         return jsonify({'success' : False, 'message' : "Phone number already exists"}), 409
     
     try:
-        newUser = UserService.create_user(
+        newUser = UserServices.create_user(
             username=username,
             password=password,
             email=email,
@@ -77,9 +86,9 @@ def login():
     if not username or not password:
         return jsonify({'success': False, 'message': 'Username and password required'}), 400
     
-    user = UserService.get_user_byUsername(username)
+    user = UserServices.get_user_byUsername(username)
     
-    if not user or not UserService.verify_password(password, user.password_hash):
+    if not user or not UserServices.verify_password(password, user.password_hash):
         return jsonify({'success': False, 'message': 'Invalid username or password'}), 401
     
     # Set session
@@ -89,7 +98,7 @@ def login():
     session['association'] = user.association
     
     # Update last login
-    UserService.update_last_login(user.id)
+    UserServices.update_last_login(user.id)
     
     # Return success
     return jsonify({
