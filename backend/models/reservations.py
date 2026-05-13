@@ -12,6 +12,7 @@ class Reservation(Base):
     reservation_date = Column(Date, nullable=False)
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
+    reservation_type = Column(String, nullable=False)
     status = Column(String, default='active')  # 'active', 'cancelled'
     created_at = Column(DateTime, default=datetime.now)
     cancelled_at = Column(DateTime, nullable=True)
@@ -33,11 +34,11 @@ class Reservation(Base):
             'user_id': self.user_id,
             'username': self.user.username if self.user else None,
             'seat_id': self.seat_id,
-            'seat_number': self.seat.seat_number if self.seat else None,
             'seat_type': self.seat.seat_type if self.seat else None,
             'reservation_date': self.reservation_date.isoformat(),
             'start_time': self.start_time.isoformat() if self.start_time else None,
             'end_time': self.end_time.isoformat() if self.end_time else None,
+            'reservation_type' : self.reservation_type,
             'status': self.status,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'cancelled_at': self.cancelled_at.isoformat() if self.cancelled_at else None

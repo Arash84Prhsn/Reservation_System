@@ -18,6 +18,7 @@ def register():
     email = data.get('email')
     phone = data.get('phone')
     association = data.get('association')
+    dotinRelation = data.get('dotin_relation')
 
     # check the fields to make sure they are actually entered by the user
     if not username:
@@ -29,12 +30,27 @@ def register():
     if not email and not phone:
         return jsonify({'success' : False, 'message' : 'email or phone number is needed'}), 400
     
+    if association and association == "Dotin" and not dotinRelation:
+        return jsonify({'success' : False,
+                        'message' : "Relationship with Dotin must be specified"}), 400
+    
+    # Make sure the username follows the rules
+    validUsername, msg = UserServices.validate_username(username)
+    if not validUsername:
+        return jsonify({'success' : False, 'message' : msg}), 400
+    
     # In the case that the user has decided to provide an email address make sure to validate it
     if email:
         valid = validate_email(email)
         if not valid:
             return jsonify({'success' : False,
                             'message' : "Email is not valid. Please enter a valid structure"}), 400
+        
+    if phone:
+        valid, phone_msg = UserServices.validate_phone_number(phone)
+        if not valid:
+            return jsonify({"success" : False,
+                            'message' : phone_msg}), 400
 
 
     # Check the password to make sure it's secure enough
@@ -57,7 +73,8 @@ def register():
             password=password,
             email=email,
             phone=phone,
-            association=association
+            association=association,
+            dotin_relation=dotinRelation
         )
 
         return jsonify({
@@ -65,7 +82,9 @@ def register():
             'message' : 'Registration successful! You can now log in to your new account.',
             'data' : {
                 'username' : newUser.username,
-                'association' : newUser.association
+                'association' : newUser.association,
+                'email' : email,
+                'phone' : phone
             }
         }), 201
     
@@ -95,7 +114,10 @@ def login():
     session['logged_in'] = True
     session['user_id'] = user.id
     session['username'] = user.username
+    session['email'] = user.email
+    session['phone'] = user.phone
     session['association'] = user.association
+    session['dotin_relation'] = user.dotin_relation
     
     # Update last login
     UserServices.update_last_login(user.id)
@@ -107,6 +129,7 @@ def login():
         'data': {
             'username': user.username,
             'association': user.association,
+            'dotin_relation' : user.dotin_relation,
             'email' : user.email,
             'phone' : user.phone
         }

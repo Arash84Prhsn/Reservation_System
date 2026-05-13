@@ -1,6 +1,7 @@
 from backend.models import User;
 from database.connection import get_db_session;
 from datetime import datetime;
+import re
 import bcrypt
 
 
@@ -37,6 +38,53 @@ class UserServices:
             return False, 'The password must contain at least one number'
         
         return True, 'valid';
+
+    @staticmethod
+    def validate_username(username):
+        """
+        Ensures that the uername is valid and follows certain rules
+        
+        :param username: The username that must be validated
+        """
+        if not username:
+            return False, "username cannot be nothing"
+        if len(username) < 3 :
+            return False, "Username must be at least 3 characters long"
+        if len(username) >= 20 :
+            return False, "Username cannot be longer that 20 characters"
+        
+        pattern = r'^[a-zA-Z0-9_\s\u0600-\u06FF]{3,20}$'
+        if not re.match(pattern, username):
+            return False, "Username can only contain English/Persian letters, numbers, and underscore (no spaces, dashes, or special characters)"
+
+        return True, "Username is valid"
+    
+    @staticmethod
+    def validate_phone_number(phone):
+        """
+        Basic phone number validation.
+        Accepts any phone number with 8-15 digits, optional leading '+'.
+        """
+        if not phone:
+            return False, "Phone number is required"
+        
+        # Remove spaces, dashes, parentheses
+        cleaned = re.sub(r'[\s\-\(\)]', '', phone)
+        
+        # Check length
+        if len(cleaned) < 8:
+            return False, "Phone number must be at least 8 digits"
+        
+        if len(cleaned) > 15:
+            return False, "Phone number must be at most 15 digits"
+        
+        # Check format (optional leading +, then digits)
+        if not re.match(r'^\+?[0-9]+$', cleaned):
+            return False, "Phone number can only contain digits and optional leading '+'"
+        
+        return True, "Valid phone number"
+
+
 
     @staticmethod
     def username_exists(name):
@@ -128,7 +176,7 @@ class UserServices:
             session.close();
 
     @staticmethod
-    def create_user(username, password, email=None, phone=None, association = None):
+    def create_user(username, password, email=None, phone=None, association = None, dotin_relation = None):
         """
         Creates a new user in the database. the ID is set automatically. Either `email` or `phone`
         is required for creating a new `User` object. Raises an error in case something goes wrong.
@@ -138,6 +186,7 @@ class UserServices:
         :param email: Email of the new `User` object.
         :param phone: Phone number of the new `User` object.
         :param association: The association of the new `User` object.
+        :param dotin_relation: if the association is `Dotin` then this must be specified
         :returns: The newly created `User` object
         """
         session = get_db_session()
@@ -152,7 +201,8 @@ class UserServices:
                 password_hash=password_hash,
                 email=email,
                 phone=phone,
-                association=association
+                association=association,
+                dotin_relation=dotin_relation
             )
 
             session.add(newUser)
