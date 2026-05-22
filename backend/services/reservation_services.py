@@ -1,4 +1,4 @@
-from database import get_db_session
+from database import get_db_connection
 from backend.models.reservations import Reservation
 from backend.models.seats import Seat
 from backend.models.users import User
@@ -6,16 +6,53 @@ from backend.services.seat_services import SeatServices
 from backend.services.user_services import UserServices
 from datetime import datetime, date, time, timedelta
 from sqlalchemy import and_, or_, func
+import jdatetime
 
 class ReservationServices:
 
-    # ============ DATE UTILITIES ============
+    # ====<Date utility functions are defined here>====
+    
+    # it must be noted all the functionality here is done using Gregorian calendars and the datetime
+    # class Date object. The calendar conversion functions exist solely for API responses
+
+    @staticmethod
+    def gregorian_to_persian(gregorianDate):
+        """
+        Convert the given gregorian date to the equivalent persian(Jalali) date
+        
+        :param gregorianDate: The date in gregorian format
+
+        :return: The given date converted to the corresponding persian date as a `jdatetime` class
+        `Date` object
+        """
+        return jdatetime.date.fromgregorian(date=gregorianDate)
+    
+    @staticmethod
+    def persian_to_gregorian(persianDate):
+        """
+        Convert a Persian (Jalali) date to Gregorian.
+        
+        :param persianDate: A jdatetime.date object, or a tuple/list of (year, month, day)
+        :return: datetime.date object
+        :raises TypeError: If input type is not recognized
+        """
+        if isinstance(persianDate, jdatetime.date):
+            return persianDate.togregorian()
+        
+        if isinstance(persianDate, (tuple, list)) and len(persianDate) == 3:
+            year, month, day = persianDate
+            return jdatetime.date(year, month, day).togregorian()
+        
+        raise TypeError(
+            f"Expected jdatetime.date or (year, month, day), "
+            f"got {type(persianDate).__name__}"
+        )
     
     @staticmethod
     def get_current_week_start():
         """Returns the start date of the current week (Saturday)"""
         today = date.today()
-        # Saturday is weekday 5 (Monday=0, Sunday=6, Saturday=5)
+        # Saturday is weekday 5 (Monday=0, Saturday=5, Sunday=6)
         days_since_saturday = (today.weekday() - 5) % 7
         week_start = today - timedelta(days=days_since_saturday)
         return week_start
@@ -26,50 +63,75 @@ class ReservationServices:
         return ReservationServices.get_current_week_start() + timedelta(days=7)
 
     @staticmethod
-    def get_reservation_week_range():
+    def get_possible_reservation_dates():
         """
-        Returns (start_date, end_date) for allowed reservations.
-        Current week: Saturday to Wednesday (can't book Thu/Fri)
-        Next week: Saturday to Wednesday
+        Returns an array of all the valid dates for user reservations\\
+        Current week: Saturday to Wednesday (can't book Thu/Fri)\\
+        Next week: Saturday to Wednesday if it is past Tuesday 12 PM this week\\
         Cannot book today or past.
         """
+
+        # Get today's date and the exact datetime right now
         today = date.today()
-        current_week_start = ReservationServices.get_current_week_start()
-        next_week_start = ReservationServices.get_next_week_start()
+        currentDateTime = datetime.now()
+
+        # Get the datetime object for This week's Tuesday 12PM
+        thisTuesday12PM = datetime.combine(
+            ReservationServices.get_current_week_start()+timedelta(3),
+            time(12,0,0) # 12PM
+        )
+
+        # Saturday dates of this week and the next
+        currentWeekStartDate = ReservationServices.get_current_week_start()
+        nextWeekStartDate = ReservationServices.get_next_week_start()
         
-        # Wednesday is weekday 2 (Monday=0, Tuesday=1, Wednesday=2)
-        current_week_end = current_week_start + timedelta(days=4)  # Wednesday
-        next_week_end = next_week_start + timedelta(days=4)        # Wednesday
+        # Get the dates for this week's and the next weeks wednesdays
+        currentWeekEndDate = currentWeekStartDate + timedelta(days=4)  
+        nextWeekEndDate = nextWeekStartDate + timedelta(days=4) 
         
+        # array of our possible reservation Dates (arr of Date objects)
         allowed_dates = []
         
-        # Current week (only if we haven't passed Wednesday)
-        if today <= current_week_end:
-            # Start from max(today + 1, current_week_start)
-            start = max(current_week_start, today + timedelta(days=1))
-            if start <= current_week_end:
-                allowed_dates.append((start, current_week_end))
+        # Current week (only if we haven't passed current week Tuesday 12 PM)
+        if currentDateTime < thisTuesday12PM:
+            start = today + timedelta(days=1)
+            end = currentWeekEndDate
+
+            while start <= end:
+                allowed_dates.append(start)
+                start = start + timedelta(days=1)
         
-        # Next week (always allowed if not passed)
-        if today <= next_week_end:
-            start = max(next_week_start, today + timedelta(days=1))
-            if start <= next_week_end:
-                allowed_dates.append((start, next_week_end))
+        # Next week is also allowed
+        else :
+            start = today + timedelta(days=1)
+            end = nextWeekEndDate
+            
+            while start <= end:
+                # skip Thursdays and Fridays
+                if start.weekday() == 3 or start.weekday() == 4:
+                    start = start + timedelta(days=1)
+                    continue
+                
+                allowed_dates.append(start)
+                start = start + timedelta(days=1)
         
         return allowed_dates
 
     @staticmethod
-    def is_date_reservable(reservation_date):
-        """Check if a specific date can be reserved"""
-        allowed_ranges = ReservationServices.get_reservation_week_range()
-        for start, end in allowed_ranges:
-            if start <= reservation_date <= end:
-                return True
-        return False
+    def is_date_possibly_reservable(reservation_date):
+        """Check if a specific date is in the list of possible reservations"""
+        reservables = ReservationServices.get_possible_reservation_dates()
+        return reservation_date in reservables
 
     @staticmethod
     def get_available_weeks():
-        """Returns list of available weeks for frontend"""
+        """
+        Returns list of available weeks for frontend
+
+        :returns: an example object in the returned array would be like the following dict:\
+        {"week_name": "current_week", "start_date": "2026-05-20", "end_date": "2026-05-24",
+        available_dates: ["2026-05-23","2026-05-24"]}
+        """
         today = date.today()
         current_week_start = ReservationServices.get_current_week_start()
         next_week_start = ReservationServices.get_next_week_start()
@@ -80,7 +142,7 @@ class ReservationServices:
         current_end = current_week_start + timedelta(days=4)  # Wednesday
         if today <= current_end:
             weeks.append({
-                'week_name': 'Current Week',
+                'week_name': 'current_week',
                 'start_date': current_week_start.isoformat(),
                 'end_date': current_end.isoformat(),
                 'available_dates': [
@@ -93,7 +155,7 @@ class ReservationServices:
         # Next week
         next_end = next_week_start + timedelta(days=4)
         weeks.append({
-            'week_name': 'Next Week',
+            'week_name': 'next_week',
             'start_date': next_week_start.isoformat(),
             'end_date': next_end.isoformat(),
             'available_dates': [
@@ -104,57 +166,55 @@ class ReservationServices:
         
         return weeks
 
-    # ============ TIME VALIDATION ============
+    # ====<Validation operations>====
 
     @staticmethod
-    def is_valid_time_slot(start_time, end_time):
-        """Check if time slot is within allowed hours (8:00-14:00)"""
+    def is_8_14_time_interval(start_time, end_time):
+        """
+        Check if the given time interval is within the allowed range (8:00-14:00)\n
+        additionally the start_time must be less than the end time
+        
+        :param start_time: The start time of the interval. is a `time` object
+        :param end_time: The end time of the interval. is a `time` object
+        :returns: `True` or `False` depending on the given criteria
+        """
         start_valid = start_time >= time(8, 0) and start_time <= time(14, 0)
         end_valid = end_time >= time(8, 0) and end_time <= time(14, 0)
-        return start_valid and end_valid
+        start_less_than_end = start_time < end_time
+        return start_valid and end_valid and start_less_than_end
 
     @staticmethod
-    def is_valid_duration(start_time, end_time):
+    def is_valid_duration(start_time: time, end_time: time):
         """Check if duration is at least 15 minutes"""
         start_min = start_time.hour * 60 + start_time.minute
         end_min = end_time.hour * 60 + end_time.minute
         return (end_min - start_min) >= 15
 
     @staticmethod
-    def is_quarter_increment(time_obj):
+    def is_quarter_increment(time_obj: time):
         """Check if time is in 15-minute increments (00, 15, 30, 45)"""
         return time_obj.minute % 15 == 0
 
     # ============ RESERVATION CREATION ============
 
     @staticmethod
-    def check_daily_limit(user_id, reservation_date):
+    def has_hit_daily_reservation_limit(user_id, reservation_date):
         """
-        Check if user has reached their daily reservation limit.
-        Counts distinct seats reserved on that day (not time slots).
+        Returns `True` if the user has made 2 reservations in the `reservation_date`. Returns 
+        `False` otherwise
+
+        :param user_id: the id of the user
+        :param reservation_date: the date for which the reservation will be counted
         """
-        session = get_db_session()
-        try:
-            # Count distinct seats reserved by this user on this date
-            seat_count = session.query(func.count(Reservation.seat_id.distinct())).filter(
-                and_(
-                    Reservation.user_id == user_id,
-                    Reservation.reservation_date == reservation_date,
-                    Reservation.status == 'active'
-                )
-            ).scalar()
-            
-            user = session.query(User).filter(User.id == user_id).first()
-            limit = user.get_reservation_seat_limit() if user else 1
-            
-            return seat_count < limit, limit - seat_count
-        finally:
-            session.close()
+        conn = get_db_connection()
+
+        queryResult = conn.select
+
 
     @staticmethod
     def check_seat_conflict(seat_id, reservation_date, start_time, end_time):
         """Check if a seat is already booked for the given time slot"""
-        session = get_db_session()
+        session = get_db_connection()
         try:
             conflicting = session.query(Reservation).filter(
                 and_(
@@ -174,7 +234,7 @@ class ReservationServices:
         """
         Check if user is allowed to book this specific seat based on dotin restrictions.
         """
-        session = get_db_session()
+        session = get_db_connection()
         try:
             user = session.query(User).filter(User.id == user_id).first()
             seat = session.query(Seat).filter(Seat.id == seat_id).first()
@@ -211,11 +271,11 @@ class ReservationServices:
             end_time = time.fromisoformat(end_time)
         
         # 1. Check if date is reservable
-        if not ReservationServices.is_date_reservable(reservation_date):
+        if not ReservationServices.is_date_possibly_reservable(reservation_date):
             return False, "This date is not available for reservations", None
         
         # 2. Check time window (8:00-14:00)
-        if not ReservationServices.is_valid_time_slot(start_time, end_time):
+        if not ReservationServices.is_8_14_time_interval(start_time, end_time):
             return False, "Reservations only allowed between 8:00 and 14:00", None
         
         # 3. Check minimum duration
@@ -231,7 +291,7 @@ class ReservationServices:
             return False, "Start time must be before end time", None
         
         # 6. Check daily limit
-        under_limit, remaining = ReservationServices.check_daily_limit(user_id, reservation_date)
+        under_limit, remaining = ReservationServices.has_hit_daily_reservation_limit(user_id, reservation_date)
         if not under_limit:
             return False, f"You have reached your daily reservation limit", None
         
@@ -245,7 +305,7 @@ class ReservationServices:
             return False, error_msg, None
         
         # 9. Create reservation
-        session = get_db_session()
+        session = get_db_connection()
         try:
             new_reservation = Reservation(
                 user_id=user_id,
@@ -270,7 +330,7 @@ class ReservationServices:
     @staticmethod
     def get_user_reservations(user_id, status='active'):
         """Get all reservations for a user"""
-        session = get_db_session()
+        session = get_db_connection()
         try:
             query = session.query(Reservation).filter(Reservation.user_id == user_id)
             if status:
@@ -283,7 +343,7 @@ class ReservationServices:
     @staticmethod
     def get_user_reservations_by_date(user_id, reservation_date):
         """Get all reservations for a user on a specific date"""
-        session = get_db_session()
+        session = get_db_connection()
         try:
             reservations = session.query(Reservation).filter(
                 and_(
@@ -299,7 +359,7 @@ class ReservationServices:
     @staticmethod
     def get_reservation_by_id(reservation_id):
         """Get a specific reservation by ID"""
-        session = get_db_session()
+        session = get_db_connection()
         try:
             reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
             return reservation
@@ -309,7 +369,7 @@ class ReservationServices:
     @staticmethod
     def get_daily_schedule(reservation_date):
         """Get all active reservations for a specific date"""
-        session = get_db_session()
+        session = get_db_connection()
         try:
             reservations = session.query(Reservation).filter(
                 and_(
@@ -329,7 +389,7 @@ class ReservationServices:
         Cancel a reservation.
         Returns: (success, message)
         """
-        session = get_db_session()
+        session = get_db_connection()
         try:
             reservation = session.query(Reservation).filter(
                 and_(
@@ -366,7 +426,7 @@ class ReservationServices:
     @staticmethod
     def get_user_reservation_stats(user_id):
         """Get reservation statistics for a user"""
-        session = get_db_session()
+        session = get_db_connection()
         try:
             today = date.today()
             

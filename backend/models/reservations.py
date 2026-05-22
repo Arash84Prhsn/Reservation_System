@@ -1,9 +1,9 @@
 from sqlalchemy import Column, Integer, String, DateTime, Date, Time, ForeignKey, CheckConstraint
 from sqlalchemy.orm import relationship
-from backend.models import Base
+from backend.models import DeclarativeBase
 from datetime import datetime
 
-class Reservation(Base):
+class Reservation(DeclarativeBase):
     __tablename__ = 'reservations'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -13,7 +13,7 @@ class Reservation(Base):
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
     reservation_type = Column(String, nullable=False)
-    status = Column(String, default='active')  # 'active', 'cancelled'
+    status = Column(String, default='active')  # 'active', 'cancelled', 'over'
     created_at = Column(DateTime, default=datetime.now)
     cancelled_at = Column(DateTime, nullable=True)
     

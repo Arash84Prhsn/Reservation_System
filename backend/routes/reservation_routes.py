@@ -68,7 +68,7 @@ def get_available_seats():
             return jsonify({'success': False, 'message': 'Invalid time format. Use HH:MM:SS'}), 400
         
         # Validate time slot
-        if not ReservationServices.is_valid_time_slot(start_time, end_time):
+        if not ReservationServices.is_8_14_time_interval(start_time, end_time):
             return jsonify({'success': False, 'message': 'Reservations only allowed between 8:00 and 14:00'}), 400
         
         if not ReservationServices.is_valid_duration(start_time, end_time):

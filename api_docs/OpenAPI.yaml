@@ -1,10 +1,10 @@
 openapi: 3.0.0
 info:
-  title: Computer Lab Reservation System API
+  title: Financial technologies Lab Reservation System API
   description: |
-    Authentication and User Management API for the Computer Lab Reservation System.
+    API for the Computer Lab Reservation System.
     
-    ## Features
+    ## Features as of now
     - User registration with validation
     - Login/logout with session management
     - Profile management (view, update email, username, phone)
@@ -20,8 +20,8 @@ info:
 servers:
   - url: http://localhost:5000/api
     description: Development Server
-  - url: https://your-production-domain.com/api
-    description: Production Server
+  - url: http://localhost:8000
+    description: Frontend Server
 
 components:
   schemas:
@@ -38,7 +38,7 @@ components:
           minLength: 3
           maxLength: 20
           pattern: "^[a-zA-Z0-9_\\u0600-\\u06FF\\s]{3,20}$"
-          example: محمد_رضا
+          example: john_doe
           description: "Persian/English letters, numbers, underscore, spaces allowed"
         password:
           type: string
@@ -65,14 +65,6 @@ components:
             - PhD student
           example: Master's student
           description: "User's association type"
-        dotin_relation:
-          type: string
-          enum:
-            - Employee
-            - Data science challenges
-            - Project with Dotin
-          example: Employee
-          description: "Required if association is 'Dotin'"
 
     RegisterResponse:
       type: object
@@ -90,6 +82,7 @@ components:
               type: string
             association:
               type: string
+              nullable: true
             email:
               type: string
               nullable: true
@@ -105,7 +98,7 @@ components:
       properties:
         username:
           type: string
-          example: محمد_رضا
+          example: john_doe
         password:
           type: string
           format: password
@@ -126,8 +119,6 @@ components:
             username:
               type: string
             association:
-              type: string
-            dotin_relation:
               type: string
               nullable: true
             email:
@@ -165,9 +156,6 @@ components:
         association:
           type: string
           nullable: true
-        dotin_relation:
-          type: string
-          nullable: true
 
     UpdateEmailRequest:
       type: object
@@ -188,8 +176,8 @@ components:
           type: string
           minLength: 3
           maxLength: 20
+          pattern: "^[a-zA-Z0-9_\\u0600-\\u06FF\\s]{3,20}$"
           example: new_username
-          description: "Persian/English letters, numbers, underscore, spaces allowed"
 
     UpdatePhoneRequest:
       type: object
@@ -220,12 +208,13 @@ components:
           type: string
         email:
           type: string
+          nullable: true
         phone:
           type: string
+          nullable: true
         association:
           type: string
-        dotin_relation:
-          type: string
+          nullable: true
 
     ErrorResponse:
       type: object
@@ -252,7 +241,6 @@ paths:
       description: |
         Creates a new user account.
         - Either email OR phone is required
-        - If association is 'Dotin', dotin_relation is required
         - Username must be 3-20 chars, Persian/English letters, numbers, underscore, spaces
         - Password must be at least 8 chars with uppercase, lowercase, and number
       operationId: registerUser
@@ -265,21 +253,20 @@ paths:
             schema:
               $ref: '#/components/schemas/RegisterRequest'
             examples:
-              persian_username:
-                summary: Persian username with email
+              with_email:
+                summary: Registration with email
                 value:
-                  username: محمد_رضا
+                  username: john_doe
                   password: SecurePass123
-                  email: mohammad@example.com
+                  email: john@example.com
                   association: Master's student
-              dotin_user:
-                summary: Dotin user with phone
+              with_phone:
+                summary: Registeration with phone
                 value:
-                  username: ahmad_reza
+                  username: john_doe
                   password: SecurePass123
-                  phone: "09123456789"
-                  association: Dotin
-                  dotin_relation: Employee
+                  phone: "09308749649"
+                  association: PhD student
       responses:
         '201':
           description: User successfully created
@@ -293,38 +280,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                missing_username:
-                  value:
-                    success: false
-                    message: username required
-                invalid_username:
-                  value:
-                    success: false
-                    message: Username must be at least 3 characters
-                weak_password:
-                  value:
-                    success: false
-                    message: Password must contain at least one uppercase letter
-                missing_dotin_relation:
-                  value:
-                    success: false
-                    message: Relationship with Dotin must be specified
         '409':
           description: Username, email, or phone already exists
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                username_exists:
-                  value:
-                    success: false
-                    message: Username already exists
-                email_exists:
-                  value:
-                    success: false
-                    message: Email already exists
         '500':
           description: Internal server error
 
@@ -341,9 +302,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/LoginRequest'
-            example:
-              username: محمد_رضا
-              password: SecurePass123
       responses:
         '200':
           description: Login successful - session cookie set
@@ -362,18 +320,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                success: false
-                message: Username and password required
         '401':
           description: Invalid credentials
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                success: false
-                message: Invalid username or password
 
   /auth/logout:
     post:
@@ -395,40 +347,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                success: false
-                message: You are not logged in
 
   # ==================== USER ENDPOINTS ====================
 
   /user/is_logged_in:
-   get:
-    summary: Check if user is logged in
-    description: Returns authentication status without requiring session cookie
-    operationId: isLoggedIn
-    tags:
-      - User
-    responses:
-      '200':
-        description: Authentication status
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                success:
-                  type: boolean
-                authenticated:
-                  type: boolean
-            examples:
-              logged_in:
-                value:
-                  success: true
-                  authenticated: true
-              not_logged_in:
-                value:
-                  success: true
-                  authenticated: false
+    get:
+      summary: Check if user is logged in
+      description: Returns authentication status without requiring session cookie
+      operationId: isLoggedIn
+      tags:
+        - User
+      responses:
+        '200':
+          description: Authentication status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  authenticated:
+                    type: boolean
+
   /user/id:
     get:
       summary: Get current user ID
@@ -453,80 +394,61 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
   /user/session_info:
-   get:
-    summary: Get full session information
-    description: Returns all session data for the current user
-    operationId: getSessionInfo
-    tags:
-      - User
-    security:
-      - sessionAuth: []
-    responses:
-      '200':
-        description: Session data retrieved
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                logged_in:
-                  type: boolean
-                user_id:
-                  type: integer
-                username:
-                  type: string
-                email:
-                  type: string
-                  nullable: true
-                phone:
-                  type: string
-                  nullable: true
-                association:
-                  type: string
-                  nullable: true
-                dotin_relation:
-                  type: string
-                  nullable: true
-      '401':
-        description: No active session
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: Get full session information
+      description: Returns all session data for the current user
+      operationId: getSessionInfo
+      tags:
+        - User
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Session data retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionInfoResponse'
+        '401':
+          description: No active session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /user/profile:
-   get:
-    summary: Get current user profile
-    description: Returns detailed profile information for the logged in user
-    operationId: getUserProfile
-    tags:
-      - User
-    security:
-      - sessionAuth: []
-    responses:
-      '200':
-        description: User profile retrieved
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                success:
-                  type: boolean
-                data:
-                  $ref: '#/components/schemas/UserProfile'
-      '401':
-        description: Not logged in
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ErrorResponse'
-      '404':
-        description: User not found
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: Get current user profile
+      description: Returns detailed profile information for the logged in user
+      operationId: getUserProfile
+      tags:
+        - User
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: User profile retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /user/profile/{id}:
     get:
@@ -672,7 +594,3 @@ paths:
           description: Not logged in
         '409':
           description: Phone number already exists
-
-# Global security (optional - comments out because is_logged_in doesn't need auth)
-# security:
-#   - sessionAuth: []

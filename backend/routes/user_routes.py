@@ -1,6 +1,6 @@
 from flask import Blueprint, session, jsonify, request
 from backend.models import User
-from database import get_db_session
+from database import get_db_connection
 from backend.services.user_services import UserServices
 from email_validator import validate_email
 
@@ -12,6 +12,24 @@ def is_logged_in():
         return jsonify({'success' : True, 'authenticated' : False}), 200
     
     return jsonify({'success' : True, 'authenticated' : True}), 200
+
+@user_bp.route('/is_dotin_user', methods=["GET"])
+def is_dotin_user():
+    if not session.get('logged_in'):
+        return jsonify({'success' : False,
+                        'message' : "User must be logged in to check association"})
+    
+    user = UserServices.get_user_byID(session.get('user_id'))
+    return user.isDotinAssociate()
+
+@user_bp.route('/id_dotin_user/<id>', methods=["GET"])
+def is_dotin_user_by_id(id):
+    user = UserServices.get_user_byID(id)
+    if not user:
+        return jsonify({'success' : False,
+                        'message' : "user_id does not exist"})
+    
+    return user.isDotinAssociate()
 
 @user_bp.route('/id', methods=['GET'])
 def get_id():
@@ -36,8 +54,7 @@ def get_session_info():
         'username': session.get('username'),
         'email': session.get('email'),
         'phone': session.get('phone'),
-        'association': session.get('association'),
-        'dotin_relation': session.get('dotin_relation')}
+        'association': session.get('association')}
     
     return jsonify(session_data)
 
@@ -63,8 +80,7 @@ def get_user_profile():
                         'id' : user.id,
                         'email' : user.email,
                         'phone' : user.phone,
-                        'association' : user.association,
-                        'dotin_relation' : user.dotin_relation}}), 200
+                        'association' : user.association}}), 200
 
 @user_bp.route('/profile/<int:id>', methods=['GET'])
 def get_profile_by_id(id):
@@ -81,8 +97,7 @@ def get_profile_by_id(id):
                         'id' : user.id,
                         'email' : user.email,
                         'phone' : user.phone,
-                        'association' : user.association,
-                        'dotin_relation' : user.dotin_relation}}), 200
+                        'association' : user.association}}), 200
 
 @user_bp.route('/updateEmail', methods=['PUT'])
 def update_email():
@@ -107,7 +122,7 @@ def update_email():
                         'message' : "This email is connected to an account already."}), 400
     
     # update the email
-    conn = get_db_session()
+    conn = get_db_connection()
     userID = session.get('user_id')
     user = UserServices.get_user_byID(userID)
     user = conn.merge(user)
@@ -144,7 +159,7 @@ def update_username() :
     
     # Update the username
     user = UserServices.get_user_byID(session.get('user_id'))
-    conn = get_db_session()
+    conn = get_db_connection()
     user = conn.merge(user)
     user.username = newUsername
     session['username'] = newUsername
@@ -179,7 +194,7 @@ def update_phone():
         return jsonify({'success': False, 'message': "This phone number is connected to an account already"}), 409
     
     # Update the phone number
-    conn = get_db_session()
+    conn = get_db_connection()
     try:
         userID = session.get('user_id')
         user = UserServices.get_user_byID(userID)

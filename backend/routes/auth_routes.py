@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, session;
 from backend.services.user_services import UserServices
-from email_validator import validate_email
+
 
 # Create the blueprint that will be registered in app.py
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
@@ -8,17 +8,24 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 # ====<ROUTES>====
 
 # the register api, This is what should be called when somebody needs to register a new account
-@auth_bp.route('/register', methods=['POST'])
+@auth_bp.route('/register/', methods=['POST'])
 def register():
-    data = request.get_json()
+    data : dict = request.get_json()
 
     # get information
-    username = data.get('username')
-    password = data.get('password')
-    email = data.get('email')
-    phone = data.get('phone')
-    association = data.get('association')
-    dotinRelation = data.get('dotin_relation')
+    username : str = data.get('username')
+    password : str = data.get('password')
+    email : str = data.get('email')
+    phone : str = data.get('phone')
+    association : str = data.get('association')
+
+    # Make email lowercase
+    if email:
+        email = email.lower().strip()
+    
+    # Make the username lowercase
+    if username:
+        username = username.lower().strip()
 
     # check the fields to make sure they are actually entered by the user
     if not username:
@@ -30,10 +37,6 @@ def register():
     if not email and not phone:
         return jsonify({'success' : False, 'message' : 'email or phone number is needed'}), 400
     
-    if association and association == "Dotin" and not dotinRelation:
-        return jsonify({'success' : False,
-                        'message' : "Relationship with Dotin must be specified"}), 400
-    
     # Make sure the username follows the rules
     validUsername, msg = UserServices.validate_username(username)
     if not validUsername:
@@ -41,11 +44,12 @@ def register():
     
     # In the case that the user has decided to provide an email address make sure to validate it
     if email:
-        valid = validate_email(email)
+        valid = UserServices.validate_email(email)
         if not valid:
             return jsonify({'success' : False,
                             'message' : "Email is not valid. Please enter a valid structure"}), 400
-        
+    
+    # In the case that the user has provided a phone number make sure it is formatted right.
     if phone:
         valid, phone_msg = UserServices.validate_phone_number(phone)
         if not valid:
@@ -54,18 +58,14 @@ def register():
 
 
     # Check the password to make sure it's secure enough
-    is_valid, msg = UserServices.validate_password(password)
-    if not is_valid:
+    pass_is_valid, msg = UserServices.validate_password(password)
+    if not pass_is_valid:
         return jsonify({'success' : False, 'message' : msg}), 400
     
-    if UserServices.username_exists(username):
-        return jsonify({'success' : False, 'message' : "Username already exists"}), 409
-    
-    if email and UserServices.email_exists(email):
-        return jsonify({'success' : False, 'message' : "Email already exists"}), 409
-    
-    if phone and UserServices.phone_exists(phone):
-        return jsonify({'success' : False, 'message' : "Phone number already exists"}), 409
+    valid, msg = UserServices.username_email_phone_exists(username, email, phone)
+    if not valid :
+        return jsonify({'success' : False,
+                        'message' : msg}), 409
     
     try:
         newUser = UserServices.create_user(
@@ -74,7 +74,6 @@ def register():
             email=email,
             phone=phone,
             association=association,
-            dotin_relation=dotinRelation
         )
 
         return jsonify({
@@ -96,11 +95,14 @@ def register():
 @auth_bp.route('/login', methods=['POST'])
 def login():
     
-    data = request.get_json()
+    data : dict= request.get_json()
     
     # Validate input exists
-    username = data.get('username')
-    password = data.get('password')
+    username : str = data.get('username')
+    password : str = data.get('password')
+
+    if username:
+        username = username.lower().strip()
     
     if not username or not password:
         return jsonify({'success': False, 'message': 'Username and password required'}), 400
@@ -117,7 +119,6 @@ def login():
     session['email'] = user.email
     session['phone'] = user.phone
     session['association'] = user.association
-    session['dotin_relation'] = user.dotin_relation
     
     # Update last login
     UserServices.update_last_login(user.id)
@@ -129,7 +130,6 @@ def login():
         'data': {
             'username': user.username,
             'association': user.association,
-            'dotin_relation' : user.dotin_relation,
             'email' : user.email,
             'phone' : user.phone
         }

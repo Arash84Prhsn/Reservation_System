@@ -1,4 +1,4 @@
-from database import get_db_session
+from database import get_db_connection
 from backend.models.seats import Seat
 from backend.models.reservations import Reservation
 from datetime import datetime, date, time, timedelta
@@ -11,28 +11,28 @@ class SeatServices:
     @staticmethod
     def get_all_seats():
         """Returns all seats in the database"""
-        with get_db_session() as session:
+        with get_db_connection() as session:
             seats = session.query(Seat).all()
         return seats
 
     @staticmethod
     def get_reservable_seats():
         """Returns all seats that can be reserved (excludes manager seat)"""
-        with get_db_session() as session:
+        with get_db_connection() as session:
             seats = session.query(Seat).filter(Seat.is_reservable == True).all()
         return seats
 
     @staticmethod
     def get_seat_by_id(seat_id):
         """Get a specific seat by its ID"""
-        with get_db_session() as session:
+        with get_db_connection() as session:
             seat = session.query(Seat).filter(Seat.id == seat_id).first()
         return seat
 
     @staticmethod
     def get_seats_by_type(seat_type):
         """Get all seats of a specific type (dotin, laptop, optimization, manager)"""
-        with get_db_session() as session:
+        with get_db_connection() as session:
             seats = session.query(Seat).filter(Seat.seat_type == seat_type).all()
         return seats
 
@@ -92,7 +92,7 @@ class SeatServices:
         
         Returns True if available, False if already booked.
         """
-        with get_db_session() as session:
+        with get_db_connection() as session:
             overlapping = session.query(Reservation).filter(
                 and_(
                     Reservation.seat_id == seat_id,
@@ -121,7 +121,7 @@ class SeatServices:
         # Get seats the user is allowed to reserve
         allowed_seats = SeatServices.get_reservable_seats_for_user(user_association, reservation_date)
         
-        with get_db_session() as session:
+        with get_db_connection() as session:
             # Get IDs of seats that are booked for this time slot
             booked_seat_ids = session.query(Reservation.seat_id).filter(
                 and_(
@@ -153,7 +153,7 @@ class SeatServices:
         """
         allowed_seats = SeatServices.get_reservable_seats_for_user(user_association, reservation_date)
         
-        with get_db_session() as session:
+        with get_db_connection() as session:
             # Get all active reservations for this date
             reservations = session.query(Reservation).filter(
                 and_(

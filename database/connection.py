@@ -11,12 +11,12 @@ engine = create_engine(f'sqlite:///{DB_PATH}', echo=False)
 # Create session factory
 SessionLocal = sessionmaker(bind=engine)
 
-def get_db_session():
-    """Get a database session"""
+def get_db_connection():
+    """Get a database connection"""
     return SessionLocal()
 
 def init_db():
     """Create all tables from models (if they don't exist)"""
-    from backend.models import Base
-    Base.metadata.create_all(engine)
+    from backend.models import DeclarativeBase
+    DeclarativeBase.metadata.create_all(engine)
     print("Database initialized from ORM models!")
