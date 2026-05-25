@@ -95,7 +95,7 @@ def register():
 @auth_bp.route('/login', methods=['POST'])
 def login():
     
-    data : dict= request.get_json()
+    data : dict = request.get_json()
     
     # Validate input exists
     username : str = data.get('username')

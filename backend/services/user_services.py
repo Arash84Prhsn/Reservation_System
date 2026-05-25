@@ -1,4 +1,5 @@
 from backend.models import User;
+from flask import session
 from database.connection import get_db_connection;
 from datetime import datetime;
 from sqlalchemy import or_, select
@@ -9,6 +10,14 @@ import bcrypt
 class UserServices:
     """Provides services for the user model, Things such as password hashing, verifying
     passwords, finding user objects by different attributes,..."""
+
+    @staticmethod
+    def is_user_logged_in():
+        """
+        Checks the session to see if anybody is logged in right now
+        """
+
+        return session.get("logged_in") is not None
 
     @staticmethod
     def hash_password(password : str):

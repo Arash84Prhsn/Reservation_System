@@ -1,319 +1,288 @@
 from flask import Blueprint, request, jsonify, session
 from backend.services.reservation_services import ReservationServices
 from backend.services.seat_services import SeatServices
-from datetime import datetime, date, time
+from backend.services.user_services import UserServices
+from datetime import datetime, date, time, timedelta
 
-reservation_bp = Blueprint('reservations', __name__, url_prefix='/api/reservations')
+reservation_bp = Blueprint('reservation', __name__, url_prefix='/api/reservation')
 
-# ==================== HELPER FUNCTIONS ====================
+# =====<GETTING THE SCHEDULES>=====
 
-def login_required():
-    """Check if user is logged in"""
-    if not session.get('logged_in'):
-        return jsonify({'success': False, 'message': 'Authentication required'}), 401
-    return None
+@reservation_bp.route("/get_user_active_reservations", methods=["GET"])
+def get_user_acitve_reservations():
+    if not UserServices.is_user_logged_in():
+        return jsonify({"success" : False,
+                        "message" : "User is not logged in"}), 401
+    
+    
+    user_id = session.get("user_id")
+    d = {}
+    d['reservations'] = ReservationServices.get_user_active_reservations(user_id)
+    d['success'] = True
 
-# ==================== RESERVATION ENDPOINTS ====================
+    return jsonify(d), 200
+    
 
-@reservation_bp.route('/available-weeks', methods=['GET'])
-def get_available_weeks():
-    """
-    Get the weeks that are available for reservations.
-    Frontend uses this to populate date pickers.
-    """
-    # Check authentication
-    auth_error = login_required()
-    if auth_error:
-        return auth_error
-    
-    weeks = ReservationServices.get_available_weeks()
-    
-    return jsonify({
-        'success': True,
-        'data': weeks
-    })
+# Interval style schedules are here
+@reservation_bp.route("/weekly_schedule_intervals", methods=["POST"])
+def weekly_schedule_intervals():
+    data: dict = request.get_json()
 
-@reservation_bp.route('/available-seats', methods=['GET'])
-def get_available_seats():
-    """
-    Get available seats for a specific date and time slot.
-    Query params: date, start_time, end_time (optional - if not provided, returns all seats with availability summary)
-    """
-    auth_error = login_required()
-    if auth_error:
-        return auth_error
+    date_of_week = data.get("date")
+    seat_type = data.get("seat_type")
+    seat_number = data.get("seat_number")
+
+    date_of_week = date.fromisoformat(date_of_week)
+    if not date_of_week:
+        return jsonify({"success" : False,
+                        "message" : "date for the week was not given"}), 400
     
-    user_id = session['user_id']
-    user_association = session.get('association')
+    start_of_week_date = ReservationServices.get_week_start_date(date_of_week)
+
+    results = ReservationServices.get_weekly_schedule_intervals_in_dates(start_of_week_date,
+                                                                         seat_type,
+                                                                         seat_number)
     
-    # Get query parameters
-    reservation_date_str = request.args.get('date')
-    start_time_str = request.args.get('start_time')
-    end_time_str = request.args.get('end_time')
+    results["success"] = True
+    return jsonify(results), 200
+
+@reservation_bp.route("/current_week_schedule_intervals", methods=["POST"])
+def current_week_schedule_intervals():
+    data: dict = request.get_json()
+
+    seat_type = data.get("seat_type")
+    seat_number = data.get("seat_number")
+    date_of_week = date.today()
+
+    if not seat_type:
+        return jsonify({"success" : False,
+                        "message" : "seat_type was not given"}), 400
     
-    if not reservation_date_str:
-        return jsonify({'success': False, 'message': 'Date is required'}), 400
+    if not seat_number:
+        return jsonify({"success" : False,
+                        "message" : "seat_number was not given"}), 400
     
+    start_of_week_date = ReservationServices.get_week_start_date(date_of_week)
+
+    results = ReservationServices.get_weekly_schedule_intervals_in_dates(start_of_week_date,
+                                                                         seat_type,
+                                                                         seat_number)
+    
+    results["success"] = True
+    return jsonify(results)
+
+
+ # Time slot schedules are here:
+@reservation_bp.route('/current_week_schedule_timeslots', methods=["POST"])
+def get_this_week_schedule_timeslots():
+    if not session.get('logged_in') :
+        return jsonify({"success" : False,
+                        "message" : "User is not logged in"}), 401
+    
+    data: dict = request.get_json()
+    seat_type: str = data.get("seat_type")
+    seat_number = data.get("seat_number")
+
+    if not seat_type:
+        return jsonify({"success" : False,
+                        "message" : "seat_type must be specified"}), 400
+
+    seat_type = seat_type.lower().strip()
+
+    if not seat_number:
+        return jsonify({"success" : False,
+                        "message" : "seat_number must be specified"}), 400
+    
+    if not SeatServices.validate_seat_type(seat_type):
+        return jsonify({"success" : False,
+                        "message" : "Invalid seat_type has been given"}), 400
+    
+    d = date.today()
+    schedule = ReservationServices.get_weekly_schedule_timeslots_in_dates(d,seat_type, seat_number)
+    schedule["success"] = True
+    return jsonify(schedule)
+
+@reservation_bp.route('/weekly_schedule_timeslots', methods=["POST"])
+def get_week_schedule_by_date():
+    if not session.get('logged_in') :
+        return jsonify({"success" : False,
+                        "message" : "User is not logged in"}), 401
+    
+    data: dict = request.get_json()
+
+    date_str = data.get("date")
+    seat_type: str = data.get("seat_type")
+    seat_number = data.get("seat_number")
+
+    if not date_str:
+        return jsonify({"success" : False,
+                        "message" : "date must be specified"}), 400
+    
+    if not seat_type:
+        return jsonify({"success" : False,
+                        "message" : "seat_type must be specified"}), 400
+
+    seat_type = seat_type.lower().strip()
+
+    if not seat_number:
+        return jsonify({"success" : False,
+                        "message" : "seat_number must be specified"}), 400
+
+    if seat_type not in ['dotin', 'optimization', 'laptop', 'manager']:
+        return jsonify({"success" : False,
+                        "message" : "Invalid seat_type has been given"}), 400
+
     try:
-        reservation_date = date.fromisoformat(reservation_date_str)
+        d = date.fromisoformat(date_str)
+        schedule = ReservationServices.get_weekly_schedule_timeslots_in_dates(d, seat_type, seat_number)
+        schedule["success"] = True
+        return jsonify(schedule)
+    
     except ValueError:
-        return jsonify({'success': False, 'message': 'Invalid date format. Use YYYY-MM-DD'}), 400
-    
-    # If time slot provided, return available seats for that slot
-    if start_time_str and end_time_str:
-        try:
-            start_time = time.fromisoformat(start_time_str)
-            end_time = time.fromisoformat(end_time_str)
-        except ValueError:
-            return jsonify({'success': False, 'message': 'Invalid time format. Use HH:MM:SS'}), 400
-        
-        # Validate time slot
-        if not ReservationServices.is_8_14_time_interval(start_time, end_time):
-            return jsonify({'success': False, 'message': 'Reservations only allowed between 8:00 and 14:00'}), 400
-        
-        if not ReservationServices.is_valid_duration(start_time, end_time):
-            return jsonify({'success': False, 'message': 'Minimum reservation duration is 15 minutes'}), 400
-        
-        # Get available seats
-        available_seats = SeatServices.get_available_seats_for_time(
-            user_association, reservation_date, start_time, end_time
-        )
-        
         return jsonify({
-            'success': True,
-            'data': {
-                'date': reservation_date_str,
-                'start_time': start_time_str,
-                'end_time': end_time_str,
-                'available_seats': [seat.to_dict() for seat in available_seats]
-            }
-        })
+            'success': False,
+            'message': 'Invalid date format. Please use YYYY-MM-DD'
+        }), 400
     
-    # Otherwise, return seat availability summary for the entire day
-    else:
-        summary = SeatServices.get_seat_availability_summary(user_association, reservation_date)
-        
-        return jsonify({
-            'success': True,
-            'data': {
-                'date': reservation_date_str,
-                'seats': summary
-            }
-        })
+# ========<MAKING RESERVATIONS>========
 
-@reservation_bp.route('/time-slots', methods=['GET'])
-def get_available_time_slots():
-    """
-    Get all available time slots for a specific seat and date.
-    Query params: seat_id, date
-    """
-    auth_error = login_required()
-    if auth_error:
-        return auth_error
-    
-    user_id = session['user_id']
-    user_association = session.get('association')
-    
-    seat_id = request.args.get('seat_id')
-    reservation_date_str = request.args.get('date')
-    
-    if not seat_id or not reservation_date_str:
-        return jsonify({'success': False, 'message': 'seat_id and date are required'}), 400
-    
-    try:
-        reservation_date = date.fromisoformat(reservation_date_str)
-        seat_id = int(seat_id)
-    except ValueError:
-        return jsonify({'success': False, 'message': 'Invalid date or seat_id format'}), 400
-    
-    # Check if user can book this seat
-    can_book, error_msg = ReservationServices.can_user_book_seat(user_id, seat_id, reservation_date)
-    if not can_book:
-        return jsonify({'success': False, 'message': error_msg}), 403
-    
-    # Generate all possible time slots (15-minute increments from 8:00 to 14:00)
-    all_slots = []
-    slot_start = time(8, 0)
-    slot_end = time(14, 0)
-    
-    current = slot_start
-    while current < slot_end:
-        # Calculate end time (current + 15 minutes)
-        current_min = current.hour * 60 + current.minute
-        end_min = current_min + 15
-        end = time(end_min // 60, end_min % 60)
-        
-        # Check if this seat is available for this slot
-        is_available = SeatServices.is_seat_available(seat_id, reservation_date, current, end)
-        
-        all_slots.append({
-            'start_time': current.strftime('%H:%M:%S'),
-            'end_time': end.strftime('%H:%M:%S'),
-            'is_available': is_available
-        })
-        
-        # Move to next 15-minute increment
-        current_min += 15
-        current = time(current_min // 60, current_min % 60)
-    
-    return jsonify({
-        'success': True,
-        'data': {
-            'seat_id': seat_id,
-            'date': reservation_date_str,
-            'slots': all_slots
-        }
-    })
+@reservation_bp.route("/is_next_week_open", methods=["GET"])
+def is_next_week_open():
+    return jsonify({"success" : True,
+                    "next_week_open" : ReservationServices.is_it_past_tuesday_12()}), 200
 
-@reservation_bp.route('/', methods=['GET'])
-def get_my_reservations():
-    """Get all reservations for the current user"""
-    auth_error = login_required()
-    if auth_error:
-        return auth_error
-    
-    user_id = session['user_id']
-    
-    # Get query params for filtering
-    status = request.args.get('status', 'active')
-    reservation_date_str = request.args.get('date')
-    
-    if reservation_date_str:
-        try:
-            reservation_date = date.fromisoformat(reservation_date_str)
-            reservations = ReservationServices.get_user_reservations_by_date(user_id, reservation_date)
-        except ValueError:
-            return jsonify({'success': False, 'message': 'Invalid date format'}), 400
-    else:
-        reservations = ReservationServices.get_user_reservations(user_id, status)
-    
-    return jsonify({
-        'success': True,
-        'data': {
-            'count': len(reservations),
-            'reservations': [r.to_dict() for r in reservations]
-        }
-    })
+@reservation_bp.route("/is_user_dotin", methods=["GET"])
+def is_user_dotin():
+    if not UserServices.is_user_logged_in():
+        return jsonify({"success" : False,
+                        "message" : "User is not logged in"}), 401
+        
+    user_id = session.get("user_id")
+    user = UserServices.get_user_byID(user_id)
 
-@reservation_bp.route('/stats', methods=['GET'])
-def get_reservation_stats():
-    """Get reservation statistics for the current user"""
-    auth_error = login_required()
-    if auth_error:
-        return auth_error
-    
-    user_id = session['user_id']
-    stats = ReservationServices.get_user_reservation_stats(user_id)
-    
-    return jsonify({
-        'success': True,
-        'data': stats
-    })
+    return user.isDotinAssociate()
 
-@reservation_bp.route('/', methods=['POST'])
-def create_reservation():
-    """Create a new reservation"""
-    auth_error = login_required()
-    if auth_error:
-        return auth_error
+@reservation_bp.route("/open_dates_for_user", methods=["GET"])
+def open_dates_for_user():
+    if not UserServices.is_user_logged_in():
+        return jsonify({"success" : False,
+                        "message" : "User is not logged in"}), 401
+    
+    data: dict = request.get_json()
+    seat_type: str = data.get("seat_type")
+    if not seat_type :
+        return jsonify({"success" : False,
+                        "message" : "seat_type was not given"}), 400
+    
+    seat_type = seat_type.lower().strip()
+    user_id = session.get("user_id")
+    if not SeatServices.validate_seat_type(seat_type):
+        return jsonify({"success" : False,
+                        "message" : "invalid seat_type was given"}), 400
+
+    list_of_dates = ReservationServices.get_possible_reservation_dates(user_id, seat_type)
+    d = {'success' : True, "dates" : list_of_dates}
+    return jsonify(d), 200
+
+@reservation_bp.route("/has_user_hit_reservation_limit", methods=["GET"])
+def has_user_hit_reservation_limit():
+    if not UserServices.is_user_logged_in():
+        return jsonify({"suceess" : False,
+                        "message" : "User is not logged in"}), 401
     
     data = request.get_json()
-    user_id = session['user_id']
+    user_id = session.get("user_id")
+    reservation_date = data.get("reservation_date")
+
+    if not reservation_date:
+        return jsonify({"success" : False,
+                        "message" : "date must be specified"}), 400
     
-    # Extract fields
-    seat_id = data.get('seat_id')
-    reservation_date = data.get('reservation_date')
-    start_time = data.get('start_time')
-    end_time = data.get('end_time')
+    reservation_date = date.fromisoformat(reservation_date)
+
+    d = {"success" : True,
+         "has_hit_limit" : ReservationServices.has_hit_daily_reservation_limit(user_id, reservation_date)}
     
-    # Validate required fields
-    if not all([seat_id, reservation_date, start_time, end_time]):
-        return jsonify({'success': False, 'message': 'seat_id, reservation_date, start_time, and end_time are required'}), 400
+    return jsonify(d), 200
+
+
+@reservation_bp.route("/make_reservation", methods=["POST"])
+def make_reservation():
+    if not session.get("logged_in"):
+        return jsonify({"success" : False,
+                        "message" : "User is not logged in"}), 401
     
-    try:
-        seat_id = int(seat_id)
-    except ValueError:
-        return jsonify({'success': False, 'message': 'Invalid seat_id format'}), 400
+    data: dict = request.get_json()
+    reservation_date = data.get("reservation_date")
+    reservation_type: str = data.get("reservation_type")
+    start_time = data.get("start_time")
+    end_time = data.get("end_time")
+    seat_type: str = data.get("seat_type")
+    seat_number = data.get("seat_number")
+    user_id = session.get("user_id")
+
+    # Make sure the values are not null and have actually been taken from the request
+    exists, msg = ReservationServices.check_fields_existence(reservation_type, reservation_date,
+                                                             start_time, end_time)
+    if not exists:
+        return jsonify({"success" : False,
+                        "message" : msg}), 400
     
-    # Create reservation
-    success, message, reservation = ReservationServices.create_reservation(
-        user_id, seat_id, reservation_date, start_time, end_time
+    # Make sure the give strings are lowerd so no db issues occur
+    reservation_type = reservation_type.lower().strip()    
+    seat_type = seat_type.lower().strip()
+
+    # Get the proper time and date objects
+    reservation_date = date.fromisoformat(reservation_date)
+    start_time = time.fromisoformat(start_time)
+    end_time = time.fromisoformat(end_time)
+    
+    # Make sure the give time interval is valid and follows our rules
+    valid, msg = ReservationServices.is_valid_reservation_time(start_time, end_time)
+    if not valid:
+        return jsonify({"success" : False,
+                        "message" : msg}), 400
+    
+    if not SeatServices.validate_seat_type(seat_type):
+        return jsonify({"success" : False,
+                        "message" : "The given seat type is invalid"}), 400
+    
+    # Make sure the given date is even in the list of possible reservations
+    possible = ReservationServices.is_date_possibly_reservable(reservation_date, user_id, seat_type)
+    if not possible:
+        return jsonify({"success" : False,
+                        "message" : "The given date is not accessible for reservations"}), 400
+    
+    # Make sure the reservation_type is valid
+    is_reservation_type_valid = ReservationServices.is_reservation_type_valid(reservation_type)
+    if not is_reservation_type_valid:
+        return jsonify({"success" : False,
+                        "message" : "The given reservation_type is not valid"}), 400
+    
+    
+    # Make sure the seat_number is in the correct range for the corresponding type
+    is_seat_number_valid = SeatServices.is_seat_number_valid(seat_type, seat_number)
+    if not is_seat_number_valid:
+        return jsonify({"success" : False,
+                        "message" : "The given seat_number is out of range"}), 400
+        
+    status = ReservationServices.check_reservation_for_conflicts(
+        reservation_date,
+        start_time,
+        end_time,
+        reservation_type,
+        seat_type,
+        seat_number
     )
-    
-    if success:
-        return jsonify({
-            'success': True,
-            'message': message,
-            'data': reservation.to_dict()
-        }), 201
-    else:
-        return jsonify({'success': False, 'message': message}), 400
 
-@reservation_bp.route('/<int:reservation_id>', methods=['DELETE'])
-def cancel_reservation(reservation_id):
-    """Cancel a reservation"""
-    auth_error = login_required()
-    if auth_error:
-        return auth_error
+    if not status.get("success"):
+        return jsonify(status), 400
     
-    user_id = session['user_id']
-    
-    success, message = ReservationServices.cancel_reservation(reservation_id, user_id)
-    
-    if success:
-        return jsonify({'success': True, 'message': message})
-    else:
-        return jsonify({'success': False, 'message': message}), 400
+    status["reservation_date"] = {"start_time" : start_time.isoformat(),
+                                  "end_time" : end_time.isoformat(),
+                                  "reservation_type" : reservation_type,
+                                  "reservation_date" : reservation_date.isoformat(),
+                                  "seat_type" : seat_type,
+                                  "seat_number" : seat_number}
 
-@reservation_bp.route('/<int:reservation_id>', methods=['GET'])
-def get_reservation(reservation_id):
-    """Get a specific reservation by ID"""
-    auth_error = login_required()
-    if auth_error:
-        return auth_error
-    
-    user_id = session['user_id']
-    reservation = ReservationServices.get_reservation_by_id(reservation_id)
-    
-    if not reservation:
-        return jsonify({'success': False, 'message': 'Reservation not found'}), 404
-    
-    # Check if reservation belongs to user
-    if reservation.user_id != user_id:
-        return jsonify({'success': False, 'message': 'Access denied'}), 403
-    
-    return jsonify({
-        'success': True,
-        'data': reservation.to_dict()
-    })
-
-@reservation_bp.route('/daily-schedule', methods=['GET'])
-def get_daily_schedule():
-    """
-    Get all reservations for a specific date (for admin/debug).
-    Query param: date
-    """
-    auth_error = login_required()
-    if auth_error:
-        return auth_error
-    
-    reservation_date_str = request.args.get('date')
-    
-    if not reservation_date_str:
-        return jsonify({'success': False, 'message': 'Date is required'}), 400
-    
-    try:
-        reservation_date = date.fromisoformat(reservation_date_str)
-    except ValueError:
-        return jsonify({'success': False, 'message': 'Invalid date format'}), 400
-    
-    reservations = ReservationServices.get_daily_schedule(reservation_date)
-    
-    return jsonify({
-        'success': True,
-        'data': {
-            'date': reservation_date_str,
-            'total_reservations': len(reservations),
-            'reservations': [r.to_dict() for r in reservations]
-        }
-    })
+    return jsonify(status), 200;

@@ -27,6 +27,12 @@ class Reservation(DeclarativeBase):
         CheckConstraint("time(start_time) >= '08:00' AND time(end_time) <= '14:00'", name='check_time_window'),
     )
     
+    def is_computer_only(self):
+        computer_only_types = ["only running programs",
+                                "dorsan desk"]
+        
+        return self.reservation_type in computer_only_types
+
     def to_dict(self):
         """Convert reservation to dictionary"""
         return {

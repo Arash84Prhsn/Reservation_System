@@ -1,12 +1,14 @@
 from database import get_db_connection
 from backend.models.seats import Seat
 from backend.models.reservations import Reservation
+from backend.models.events import Event
+from backend.models.users import User
 from datetime import datetime, date, time, timedelta
-from sqlalchemy import and_
+from sqlalchemy import select
 
 class SeatServices:
 
-    # ============ BASIC QUERIES ============
+    # ============<BASIC QUERIES>============
     
     @staticmethod
     def get_all_seats():
@@ -28,6 +30,23 @@ class SeatServices:
         with get_db_connection() as session:
             seat = session.query(Seat).filter(Seat.id == seat_id).first()
         return seat
+    
+    @staticmethod
+    def get_seat_id_by_type_number(seat_type, seat_number):
+        """
+        Returns the id of the specific seat
+        
+        :param seat_type: The seat_type
+        :param seat_number: The seat_id
+        """
+
+        with get_db_connection() as conn:
+            stmnt = select(Seat.id).where(Seat.seat_type == seat_type,
+                                          Seat.seat_number == seat_number)
+            
+            id = conn.execute(stmnt).scalar()
+            return id
+
 
     @staticmethod
     def get_seats_by_type(seat_type):
@@ -36,176 +55,82 @@ class SeatServices:
             seats = session.query(Seat).filter(Seat.seat_type == seat_type).all()
         return seats
 
-    # ============ DOTIN RESTRICTION LOGIC ============
+    # ============<VALIDATION>============
+
+    @staticmethod
+    def validate_seat_type(seat_type: str):
+        VALID_SEAT_TYPES = ['dotin, optimization', 'laptop', 'manager']
+        seat_type = seat_type.lower().strip()
+        return seat_type in VALID_SEAT_TYPES
     
     @staticmethod
-    def can_reserve_dotin_seat(user_association, reservation_date):
-        """
-        Check if a user can reserve a dotin seat.
+    def is_seat_number_valid(seat_type, seat_number):
+        if seat_type == 'dotin':
+            return 1 <= seat_number <=4
+        if seat_type == 'optimization':
+            return 1 <= seat_number <=2
+        if seat_type == 'laptop':
+            return 1 <= seat_number <=3
+        if seat_type == 'manager':
+            return seat_number == 1
         
-        Rules:
-        - PhD, Master's, and Dotin users can ALWAYS reserve dotin seats
-        - Other users can ONLY reserve dotin seats if the reservation is within the next 2 days
-        
-        :param user_association: User's association (Student, PhD student, Dotin, etc.)
-        :param reservation_date: Date of the reservation
-        :return: Boolean (True if allowed, False if not)
-        """
-        # Always allowed associations
-        always_allowed = ['PhD student', "Master's student", 'Dotin']
-        
-        if user_association in always_allowed:
-            return True
-        
-        # For other associations, check if within next 2 days
-        today = date.today()
-        days_ahead = (reservation_date - today).days
-        
-        # Next 2 days means tomorrow (1) or day after tomorrow (2)
-        return 1 <= days_ahead <= 2
+    
+    # ============<SCHEDULES>============
 
     @staticmethod
-    def get_reservable_seats_for_user(user_association, reservation_date):
+    def get_seat_schedule_for_day(seat_type, seat_number, date_of_day):
         """
-        Returns all seats that a specific user can reserve on a given date.
-        Filters out dotin seats if the user isn't allowed.
+        Retruns a dict of two keys, "reservations" & "events". the value for which is a 
+        list of dicts that contain information for the reservations or the events respectively.
         
-        :param user_association: User's association
-        :param reservation_date: Date of the reservation
-        :return: List of Seat objects the user can reserve
+        :param seat_type: The seat type
+        :param seat_number: The seat Number
+        :param date_of_day: The date in question
         """
-        all_reservable = SeatServices.get_reservable_seats()
-        
-        if SeatServices.can_reserve_dotin_seat(user_association, reservation_date):
-            # User can reserve all seats including dotin
-            return all_reservable
-        else:
-            # User cannot reserve dotin seats
-            return [seat for seat in all_reservable if seat.seat_type != 'dotin']
 
-    # ============ AVAILABILITY CHECKS ============
+        results = {"events" : [], "reservations" : []}
 
-    @staticmethod
-    def is_seat_available(seat_id, reservation_date, start_time, end_time):
-        """
-        Check if a specific seat is available for a given time slot.
-        
-        Returns True if available, False if already booked.
-        """
-        with get_db_connection() as session:
-            overlapping = session.query(Reservation).filter(
-                and_(
-                    Reservation.seat_id == seat_id,
-                    Reservation.reservation_date == reservation_date,
-                    Reservation.status == 'active',
-                    Reservation.start_time < end_time,
-                    Reservation.end_time > start_time
-                )
-            ).first()
+        seat_id = SeatServices.get_seat_id_by_type_number(seat_type, seat_number)
+
+        with get_db_connection() as conn:
+
+            # Get the list of events
+            stmnt = select(Event.start_time, Event.end_time).where(Event.date == date_of_day,
+                                                                   Event.status == "active")
             
-            return overlapping is None
+            events_of_day = conn.execute(stmnt).all()
 
-    @staticmethod
-    def get_available_seats_for_time(user_association, reservation_date, start_time, end_time):
-        """
-        Returns all seats that are:
-        1. Reservable by the user (based on dotin restrictions)
-        2. Free for the given time slot
-        
-        :param user_association: User's association
-        :param reservation_date: Date of the reservation
-        :param start_time: Start time of the reservation
-        :param end_time: End time of the reservation
-        :return: List of available Seat objects
-        """
-        # Get seats the user is allowed to reserve
-        allowed_seats = SeatServices.get_reservable_seats_for_user(user_association, reservation_date)
-        
-        with get_db_connection() as session:
-            # Get IDs of seats that are booked for this time slot
-            booked_seat_ids = session.query(Reservation.seat_id).filter(
-                and_(
-                    Reservation.reservation_date == reservation_date,
-                    Reservation.status == 'active',
-                    Reservation.start_time < end_time,
-                    Reservation.end_time > start_time
-                )
-            ).all()
+            for row in events_of_day:
+                start_time = row["start_time"].isoformat()
+                end_time = row["end_time"].isoformat()
+
+                results["events"].append({"start_time" : start_time,
+                                          "end_time" : end_time})
             
-            booked_ids = [row[0] for row in booked_seat_ids]
-        
-        # Filter available seats from allowed seats
-        available = [seat for seat in allowed_seats if seat.id not in booked_ids]
-        
-        return available
-
-    # ============ SEAT AVAILABILITY SUMMARY ============
-
-    @staticmethod
-    def get_seat_availability_summary(user_association, reservation_date):
-        """
-        Returns a summary of which seats are available for the entire day.
-        Useful for frontend to display seat map.
-        
-        :param user_association: User's association
-        :param reservation_date: Date to check
-        :return: List of dicts with seat info and availability
-        """
-        allowed_seats = SeatServices.get_reservable_seats_for_user(user_association, reservation_date)
-        
-        with get_db_connection() as session:
-            # Get all active reservations for this date
-            reservations = session.query(Reservation).filter(
-                and_(
-                    Reservation.reservation_date == reservation_date,
-                    Reservation.status == 'active'
-                )
-            ).all()
+            stmnt = select(Reservation.start_time, Reservation.end_time,
+                           User.username, Reservation.reservation_type).join(
+                             User, Reservation.user_id == User.id  
+                           ).where(
+                               Reservation.user_id == User.id,
+                               Reservation.seat_id == seat_id,
+                               Reservation.status == "active",
+                               Reservation.reservation_date == date_of_day
+                           )
             
-            # Group reservations by seat_id
-            booked_counts = {}
-            for r in reservations:
-                booked_counts[r.seat_id] = booked_counts.get(r.seat_id, 0) + 1
-        
-        summary = []
-        for seat in allowed_seats:
-            summary.append({
-                'seat_id': seat.id,
-                'seat_type': seat.seat_type,
-                'is_reservable': seat.is_reservable,
-                'is_available': seat.id not in booked_counts,
-                'reservation_count': booked_counts.get(seat.id, 0)
-            })
-        
-        return summary
+            reservations_of_day = conn.execute(stmnt).all()
 
-    # ============ VALIDATION ============
+            for row in reservations_of_day:
+                username = row["username"]
+                reservation_type = row["reservation_type"]
+                start_time = row["start_time"].isoformat()
+                end_time = row["end_time"].isoformat()
 
-    @staticmethod
-    def seat_exists(seat_id):
-        """Check if a seat exists"""
-        seat = SeatServices.get_seat_by_id(seat_id)
-        return seat is not None
+                results["reservations"].append({"start_time" : start_time,
+                                                "end_time" : end_time,
+                                                "reserved_by" : username,
+                                                "reservation_type" : reservation_type})
 
-    @staticmethod
-    def is_reservable_seat(seat_id):
-        """Check if a seat can be reserved (not manager seat)"""
-        seat = SeatServices.get_seat_by_id(seat_id)
-        return seat is not None and seat.is_reservable
+            return results
+                
+            
 
-    @staticmethod
-    def get_seat_type(seat_id):
-        """Get the type of a seat"""
-        seat = SeatServices.get_seat_by_id(seat_id)
-        return seat.seat_type if seat else None
-
-    # ============ SEAT TYPE COUNTS ============
-
-    @staticmethod
-    def get_seat_counts_by_type():
-        """Returns counts of seats by type"""
-        seats = SeatServices.get_all_seats()
-        counts = {}
-        for seat in seats:
-            counts[seat.seat_type] = counts.get(seat.seat_type, 0) + 1
-        return counts
