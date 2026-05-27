@@ -437,7 +437,7 @@ class ReservationServices:
                 Reservation.start_time,
                 Reservation.end_time,
                 Reservation.reservation_type,
-                User.username.label('reserved_by')
+                User.id.label('reserved_by')
             ).where(
                 Reservation.user_id == User.id,
                 Reservation.seat_id == seat_id,  # Filter by specific seat
@@ -452,7 +452,7 @@ class ReservationServices:
                 Event.date,
                 Event.start_time,
                 Event.end_time,
-                User.username.label('reserved_by')
+                User.id.label('reserved_by')
             ).where(
                 Event.user_id == User.id,
                 Event.date.in_([d['date'] for d in dates]),
@@ -471,7 +471,7 @@ class ReservationServices:
                 'start': res.start_time.hour * 60 + res.start_time.minute,
                 'end': res.end_time.hour * 60 + res.end_time.minute,
                 'type': res.reservation_type,
-                'username': res.reserved_by
+                'user_id': res.reserved_by
             })
         
         # Group events by date
@@ -484,7 +484,7 @@ class ReservationServices:
             events_by_date[date_key].append({
                 'start': event.start_time.hour * 60 + event.start_time.minute,
                 'end': event.end_time.hour * 60 + event.end_time.minute,
-                'username': event.reserved_by
+                'user_id': event.reserved_by
             })
         
         # Build the result as a LIST (order guaranteed: Saturday to Wednesday)
@@ -514,7 +514,7 @@ class ReservationServices:
                         'end_time': slot['end_time'],
                         'status': 'event',
                         'reservation_type': None,
-                        'reserved_by': event_match['username']
+                        'reserved_by': event_match['user_id']
                     })
                     continue
                 
@@ -532,7 +532,7 @@ class ReservationServices:
                         'end_time': slot['end_time'],
                         'status': 'reserved',
                         'reservation_type': reservation_match['type'],
-                        'reserved_by': reservation_match['username']
+                        'reserved_by': reservation_match['user_id']
                     })
                 else:
                     day_schedule.append({
@@ -571,7 +571,7 @@ class ReservationServices:
 
     @staticmethod
     def is_reservation_system_only(reservation_type):
-        SYSTEM_ONLY_RESERVATIONS = ["only running programs"]
+        SYSTEM_ONLY_RESERVATIONS = ["only running programs", "dorsan desk"]
 
         return reservation_type in SYSTEM_ONLY_RESERVATIONS
 

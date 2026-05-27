@@ -108,7 +108,7 @@ class SeatServices:
                                           "end_time" : end_time})
             
             stmnt = select(Reservation.start_time, Reservation.end_time,
-                           User.username, Reservation.reservation_type).join(
+                           User.id, Reservation.reservation_type).join(
                              User, Reservation.user_id == User.id  
                            ).where(
                                Reservation.user_id == User.id,
@@ -120,14 +120,14 @@ class SeatServices:
             reservations_of_day = conn.execute(stmnt).all()
 
             for row in reservations_of_day:
-                username = row["username"]
+                id = row["id"]
                 reservation_type = row["reservation_type"]
                 start_time = row["start_time"].isoformat()
                 end_time = row["end_time"].isoformat()
 
                 results["reservations"].append({"start_time" : start_time,
                                                 "end_time" : end_time,
-                                                "reserved_by" : username,
+                                                "reserved_by" : id,
                                                 "reservation_type" : reservation_type})
 
             return results

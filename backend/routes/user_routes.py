@@ -2,7 +2,7 @@ from flask import Blueprint, session, jsonify, request
 from backend.models import User
 from database import get_db_connection
 from backend.services.user_services import UserServices
-from email_validator import validate_email
+
 
 user_bp = Blueprint('user', __name__, url_prefix='/api/user')
 
@@ -112,7 +112,7 @@ def update_email():
     if not newEmail:
         return jsonify({'success' : False,
                         'message' : "Field cannot be empty."}), 400
-    valid = validate_email(newEmail)
+    valid = UserServices.validate_email(newEmail)
     if not valid:
         return jsonify({'success' : False,
                         'message' : "Pleas enter a valid email structure"}), 400

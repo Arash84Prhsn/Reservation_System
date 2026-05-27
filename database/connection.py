@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 import os
 
 # Database path (matches your existing setup)
@@ -10,10 +10,14 @@ engine = create_engine(f'sqlite:///{DB_PATH}', echo=False)
 
 # Create session factory
 SessionLocal = sessionmaker(bind=engine)
+scopedSession = scoped_session(sessionmaker(bind=engine))
 
 def get_db_connection():
     """Get a database connection"""
     return SessionLocal()
+
+def get_db_scoped_session():
+    return scopedSession
 
 def init_db():
     """Create all tables from models (if they don't exist)"""

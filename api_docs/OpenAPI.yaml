@@ -69,6 +69,7 @@ components:
           enum:
             - None
             - Dotin
+            - Data science competitions
             - Related Company
             - Bachelor student
             - Master's student
