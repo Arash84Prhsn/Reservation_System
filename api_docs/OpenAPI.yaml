@@ -12,6 +12,19 @@ info:
     - Weekly schedule viewing for specific seats (intervals and timeslots)
     - Reservation creation with conflict checking
     - User reservation limits and availability checking
+
+    ## Test Accounts (for development)
+    
+    The following test accounts are pre-seeded in the database for development purposes.
+    All passwords are `UserPass123`.
+    
+    | Username | Password | Association | Email | Phone |
+    |----------|----------|-------------|-------|-------|
+    | alireza_ahmadi | UserPass123 | Master's student | alireza@example.com | - |
+    | sara_mohammadi | UserPass123 | PhD student | sara@example.com | - |
+    | mehdi_karimi | UserPass123 | Dotin associate | - | 09123456789 |
+    | narges_hosseini | UserPass123 | Bachelor student | narges@example.com | - |
+    | amir_rezaei | UserPass123 | Related Company | - | 09198765432 |
     
     ## Authentication
     This API uses session-based authentication. After successful login, a session cookie is automatically set.
