@@ -8,7 +8,7 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 # ====<ROUTES>====
 
 # the register api, This is what should be called when somebody needs to register a new account
-@auth_bp.route('/register/', methods=['POST'])
+@auth_bp.route('/register', methods=['POST'])
 def register():
     data : dict = request.get_json()
 
@@ -29,13 +29,13 @@ def register():
 
     # check the fields to make sure they are actually entered by the user
     if not username:
-        return jsonify({'success' : False, 'message' : 'username required'}), 400
+        return jsonify({'success' : False, 'message' : 'نام کاربری را وارد نکردید'}), 400
     
     if not password:
-        return jsonify({'success' : False, 'message' : 'password required'}), 400
+        return jsonify({'success' : False, 'message' : 'پسورد را وارد نکردید'}), 400
     
     if not email and not phone:
-        return jsonify({'success' : False, 'message' : 'email or phone number is needed'}), 400
+        return jsonify({'success' : False, 'message' : 'ایمیل یا شماره تلفن همراه باید وارد شود'}), 400
     
     # Make sure the username follows the rules
     validUsername, msg = UserServices.validate_username(username)

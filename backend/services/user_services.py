@@ -28,10 +28,11 @@ class UserServices:
         return hashedPassword.decode();
 
     @staticmethod
-    def verify_password(password, storedHash):
+    def verify_password(password: str, storedHash: str):
         """Checks a password against the stored hash for the password"""
         return bcrypt.checkpw(password.encode(), storedHash.encode());
 
+    #TODO: add another check to see if the password contians non-english characters
     @staticmethod
     def validate_password(password : str):
         """
@@ -45,13 +46,13 @@ class UserServices:
         """
 
         if len(password) < 8:
-            return False, 'The password must be at least 8 characters long'
+            return False, 'رمز عبور باید حداقل ۸ کاراکتر باشد'
         if not any(c.isupper() for c in password):
-            return False, 'The password must contain at least one upper case character'
+            return False, 'رمز عبور باید حداقل شامل یک حرف بزرگ (انگلیسی) باشد'
         if not any(c.islower() for c in password):
-            return False, 'The password must contain at least one lower case character'
+            return False, 'رمز عبور باید حداقل شامل یک حرف کوچک (انگلیسی) باشد'
         if not any(c.isdigit() for c in password):
-            return False, 'The password must contain at least one number'
+            return False, 'رمز عبور باید حداقل شامل یک عدد باشد'
         
         return True, 'valid'
 
@@ -63,15 +64,15 @@ class UserServices:
         :param username: The username that must be validated
         """
         if not username:
-            return False, "username cannot be nothing"
+            return False, "نام کاریری نمیتواند خالی باشد"
         if len(username) < 3 :
-            return False, "Username must be at least 3 characters long"
+            return False, "نام کاربری باید حداقل 3 کاراکتر باشد"
         if len(username) >= 20 :
-            return False, "Username cannot be longer that 20 characters"
+            return False, "نام کاربری نمیتواند بیش از 20 کاراکتر باشد"
         
         pattern = r'^[a-zA-Z0-9_\s\u0600-\u06FF]{3,20}$'
         if not re.match(pattern, username):
-            return False, "Username can only contain English/Persian letters, numbers, and underscores (no dashes or special characters)"
+            return False, "نام کاربری فقط می‌تواند شامل حروف انگلیسی/فارسی، اعداد و زیرخط (_) باشد"
 
         return True, "Username is valid"
     
