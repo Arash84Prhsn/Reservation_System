@@ -53,12 +53,12 @@ class ReservationServices:
     @staticmethod
     def get_day_of_week_from_date(date_obj : date):
         """
-        Returns the day of the week for the given date as a string. e.g. `"Monday"`
+        Returns the day of the week for the given date as an integer, 0-6 (from Monday to Sunday)
         
         :param date_obj: The date object
         """
         WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-        return WEEKDAYS[date_obj.weekday()]
+        return date_obj.weekday()
     
     @staticmethod
     def get_week_start_date(date_obj: date = None):

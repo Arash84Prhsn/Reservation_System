@@ -50,18 +50,18 @@ def weekly_schedule_intervals():
 def current_week_schedule_intervals():
     data: dict = request.get_json()
 
-    seat_type = data.get("seat_type")
+    seat_type: str = data.get("seat_type")
     seat_number = data.get("seat_number")
     date_of_week = date.today()
 
     if not seat_type:
         return jsonify({"success" : False,
                         "message" : "seat_type was not given"}), 400
-    
     if not seat_number:
         return jsonify({"success" : False,
                         "message" : "seat_number was not given"}), 400
     
+    seat_type = seat_type.lower().strip()
     start_of_week_date = ReservationServices.get_week_start_date(date_of_week)
 
     results = ReservationServices.get_weekly_schedule_intervals_in_dates(start_of_week_date,
