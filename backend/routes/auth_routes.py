@@ -80,6 +80,7 @@ def register():
             'success' : True,
             'message' : 'Registration successful! You can now log in to your new account.',
             'data' : {
+                'id' : newUser.id,
                 'username' : newUser.username,
                 'association' : newUser.association,
                 'email' : email,
