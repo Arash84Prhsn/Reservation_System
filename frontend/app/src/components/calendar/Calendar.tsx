@@ -28,9 +28,9 @@ import Select from "../form/Select";
 // import SelectInputs from "../form/form-elements/SelectInputs";
 
 type CalendarProps = {
-  chair: ChairState;
-  events: CalendarEvent[];
-  onAddEvent: Dispatch<SetStateAction<CalendarEvent[]>>;
+  chair?: ChairState;
+  events?: CalendarEvent[];
+  onAddEvent?: Dispatch<SetStateAction<CalendarEvent[]>>;
 };
 
 const Calendar = ({ chair, events, onAddEvent }: CalendarProps) => {
@@ -179,6 +179,7 @@ const Calendar = ({ chair, events, onAddEvent }: CalendarProps) => {
       },
     };
 
+    if (!onAddEvent) return;
     if (selectedEvent) {
       onAddEvent((prev) =>
         prev.map((ev) =>

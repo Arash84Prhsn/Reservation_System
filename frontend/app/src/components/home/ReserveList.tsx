@@ -76,7 +76,9 @@ const ReserveList = ({ events }: ReserveListProps) => {
       dayKey,
       // استفاده از اولین رویداد روز برای گرفتن لیبل تاریخ
       dayLabel:
-        dayKey === "unknown" ? "بدون تاریخ" : formatDayFa(dayEvents[0]?.start),
+        dayKey === "unknown"
+          ? "بدون تاریخ"
+          : formatDayFa(String(dayEvents[0]?.start)),
       events: dayEvents.sort((a, b) => {
         // مرتب‌سازی رویدادهای هر روز بر اساس زمان شروع
         const dateA = a.start ? new Date(a.start as string | Date) : null;
@@ -127,8 +129,8 @@ const ReserveList = ({ events }: ReserveListProps) => {
 
                       {/* نمایش ساعت شروع و پایان */}
                       <p className="text-sm text-gray-600">
-                        ساعت: {formatTimeFa(event.start)} تا{" "}
-                        {formatTimeFa(event.end)}
+                        ساعت: {formatTimeFa(String(event.start))} تا{" "}
+                        {formatTimeFa(String(event.end))}
                       </p>
 
                       {/* نمایش صندلی - در صورتی که extendedProps.chair وجود داشته باشد */}

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { FileQuestionMark } from "lucide-react";
-import { useSidebar } from "@/context/SidebarContext";
+// import { useSidebar } from "@/context/SidebarContext";
 
 const LEGEND_ITEMS = [
   { colorClass: "bg-gray-500", label: "غیرقابل رزرو" },
@@ -13,7 +13,7 @@ const LEGEND_ITEMS = [
 
 export default function ColorLegend() {
   const [isMobileLegendOpen, setIsMobileLegendOpen] = useState(false);
-  const { isExpanded } = useSidebar();
+  // const { isExpanded } = useSidebar();
 
   return (
     <div className="pointer-events-none fixed bottom-2 left-3 z-[60]">

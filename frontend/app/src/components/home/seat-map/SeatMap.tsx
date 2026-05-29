@@ -4,7 +4,7 @@ import React, {
   Dispatch,
   SetStateAction,
   useMemo,
-  useRef,
+  // useRef,
   useState,
 } from "react";
 import { SeatComponent } from "./Seat";
@@ -20,17 +20,17 @@ import { CalendarEvent, ChairState } from "@/app/type";
 import Select from "@/components/form/Select";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
-import faLocale from "@fullcalendar/core/locales/fa";
-import TimePicker from "react-multi-date-picker/plugins/time_picker";
+// import faLocale from "@fullcalendar/core/locales/fa";
+// import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import { Table } from "./Table";
 import { SlotStatus, TimeSlot, TimeSlotGrid } from "./TimeSlotGrid";
 
 interface SeatMapProps {
   config?: SeatMapConfig;
   data?: SeatData[];
-  chair: ChairState;
-  events: CalendarEvent[];
-  onAddEvent: Dispatch<SetStateAction<CalendarEvent[]>>;
+  chair?: ChairState;
+  events?: CalendarEvent[];
+  onAddEvent?: Dispatch<SetStateAction<CalendarEvent[]>>;
 }
 
 // ─── SeatDetailPanel ─────────────────────────────────────
@@ -39,17 +39,17 @@ interface SeatMapProps {
 function SeatDetailPanel({
   seatId,
   status,
-  onDeselect,
+  // onDeselect,
   chair,
-  events,
+  // events,
   onAddEvent,
 }: {
   seatId: string;
   status: SeatStatus;
   onDeselect: () => void;
-  chair: ChairState;
-  events: CalendarEvent[];
-  onAddEvent: Dispatch<SetStateAction<CalendarEvent[]>>;
+  chair: ChairState | undefined;
+  events: CalendarEvent[] | undefined;
+  onAddEvent: Dispatch<SetStateAction<CalendarEvent[]>> | undefined;
 }) {
   const initialSlots = useMemo(() => {
     const data: TimeSlot[] = [];
@@ -138,6 +138,7 @@ function SeatDetailPanel({
     //     ),
     //   );
     // } else {
+    if (!onAddEvent) return;
     onAddEvent((prev) => [
       ...prev,
       {
@@ -152,9 +153,9 @@ function SeatDetailPanel({
     resetModalFields();
   };
 
-  const handleReserveClick = () => {
-    // openModal();
-  };
+  // const handleReserveClick = () => {
+  // openModal();
+  // };
 
   // console.log("end: ", endTime);
 
