@@ -102,6 +102,8 @@ components:
         data:
           type: object
           properties:
+            id:
+              type: integer
             username:
               type: string
             association:
