@@ -142,7 +142,6 @@ cython_debug/
 .DS_Store
 
 # Database files
-*.db
 *.sqlite
 *.sqlite3
 
@@ -162,10 +161,6 @@ config.local.py
 Thumbs.db
 ehthumbs.db
 Desktop.ini
-
-# Project specific
-RESERVATION_DATABASE.db
-database/RESERVATION_DATABASE.db
 
 # Secret keys / sensitive data
 .secret_key

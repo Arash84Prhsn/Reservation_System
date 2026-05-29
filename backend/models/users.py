@@ -32,7 +32,7 @@ class User(DeclarativeBase):
         """
         dotin_associations = ["Dotin employee",
                               "DataScience competitions",
-                              "Dotin associate(Project With Dotin)"]
+                              "Dotin associate"]
         
         return self.association in dotin_associations
     

@@ -302,4 +302,15 @@ def cancel_reservation():
     seat_type: str = data.get("seat_type")
     seat_number = data.get("seat_number")
 
+    exists, msg = ReservationServices.check_fields_existence(reservation_date=reservation_date,
+                                                      start_time=start_time,
+                                                      seat_type=seat_type,
+                                                      seat_number=seat_number)
+    
+    if not exists:
+        return jsonify({"success" : False,
+                        "message" : msg}), 400
+    
+
+
     

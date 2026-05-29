@@ -6,7 +6,7 @@ from flask_admin.contrib.sqla import ModelView
 from backend.models import *
 from database.connection import get_db_connection
 from database.connection import init_db
-from database.seed import seed_seats
+from database.seed import seed_seats, seed_users
 from backend.routes import blueprints
 
 # initialize the app
@@ -22,6 +22,7 @@ for bp in blueprints:
 # Initialize the tables and seed the tables (in case they aren't)
 init_db()
 seed_seats()
+seed_users()
 
 # Connect the admin page to the models
 db_session = get_db_connection()
