@@ -556,16 +556,22 @@ class ReservationServices:
     # ============ RESERVATION CREATION ============
 
     @staticmethod
-    def check_fields_existence(reservation_date, reservation_type, start_time, end_time):
-
-        if not reservation_date:
-            return False, "reservation_date must be given"
-        if not reservation_type:
-            return False, "reservation_type must be given"
-        if not start_time:
-            return False, "start_time must be given"
-        if not end_time:
-            return False, "end_time must be given"
+    def check_fields_existence(**kwargs):
+        """
+        Check if any of the provided fields are missing or empty.
+        
+        :param kwargs: Key-value pairs of field names and their values
+        :return: Tuple of (is_valid, message)
+        
+        Examples:
+            check_fields_existence(reservation_date=date_val, reservation_type=type_val)
+            check_fields_existence(username=username, email=email, phone=phone)
+            check_fields_existence(reservation_date=date_val, start_time=start, end_time=end, seat_type=stype)
+        """
+        
+        for field_name, field_value in kwargs.items():
+            if not field_value:
+                return False, f"{field_name} is missing"
         
         return True, "No problems!"
 

@@ -20,12 +20,21 @@ class UserServices:
         return session.get("logged_in") is not None
 
     @staticmethod
-    def hash_password(password : str):
-        """Hashes passwords and returns the hashed password"""
+    def hash_password(password):
+        """Hash a password with bcrypt - works on all Python versions"""
+        # Convert to string if needed
+        if not isinstance(password, str):
+            password = str(password)
+        
+        # Encode to bytes (bcrypt requires bytes)
+        password_bytes = password.encode('utf-8')
+        
+        # Hash
         salt = bcrypt.gensalt()
-        hashedPassword = bcrypt.hashpw(password.encode(), salt)
-
-        return hashedPassword.decode();
+        hashed = bcrypt.hashpw(password_bytes, salt)
+        
+        # Return as string for database
+        return hashed.decode('utf-8')
 
     @staticmethod
     def verify_password(password: str, storedHash: str):
@@ -275,7 +284,7 @@ class UserServices:
         :param association: The association of the new `User` object.
         :returns: The newly created `User` object
         """
-        session = get_db_connection()
+        conn = get_db_connection()
 
         try:
             # Hash the password first
@@ -290,16 +299,16 @@ class UserServices:
                 association=association,
             )
 
-            session.add(newUser)
-            session.commit()
+            conn.add(newUser)
+            conn.commit()
             # This refresh gives the user their ID
-            session.refresh(newUser)
+            conn.refresh(newUser)
 
             return newUser
         
         except Exception as e:
-            session.rollback()
+            conn.rollback()
             raise e
         
         finally:
-            session.close();
+            conn.close();

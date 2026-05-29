@@ -222,8 +222,10 @@ def make_reservation():
     user_id = session.get("user_id")
 
     # Make sure the values are not null and have actually been taken from the request
-    exists, msg = ReservationServices.check_fields_existence(reservation_type, reservation_date,
-                                                             start_time, end_time)
+    exists, msg = ReservationServices.check_fields_existence(reservation_type=reservation_type,
+                                                             reservation_date=reservation_date,
+                                                             start_time=start_time,
+                                                             end_time=end_time)
     if not exists:
         return jsonify({"success" : False,
                         "message" : msg}), 400
@@ -286,3 +288,18 @@ def make_reservation():
                                   "seat_number" : seat_number}
 
     return jsonify(status), 200;
+
+
+reservation_bp.route("/cancel_reservation", methods=["PUT"])
+def cancel_reservation():
+    if not UserServices.is_user_logged_in():
+        return jsonify({"success" : False,
+                        "message" : "User is not logged in"}), 401
+    
+    data: dict = request.get_json()
+    reservation_date: str = data.get("date")
+    start_time: str = data.get("start_time")
+    seat_type: str = data.get("seat_type")
+    seat_number = data.get("seat_number")
+
+    
