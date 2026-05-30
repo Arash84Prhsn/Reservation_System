@@ -295,6 +295,50 @@ def make_reservation():
 
     return jsonify(status), 200;
 
+reservation_bp.route("/final_reservation_submission", methods=["POST"])
+def final_reservation_submission():
+    if not UserServices.is_user_logged_in():
+        return jsonify({"success" : False,
+                        "message" : "کاربر لاگین نشده است"}), 401
+    
+    data: dict = request.get_json()
+    reservation_date = data.get("reservation_date")
+    reservation_type: str = data.get("reservation_type")
+    start_time = data.get("start_time")
+    end_time = data.get("end_time")
+    seat_type: str = data.get("seat_type")
+    seat_number = data.get("seat_number")
+    user_id = session.get("user_id")
+    seat_id = SeatServices.get_seat_id_by_type_number(seat_type, seat_number)
+
+    # Check all fields existence
+    exists, msg = ReservationServices.check_fields_existence(reservation_date=reservation_date,
+                                                             reservation_type=reservation_type,
+                                                             start_time=start_time,
+                                                             end_time=end_time,
+                                                             seat_type=seat_type,
+                                                             seat_number=seat_number)
+    
+    if not exists:
+        return jsonify({"success" : False,
+                        "message" : msg})
+    try:
+        ReservationServices.create_reservation(reservation_date,
+                                            reservation_type,
+                                            start_time,
+                                            end_time,
+                                            user_id,
+                                            seat_id)
+        
+        return jsonify({"success" : True,
+                        "message" : "رزرو شما با موفقیت ایجاد شد"}), 201
+    
+    except Exception as e:
+        return jsonify({"success" : False, "message" : str(e)}), 500
+    
+
+    
+
 reservation_bp.route("/cancel_reservation_with_all_info", methods=["PUT"])
 def cancel_reservation_with_all_info():
     if not UserServices.is_user_logged_in():

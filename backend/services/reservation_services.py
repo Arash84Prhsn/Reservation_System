@@ -670,6 +670,35 @@ class ReservationServices:
 
 
     @staticmethod
+    def create_reservation(reservation_date, reservation_type, start_time, end_time, user_id, seat_id):
+        """
+        Create a new reservation in the database.
+        
+        :param reservation_date: Date of the reservation
+        :param reservation_type: Type of reservation (e.g., "internship", "project", "only running programs")
+        :param start_time: Start time of the reservation
+        :param end_time: End time of the reservation
+        :param user_id: ID of the user making the reservation
+        :param seat_id: ID of the seat being reserved
+        :return: The created Reservation object
+        """
+        with get_db_connection() as conn:
+            new_reservation = Reservation(
+                user_id=user_id,
+                seat_id=seat_id,
+                reservation_date=reservation_date,
+                start_time=start_time,
+                end_time=end_time,
+                reservation_type=reservation_type,
+                status='active'
+            )
+            conn.add(new_reservation)
+            conn.commit()
+            conn.refresh(new_reservation)
+            return new_reservation
+
+
+    @staticmethod
     def is_there_seat_conflict(seat_type, seat_number, reservation_date, start_time, end_time):
         """
         Check if a seat is already booked for the given time slot. Returns True if conflict exists

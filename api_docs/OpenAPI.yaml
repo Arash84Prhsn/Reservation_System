@@ -11,6 +11,7 @@ info:
     - Session information retrieval
     - Weekly schedule viewing for specific seats (intervals and timeslots)
     - Reservation creation with conflict checking
+    - Final reservation submission
     - User reservation limits and availability checking
     - Cancel reservations by ID or by reservation details
 
@@ -31,15 +32,34 @@ info:
     This API uses session-based authentication. After successful login, a session cookie is automatically set.
     All subsequent requests requiring authentication must include this cookie.
     
+    ## Dotin Affiliates
+    Users with the following associations are considered "Dotin affiliates" and have special privileges:
+    - Dotin employee
+    - Dotin associate
+    - Data science competitions
+    
+    ## Dotin Seat Rules
+    - **Current week**: ALL users can reserve Dotin seats
+    - **Next week**: ONLY Dotin affiliates can reserve Dotin seats
+    
     ## Business Rules
     - Operating hours: 8:00 AM to 2:00 PM (6 hours)
     - Minimum reservation: 15 minutes
     - Time increments: 15 minutes (:00, :15, :30, :45)
     - Operating days: Saturday to Wednesday (no Thu/Fri)
-    - Daily limit: 2 reservations per user per day
-    - Reservation types: "only running programs", "internship", "project", "dorsan desk"
+    - Daily limit: 2 reservations per user per day (non-overlapping)
+    - Users can have 2 reservations on 2 different seats on the same day
+    - Next week reservations open: Tuesday 12:00 PM
+    - Cancellation: Cannot cancel reservations on the current day
+    - Events override reservations (if an event is scheduled, conflicting reservations are cancelled)
     
-  version: 4.0.0
+    ## Reservation Types
+    - "only running programs" - Computer only, seat remains free for laptop users
+    - "dorsan desk" - Computer only (similar to above)
+    - "internship" - Internship reservation
+    - "project" - Project reservation
+    
+  version: 5.0.0
   contact:
     name: API Support
 
@@ -82,7 +102,7 @@ components:
           type: string
           enum:
             - None
-            - Dotin
+            - Dotin employee
             - Dotin associate
             - Data science competitions
             - Related Company
@@ -100,7 +120,7 @@ components:
           example: true
         message:
           type: string
-          example: "Registration successful! You can now log in to your new account."
+          example: "اکانت شما با موفقیعت ایجاد شد"
         data:
           type: object
           properties:
@@ -454,6 +474,49 @@ components:
               type: string
             seat_number:
               type: integer
+
+    FinalReservationSubmissionRequest:
+      type: object
+      required:
+        - reservation_date
+        - reservation_type
+        - start_time
+        - end_time
+        - seat_type
+        - seat_number
+      properties:
+        reservation_date:
+          type: string
+          format: date
+          example: "2024-01-15"
+        reservation_type:
+          type: string
+          enum: ["only running programs", "internship", "project", "dorsan desk"]
+          example: "internship"
+        start_time:
+          type: string
+          example: "09:00"
+        end_time:
+          type: string
+          example: "10:00"
+        seat_type:
+          type: string
+          enum: [dotin, optimization, laptop, manager]
+          example: dotin
+        seat_number:
+          type: integer
+          minimum: 1
+          maximum: 4
+          example: 1
+
+    FinalReservationSubmissionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+          example: "رزرو شما با موفقیت ایجاد شد"
 
     CancelReservationByIdRequest:
       type: object
@@ -1092,6 +1155,7 @@ paths:
   /reservation/is_user_dotin:
     get:
       summary: Check if user has Dotin association
+      description: Returns true if user is a Dotin affiliate (Dotin employee, Dotin associate, or Data science competitions)
       operationId: isUserDotin
       tags:
         - Reservations
@@ -1103,16 +1167,14 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  is_dotin:
-                    type: boolean
+                $ref: '#/components/schemas/IsUserDotinResponse'
         '401':
           description: Not logged in
 
   /reservation/open_dates_for_user:
     post:
       summary: Get possible reservation dates for user and seat type
+      description: Returns dates that the user can make reservations for the given seat type
       operationId: getOpenDatesForUser
       tags:
         - Reservations
@@ -1173,9 +1235,10 @@ paths:
 
   /reservation/make_reservation:
     post:
-      summary: Create a new reservation
+      summary: Validate a reservation (dry run)
       description: |
-        Creates a reservation after validating:
+        Validates a reservation without saving to database.
+        Checks:
         - Time within operating hours (8:00-14:00)
         - Minimum 15 minutes duration
         - 15-minute increments
@@ -1183,6 +1246,8 @@ paths:
         - User hasn't hit daily limit (2 per day)
         - No conflicts with events or other reservations
         - Valid seat number for the seat type
+        
+        Use this endpoint to check if a reservation is valid before final submission.
       operationId: makeReservation
       tags:
         - Reservations
@@ -1219,6 +1284,49 @@ paths:
                         type: boolean
         '401':
           description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /reservation/final_reservation_submission:
+    post:
+      summary: Submit a reservation (actually saves to database)
+      description: |
+        Creates and saves a reservation to the database.
+        All validation should be done before calling this endpoint.
+      operationId: finalReservationSubmission
+      tags:
+        - Reservations
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinalReservationSubmissionRequest'
+      responses:
+        '201':
+          description: Reservation created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinalReservationSubmissionResponse'
+        '400':
+          description: Missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Database error
           content:
             application/json:
               schema:
