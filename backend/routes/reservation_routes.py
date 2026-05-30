@@ -162,7 +162,7 @@ def is_user_dotin():
 
     return user.isDotinAssociate()
 
-@reservation_bp.route("/open_dates_for_user", methods=["GET"])
+@reservation_bp.route("/open_dates_for_user", methods=["POST"])
 def open_dates_for_user():
     if not UserServices.is_user_logged_in():
         return jsonify({"success" : False,
@@ -184,13 +184,13 @@ def open_dates_for_user():
     d = {'success' : True, "dates" : list_of_dates}
     return jsonify(d), 200
 
-@reservation_bp.route("/has_user_hit_reservation_limit", methods=["GET"])
+@reservation_bp.route("/has_user_hit_reservation_limit", methods=["POST"])
 def has_user_hit_reservation_limit():
     if not UserServices.is_user_logged_in():
         return jsonify({"suceess" : False,
                         "message" : "User is not logged in"}), 401
     
-    data = request.get_json()
+    data: dict = request.get_json()
     user_id = session.get("user_id")
     reservation_date = data.get("reservation_date")
 
@@ -289,8 +289,8 @@ def make_reservation():
 
     return jsonify(status), 200;
 
-reservation_bp.route("/cancel_reservation", methods=["PUT"])
-def cancel_reservation():
+reservation_bp.route("/cancel_reservation_with_all_info", methods=["PUT"])
+def cancel_reservation_with_all_info():
     if not UserServices.is_user_logged_in():
         return jsonify({"success" : False,
                         "message" : "User is not logged in"}), 401
@@ -322,10 +322,32 @@ def cancel_reservation():
                                                              reservation_type, user_id, seat_id)
     if not reservation_id:
         return jsonify({"success" : False,
-                        "messaage" : "رزرو مورد نظر مو جود نمی باشد"})
+                        "messaage" : "رزرو مورد نظر موجود نمی باشد"})
     
     success, msg = ReservationServices.cancel_reservation(reservation_id)
 
+    if not success:
+        return jsonify({"success" : False,
+                       "message" : msg}), 400
+    
+    return jsonify({"success" : True,
+                    "message" : msg}), 200
+
+reservation_bp.route("/cancel_reservation_by_id", methods=["PUT"])
+def cancel_reservation_by_id():
+    if not UserServices.is_user_logged_in():
+        return jsonify({"success" : False,
+                        "message" : "User is not logged in"}), 401
+    
+    data: dict = request.get_json()
+
+    reservation_id = data.get("reservation_id")
+
+    if not reservation_id:
+        return jsonify({"success" : False,
+                        "messaage" : "رزرو مورد نظر موجود نمی باشد"})
+
+    success, msg = ReservationServices.cancel_reservation(reservation_id)
     if not success:
         return jsonify({"success" : False,
                        "message" : msg}), 400

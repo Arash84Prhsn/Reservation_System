@@ -12,6 +12,7 @@ info:
     - Weekly schedule viewing for specific seats (intervals and timeslots)
     - Reservation creation with conflict checking
     - User reservation limits and availability checking
+    - Cancel reservations by ID or by reservation details
 
     ## Test Accounts (for development)
     
@@ -36,9 +37,9 @@ info:
     - Time increments: 15 minutes (:00, :15, :30, :45)
     - Operating days: Saturday to Wednesday (no Thu/Fri)
     - Daily limit: 2 reservations per user per day
-    - Reservation types: "only running programs", "internship", "project"
+    - Reservation types: "only running programs", "internship", "project", "dorsan desk"
     
-  version: 3.0.0
+  version: 4.0.0
   contact:
     name: API Support
 
@@ -82,6 +83,7 @@ components:
           enum:
             - None
             - Dotin
+            - Dotin associate
             - Data science competitions
             - Related Company
             - Bachelor student
@@ -311,8 +313,9 @@ components:
           type: string
           nullable: true
         reserved_by:
-          type: string
+          type: integer
           nullable: true
+          description: "User ID of who reserved/created the event"
 
     DailySchedule:
       type: object
@@ -390,7 +393,7 @@ components:
           example: "2024-01-15"
         reservation_type:
           type: string
-          enum: ["only running programs", "internship", "project"]
+          enum: ["only running programs", "internship", "project", "dorsan desk"]
           example: "internship"
         start_time:
           type: string
@@ -436,7 +439,7 @@ components:
           type: string
         warning:
           $ref: '#/components/schemas/ReservationConflictWarning'
-        reservation_date:
+        reservation_info:
           type: object
           properties:
             start_time:
@@ -451,6 +454,53 @@ components:
               type: string
             seat_number:
               type: integer
+
+    CancelReservationByIdRequest:
+      type: object
+      required:
+        - reservation_id
+      properties:
+        reservation_id:
+          type: integer
+          example: 123
+          description: "ID of the reservation to cancel"
+
+    CancelReservationByInfoRequest:
+      type: object
+      required:
+        - reservation_date
+        - start_time
+        - seat_type
+        - seat_number
+      properties:
+        reservation_date:
+          type: string
+          format: date
+          example: "2024-01-15"
+        reservation_type:
+          type: string
+          enum: ["only running programs", "internship", "project", "dorsan desk"]
+          example: "internship"
+        start_time:
+          type: string
+          example: "09:00"
+        seat_type:
+          type: string
+          enum: [dotin, optimization, laptop, manager]
+          example: dotin
+        seat_number:
+          type: integer
+          minimum: 1
+          maximum: 4
+          example: 1
+
+    CancelReservationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
 
     IsNextWeekOpenResponse:
       type: object
@@ -473,7 +523,8 @@ components:
           type: string
           format: date
         day_of_week:
-          type: string
+          type: integer
+          description: "0=Monday, 1=Tuesday, 2=Wednesday, 3=Thursday, 4=Friday, 5=Saturday, 6=Sunday"
         reservation_type:
           type: string
         start_time:
@@ -866,7 +917,6 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: true
                   dates:
                     type: array
                     items:
@@ -881,10 +931,8 @@ paths:
                               properties:
                                 start_time:
                                   type: string
-                                  example: "10:00"
                                 end_time:
                                   type: string
-                                  example: "12:00"
                           reservations:
                             type: array
                             items:
@@ -892,41 +940,12 @@ paths:
                               properties:
                                 start_time:
                                   type: string
-                                  example: "09:00"
                                 end_time:
                                   type: string
-                                  example: "10:00"
                                 reserved_by:
                                   type: string
-                                  example: "john_doe"
                                 reservation_type:
                                   type: string
-                                  enum: ["only running programs", "internship", "project"]
-                                  example: "internship"
-              example:
-                success: true
-                dates:
-                  - "2024-01-13":
-                      events: []
-                      reservations:
-                        - start_time: "09:00"
-                          end_time: "10:00"
-                          reserved_by: "john_doe"
-                          reservation_type: "internship"
-                  - "2024-01-14":
-                      events:
-                        - start_time: "10:00"
-                          end_time: "12:00"
-                      reservations: []
-                  - "2024-01-15":
-                      events: []
-                      reservations: []
-                  - "2024-01-16":
-                      events: []
-                      reservations: []
-                  - "2024-01-17":
-                      events: []
-                      reservations: []
         '400':
           description: Missing or invalid parameters
           content:
@@ -957,7 +976,6 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: true
                   dates:
                     type: array
                     items:
@@ -972,10 +990,8 @@ paths:
                               properties:
                                 start_time:
                                   type: string
-                                  example: "10:00"
                                 end_time:
                                   type: string
-                                  example: "12:00"
                           reservations:
                             type: array
                             items:
@@ -983,47 +999,49 @@ paths:
                               properties:
                                 start_time:
                                   type: string
-                                  example: "09:00"
                                 end_time:
                                   type: string
-                                  example: "10:00"
                                 reserved_by:
                                   type: string
-                                  example: "john_doe"
                                 reservation_type:
                                   type: string
-                                  enum: ["only running programs", "internship", "project"]
-                                  example: "internship"
-              example:
-                success: true
-                dates:
-                  - "2024-01-13":
-                      events: []
-                      reservations:
-                        - start_time: "09:00"
-                          end_time: "10:00"
-                          reserved_by: "john_doe"
-                          reservation_type: "internship"
-                  - "2024-01-14":
-                      events:
-                        - start_time: "10:00"
-                          end_time: "12:00"
-                      reservations: []
-                  - "2024-01-15":
-                      events: []
-                      reservations: []
-                  - "2024-01-16":
-                      events: []
-                      reservations: []
-                  - "2024-01-17":
-                      events: []
-                      reservations: []
         '400':
           description: Missing or invalid parameters
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+
+  /reservation/current_week_schedule_timeslots:
+    post:
+      summary: Get current week schedule with time slots
+      description: Returns detailed current week schedule with 15-minute time slots for a specific seat
+      operationId: getCurrentWeekScheduleTimeslots
+      tags:
+        - Reservations
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeeklyScheduleRequest'
+      responses:
+        '200':
+          description: Schedule retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeeklyScheduleResponse'
+        '400':
+          description: Missing or invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not logged in
 
   /reservation/weekly_schedule_timeslots:
     post:
@@ -1093,7 +1111,7 @@ paths:
           description: Not logged in
 
   /reservation/open_dates_for_user:
-    get:
+    post:
       summary: Get possible reservation dates for user and seat type
       operationId: getOpenDatesForUser
       tags:
@@ -1123,7 +1141,7 @@ paths:
           description: Not logged in
 
   /reservation/has_user_hit_reservation_limit:
-    get:
+    post:
       summary: Check if user has hit daily reservation limit
       description: Returns true if user has 2 or more active reservations on the given date
       operationId: hasUserHitReservationLimit
@@ -1176,34 +1194,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/MakeReservationRequest'
-            examples:
-              internship:
-                summary: Internship reservation
-                value:
-                  reservation_date: "2024-01-15"
-                  reservation_type: "internship"
-                  start_time: "09:00"
-                  end_time: "10:00"
-                  seat_type: "dotin"
-                  seat_number: 1
-              project:
-                summary: Project reservation
-                value:
-                  reservation_date: "2024-01-15"
-                  reservation_type: "project"
-                  start_time: "10:30"
-                  end_time: "12:00"
-                  seat_type: "laptop"
-                  seat_number: 2
-              system_only:
-                summary: System only (running programs)
-                value:
-                  reservation_date: "2024-01-15"
-                  reservation_type: "only running programs"
-                  start_time: "08:00"
-                  end_time: "14:00"
-                  seat_type: "optimization"
-                  seat_number: 1
       responses:
         '200':
           description: Reservation validated successfully (may have warnings)
@@ -1211,41 +1201,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MakeReservationResponse'
-              examples:
-                success_no_warning:
-                  summary: Success without warning
-                  value:
-                    success: true
-                    message: "This reservation is valid and can be submitted"
-                    warning:
-                      needed: false
-                    reservation_date:
-                      start_time: "09:00"
-                      end_time: "10:00"
-                      reservation_type: "internship"
-                      reservation_date: "2024-01-15"
-                      seat_type: "dotin"
-                      seat_number: 1
-                success_with_warning:
-                  summary: Success with warning (system only conflicts)
-                  value:
-                    success: true
-                    message: "Your reservations has been validated with a warning"
-                    warning:
-                      needed: true
-                      conflict_intervals:
-                        - start_time: "09:00"
-                          end_time: "10:00"
-                        - start_time: "11:00"
-                          end_time: "12:00"
-                      warning_message: "The computer will be unavailable during these times"
-                    reservation_date:
-                      start_time: "09:00"
-                      end_time: "12:00"
-                      reservation_type: "internship"
-                      reservation_date: "2024-01-15"
-                      seat_type: "dotin"
-                      seat_number: 1
         '400':
           description: Validation failed (conflict, invalid time, etc.)
           content:
@@ -1262,28 +1217,75 @@ paths:
                     properties:
                       needed:
                         type: boolean
-              examples:
-                event_conflict:
-                  value:
-                    success: false
-                    message: "There is an event booked for that time"
-                    warning:
-                      needed: false
-                reservation_conflict:
-                  value:
-                    success: false
-                    message: "The reservation is in conflict with other reservations"
-                    warning:
-                      needed: false
-                invalid_time:
-                  value:
-                    success: false
-                    message: "Start time must be before end time"
-                    warning:
-                      needed: false
         '401':
           description: Not logged in
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+
+  /reservation/cancel_reservation_by_id:
+    put:
+      summary: Cancel a reservation by ID
+      description: Cancels an active reservation using the reservation ID
+      operationId: cancelReservationById
+      tags:
+        - Reservations
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelReservationByIdRequest'
+      responses:
+        '200':
+          description: Reservation cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelReservationResponse'
+        '400':
+          description: Cannot cancel (already cancelled or time passed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not logged in
+        '404':
+          description: Reservation not found
+
+  /reservation/cancel_reservation_with_all_info:
+    put:
+      summary: Cancel a reservation by providing all details
+      description: Cancels an active reservation using reservation details (date, time, seat type, seat number)
+      operationId: cancelReservationByInfo
+      tags:
+        - Reservations
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelReservationByInfoRequest'
+      responses:
+        '200':
+          description: Reservation cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelReservationResponse'
+        '400':
+          description: Cannot cancel (already cancelled, time passed, or missing fields)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not logged in
+        '404':
+          description: Reservation not found
