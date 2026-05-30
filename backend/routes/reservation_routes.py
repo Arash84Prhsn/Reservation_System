@@ -280,7 +280,7 @@ def make_reservation():
     if not status.get("success"):
         return jsonify(status), 400
     
-    status["reservation_date"] = {"start_time" : start_time.isoformat(),
+    status["reservation_info"] = {"start_time" : start_time.isoformat(),
                                   "end_time" : end_time.isoformat(),
                                   "reservation_type" : reservation_type,
                                   "reservation_date" : reservation_date.isoformat(),
