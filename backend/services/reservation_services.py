@@ -217,7 +217,8 @@ class ReservationServices:
             
             stmnt = select(
                 Reservation.start_time, Reservation.end_time,
-                Reservation.reservation_type, Reservation.reservation_date
+                Reservation.reservation_type, Reservation.reservation_date,
+                Reservation.id
             ).where(
                 Reservation.user_id == user_id,
                 Reservation.status == "active"
@@ -227,6 +228,7 @@ class ReservationServices:
             results = []
             
             for row in rows:
+                id = row["id"]
                 start_time: time = row['start_time']
                 end_time: time = row['end_time']
                 reservation_date: date = row['reservation_date']
@@ -236,8 +238,11 @@ class ReservationServices:
                 end_time = end_time.isoformat()
                 reservation_date = reservation_date.isoformat()
 
-                d = {'date' : reservation_date, 'day_of_week' : day_of_week,
-                     'reservation_type' : reservation_type, 'start_time' : start_time,
+                d = {'reservation_id' : id,
+                     'date' : reservation_date,
+                     'day_of_week' : day_of_week,
+                     'reservation_type' : reservation_type,
+                     'start_time' : start_time,
                      'end_time' : end_time}
                 
                 results.append(d)

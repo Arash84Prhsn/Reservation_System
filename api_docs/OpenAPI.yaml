@@ -582,6 +582,9 @@ components:
     UserActiveReservation:
       type: object
       properties:
+        reservation_id:
+          type: integer
+          description: "Unique identifier of the reservation"
         date:
           type: string
           format: date
