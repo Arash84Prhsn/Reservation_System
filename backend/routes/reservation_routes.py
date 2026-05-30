@@ -213,7 +213,7 @@ def has_user_hit_reservation_limit():
 
 @reservation_bp.route("/make_reservation", methods=["POST"])
 def make_reservation():
-    if not session.get("logged_in"):
+    if not UserServices.is_user_logged_in():
         return jsonify({"success" : False,
                         "message" : "User is not logged in"}), 401
     
@@ -250,6 +250,7 @@ def make_reservation():
         return jsonify({"success" : False,
                         "message" : msg}), 400
     
+    # Validate the seat type
     if not SeatServices.validate_seat_type(seat_type):
         return jsonify({"success" : False,
                         "message" : "The given seat type is invalid"}), 400
