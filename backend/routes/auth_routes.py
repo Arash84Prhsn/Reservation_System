@@ -19,14 +19,14 @@ def register():
     phone : str = data.get('phone')
     association : str = data.get('association')
 
-    # Make email lowercase
+    # Make strings lowercase!
     if email:
         email = email.lower().strip()
-    
-    # Make the username lowercase
     if username:
         username = username.lower().strip()
-
+    if association:
+        association = association.lower().strip()
+    
     # check the fields to make sure they are actually entered by the user
     if not username:
         return jsonify({'success' : False, 'message' : 'نام کاربری را وارد نکردید'}), 400
@@ -47,7 +47,7 @@ def register():
         valid = UserServices.validate_email(email)
         if not valid:
             return jsonify({'success' : False,
-                            'message' : "Email is not valid. Please enter a valid structure"}), 400
+                            'message' : "ایمیل قابل قبول نیست"}), 400
     
     # In the case that the user has provided a phone number make sure it is formatted right.
     if phone:
@@ -55,7 +55,13 @@ def register():
         if not valid:
             return jsonify({"success" : False,
                             'message' : phone_msg}), 400
-
+        
+    # Validate the association (if given)
+    if association:
+        valid = UserServices.validate_association(association=association)
+        if not valid:
+            return jsonify({"success" : False,
+                            "message" : "Association is not valid"}), 400
 
     # Check the password to make sure it's secure enough
     pass_is_valid, msg = UserServices.validate_password(password)
@@ -78,7 +84,7 @@ def register():
 
         return jsonify({
             'success' : True,
-            'message' : 'Registration successful! You can now log in to your new account.',
+            'message' : 'اکانت شما با موفقیعت ایجاد شد',
             'data' : {
                 'id' : newUser.id,
                 'username' : newUser.username,
@@ -129,6 +135,7 @@ def login():
         'success': True,
         'message': 'Logged in successfully',
         'data': {
+            'id' : user.id,
             'username': user.username,
             'association': user.association,
             'email' : user.email,

@@ -289,7 +289,6 @@ def make_reservation():
 
     return jsonify(status), 200;
 
-
 reservation_bp.route("/cancel_reservation", methods=["PUT"])
 def cancel_reservation():
     if not UserServices.is_user_logged_in():
@@ -297,20 +296,39 @@ def cancel_reservation():
                         "message" : "User is not logged in"}), 401
     
     data: dict = request.get_json()
-    reservation_date: str = data.get("date")
+    reservation_date: str = data.get("reservation_date")
+    reservation_type: str = data.get("reservation_type")
     start_time: str = data.get("start_time")
     seat_type: str = data.get("seat_type")
     seat_number = data.get("seat_number")
+    user_id = session.get("user_id")
 
-    exists, msg = ReservationServices.check_fields_existence(reservation_date=reservation_date,
-                                                      start_time=start_time,
-                                                      seat_type=seat_type,
-                                                      seat_number=seat_number)
+    exists, msg = ReservationServices.check_fields_existence(
+        reservation_date=reservation_date,
+        start_time=start_time,
+        seat_type=seat_type,
+        seat_number=seat_number
+        )
     
     if not exists:
         return jsonify({"success" : False,
                         "message" : msg}), 400
     
+    reservation_date = date.fromisoformat(reservation_date)
+    start_time = time.fromisoformat(start_time)
+    seat_id = SeatServices.get_seat_id_by_type_number(seat_type, seat_number)
 
-
+    reservation_id = ReservationServices.find_reservation_id(reservation_date, start_time,
+                                                             reservation_type, user_id, seat_id)
+    if not reservation_id:
+        return jsonify({"success" : False,
+                        "messaage" : "رزرو مورد نظر مو جود نمی باشد"})
     
+    success, msg = ReservationServices.cancel_reservation(reservation_id)
+
+    if not success:
+        return jsonify({"success" : False,
+                       "message" : msg}), 400
+    
+    return jsonify({"success" : True,
+                    "message" : msg}), 200

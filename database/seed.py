@@ -42,7 +42,7 @@ def seed_users():
             # (username, password, email, phone, association)
             ('alireza_ahmadi', 'UserPass123', 'alireza@example.com', None, 'Master\'s student'),
             ('sara_mohammadi', 'UserPass123', 'sara@example.com', None, 'PhD student'),
-            ('mehdi_karimi', 'UserPass123', None, '09123456789', 'Dotin associate'),
+            ('mehdi_karimi', 'UserPass123', None, '09123456789', 'Dotin employee'),
             ('narges_hosseini', 'UserPass123', 'narges@example.com', None, 'Bachelor student'),
             ('amir_rezaei', 'UserPass123', None, '09198765432', 'Related Company')
         ]

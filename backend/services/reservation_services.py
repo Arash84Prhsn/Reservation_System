@@ -125,7 +125,7 @@ class ReservationServices:
             end = currentWeekEndDate
 
             while start <= end:
-                allowed_dates.append(start.isoformat())
+                allowed_dates.append(start)
                 start = start + timedelta(days=1)
         
         # Current week (only if we haven't passed current week Tuesday 12 PM)
@@ -134,7 +134,7 @@ class ReservationServices:
             end = currentWeekEndDate
 
             while start <= end:
-                allowed_dates.append(start.isoformat())
+                allowed_dates.append(start)
                 start = start + timedelta(days=1)
         
         # Next week is also allowed
@@ -148,7 +148,7 @@ class ReservationServices:
                     start = start + timedelta(days=1)
                     continue
                 
-                allowed_dates.append(start.isoformat())
+                allowed_dates.append(start)
                 start = start + timedelta(days=1)
         
         return allowed_dates
@@ -668,11 +668,6 @@ class ReservationServices:
                                  "warning_message" : "The computer will be unavailabe during these times",
                                  "needed" : True}}
 
-            
-
-
-
-
 
     @staticmethod
     def is_there_seat_conflict(seat_type, seat_number, reservation_date, start_time, end_time):
@@ -717,68 +712,73 @@ class ReservationServices:
 
     # ============ RESERVATION QUERIES ============
 
-
-    @staticmethod
-    def get_user_reservations(user_id, status='active'):
-        """Get all reservations for a user"""
-        session = get_db_connection()
-        try:
-            query = session.query(Reservation).filter(Reservation.user_id == user_id)
-            if status:
-                query = query.filter(Reservation.status == status)
-            reservations = query.order_by(Reservation.reservation_date, Reservation.start_time).all()
-            return reservations
-        finally:
-            session.close()
-
-    @staticmethod
-    def get_user_reservations_by_date(user_id, reservation_date):
-        """Get all reservations for a user on a specific date"""
-        session = get_db_connection()
-        try:
-            reservations = session.query(Reservation).filter(
-                and_(
-                    Reservation.user_id == user_id,
-                    Reservation.reservation_date == reservation_date,
-                    Reservation.status == 'active'
-                )
-            ).all()
-            return reservations
-        finally:
-            session.close()
-
     @staticmethod
     def get_reservation_by_id(reservation_id):
-        """Get a specific reservation by ID"""
-        session = get_db_connection()
-        try:
-            reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
+        """Get a reservation object by ID"""
+        with get_db_connection() as conn:
+            stmnt = select().where(Reservation.id == reservation_id)
+            reservation = conn.execute(statement=stmnt).first()
             return reservation
-        finally:
-            session.close()
 
     @staticmethod
-    def get_daily_schedule(reservation_date):
-        """Get all active reservations for a specific date"""
-        session = get_db_connection()
-        try:
-            reservations = session.query(Reservation).filter(
-                and_(
-                    Reservation.reservation_date == reservation_date,
-                    Reservation.status == 'active'
-                )
-            ).order_by(Reservation.start_time).all()
-            return reservations
-        finally:
-            session.close()
+    def find_reservation_id(reservation_date, start_time, reservation_type, user_id, seat_id):
+
+        with get_db_connection() as conn:
+            stmnt = select(Reservation.id).where(
+                Reservation.user_id == user_id,
+                Reservation.seat_id == seat_id,
+                Reservation.reservation_date == reservation_date,
+                Reservation.reservation_type == reservation_type,
+                Reservation.start_time == start_time,
+                Reservation.status == "active"
+            )
+
+            result = conn.execute(stmnt).scalar()
+
+            return result
 
     # ====<Reservation cancelling>===
+
+    @staticmethod
+    def cancel_reservation(reservation_id):
+        """
+        Cancells an active reservation
+        
+        :param reservation_id: The id for the reservation that will be cancelled
+        :returns: `(success, msg)` tuple where `success` is a boolean and `msg` is a string
+        """
+
+        reservation: Reservation = ReservationServices.get_reservation_by_id(reservation_id)
+        
+        if not reservation:
+            return False, "رزرو مورد نظر موجود نمی باشد"
+        
+        if reservation.status != "active":
+            return False, "رزرو مورد نظر فعال نیست"
+        
+        # Check to see if its before the reservation time!
+        start_time = reservation.start_time
+        reservation_date = reservation.reservation_date
+
+        exact_reservation_datetime = datetime.combine(reservation_date, start_time)
+
+        if datetime.now() >= exact_reservation_datetime:
+            return False, "زمان مجاز کنسل این رزرو گذشته است"
+        
+        with get_db_connection() as conn:
+            reservation = conn.merge(reservation)
+            reservation.cancel()
+            conn.commit()
+
+            return True, "رزرو با موفقیعت کنسل شد"
+
 
     @staticmethod
     def cancel_reservation(reservation_id, user_id):
         """
         Cancel a reservation.
-        Returns: (success, message)
+
+        :returns: (success, message) typle where `success` is boolean and `message` is a string
         """
         session = get_db_connection()
         try:

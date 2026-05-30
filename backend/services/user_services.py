@@ -108,25 +108,24 @@ class UserServices:
         Accepts any phone number with 8-15 digits, optional leading '+'.
         """
         if not phone:
-            return False, "Phone number is required"
+            return False, "شماره تلفن نمیتواند خالی باشد"
         
         # Remove spaces, dashes, parentheses
         cleaned = re.sub(r'[\s\-\(\)]', '', phone)
         
         # Check length
         if len(cleaned) < 8:
-            return False, "Phone number must be at least 8 digits"
+            return False, "شماره تلفن باید حداقل 8 رقم باشد"
         
         if len(cleaned) > 15:
-            return False, "Phone number must be at most 15 digits"
+            return False, "شماره تلفن حداکثر میتواند 15 رقم باشد"
         
         # Check format (optional leading +, then digits)
         if not re.match(r'^\+?[0-9]+$', cleaned):
-            return False, "Phone number can only contain digits and optional leading '+'"
+            return False, "شماره تلفن فقط باید شامل ارقام انگلیسی باشد(علامت + در ابتدای شماره مجاز است)"
         
         return True, "Valid phone number"
 
-    #TODO: Write the list of the associations and then write this simple function.
     @staticmethod
     def validate_association(association : str):
         """
@@ -137,10 +136,22 @@ class UserServices:
         :returns: `False` if `association` is not in the list and `True` otherwise
         """
 
-        VALID_ASSOCIATIONS=["Dotin employee", "Datascience competitions", "Bachelor student",
-                            "Master's student","PhD student", "Related companies"]
+        VALID_ASSOCIATIONS=["dotin employee", "dotin associate", "datascience competitions", "bachelor student",
+                            "master's student","phd student", "related companies"]
         
         return association in VALID_ASSOCIATIONS
+    
+    @staticmethod
+    def is_association_dotin(association: str):
+        """
+        Checks to see if the given association is related to the Dotin company
+        
+        :param association: The given association string
+        :returns: True or False depending on the given association
+        """
+
+        DOTIN_ASSOCIATIONS = ["dotin associate", "datascience competetions", "dotin employee"]
+        return association in DOTIN_ASSOCIATIONS
 
     @staticmethod
     def username_exists(name):

@@ -59,7 +59,7 @@ class SeatServices:
 
     @staticmethod
     def validate_seat_type(seat_type: str):
-        VALID_SEAT_TYPES = ['dotin, optimization', 'laptop', 'manager']
+        VALID_SEAT_TYPES = ['dotin', 'optimization', 'laptop', 'manager']
         seat_type = seat_type.lower().strip()
         return seat_type in VALID_SEAT_TYPES
     
