@@ -34,6 +34,6 @@ RESERVATION_STATUS = ['active',
                       'cancelled',
                       'over']
 
-EVENT_STATUS = ['acitve',
+EVENT_STATUS = ['active',
                 'cancelled',
                 'over']

@@ -11,7 +11,16 @@ from backend.routes import blueprints
 
 # initialize the app
 app = Flask(__name__)
-CORS(app)
+
+# CORS setup
+CORS(app, 
+     supports_credentials=True,  # ← This is CRITICAL for cookies
+     origins=["http://localhost:3000", "http://localhost:5000", "http://127.0.0.1:3000"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+     expose_headers=["Content-Type", "Set-Cookie"]
+)
+
 admin = Admin(app, name="Reservation service administration", theme=Bootstrap4Theme(swatch="sandstone"))
 app.secret_key = "c995897f9499dc39986fad92f8e02a28cfb01b4d4aae2a0e53b0cabccd4ba49b"
 
