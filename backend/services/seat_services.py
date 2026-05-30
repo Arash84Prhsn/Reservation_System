@@ -1,5 +1,6 @@
 from database import get_db_connection
 from backend.models.seats import Seat
+from backend.models.enums import SEAT_TYPES
 from backend.models.reservations import Reservation
 from backend.models.events import Event
 from backend.models.users import User
@@ -59,9 +60,8 @@ class SeatServices:
 
     @staticmethod
     def validate_seat_type(seat_type: str):
-        VALID_SEAT_TYPES = ['dotin', 'optimization', 'laptop', 'manager']
         seat_type = seat_type.lower().strip()
-        return seat_type in VALID_SEAT_TYPES
+        return seat_type in SEAT_TYPES
     
     @staticmethod
     def is_seat_number_valid(seat_type, seat_number):

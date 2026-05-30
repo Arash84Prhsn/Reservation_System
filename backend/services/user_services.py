@@ -1,4 +1,5 @@
 from backend.models import User;
+from backend.models.enums import ASSOCIATIONS, DOTIN_ASSOCIATIONS
 from flask import session
 from database.connection import get_db_connection;
 from datetime import datetime;
@@ -135,11 +136,8 @@ class UserServices:
         :param association: The association of the user. Is a string.
         :returns: `False` if `association` is not in the list and `True` otherwise
         """
-
-        VALID_ASSOCIATIONS=["dotin employee", "dotin associate", "datascience competitions", "bachelor student",
-                            "master's student","phd student", "related companies"]
         
-        return association in VALID_ASSOCIATIONS
+        return association in ASSOCIATIONS
     
     @staticmethod
     def is_association_dotin(association: str):
@@ -149,8 +147,6 @@ class UserServices:
         :param association: The given association string
         :returns: True or False depending on the given association
         """
-
-        DOTIN_ASSOCIATIONS = ["dotin associate", "datascience competetions", "dotin employee"]
         return association in DOTIN_ASSOCIATIONS
 
     @staticmethod

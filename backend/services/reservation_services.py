@@ -1,5 +1,6 @@
 from database import get_db_connection
 from backend.models.reservations import Reservation
+from backend.models.enums import RESERVATION_TYPES, SYSTEM_ONLY_RESERVATION_TYPES
 from backend.models.seats import Seat
 from backend.models.users import User
 from backend.models.events import Event
@@ -336,7 +337,7 @@ class ReservationServices:
     
     @staticmethod
     def is_reservation_type_valid(reservation_type):
-        return reservation_type in ["only running programs", "internship", "project"]
+        return reservation_type in RESERVATION_TYPES
     
 
     # ====<RESERVATION STATUS>====
@@ -581,10 +582,9 @@ class ReservationServices:
         return True, "No problems!"
 
     @staticmethod
-    def is_reservation_system_only(reservation_type):
-        SYSTEM_ONLY_RESERVATIONS = ["only running programs", "dorsan desk"]
-
-        return reservation_type in SYSTEM_ONLY_RESERVATIONS
+    def is_reservation_system_only(reservation_type: str):
+        reservation_type = reservation_type.lower().strip()
+        return reservation_type in SYSTEM_ONLY_RESERVATION_TYPES
 
 
     @staticmethod
