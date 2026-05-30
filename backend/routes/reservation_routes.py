@@ -181,6 +181,11 @@ def open_dates_for_user():
                         "message" : "invalid seat_type was given"}), 400
 
     list_of_dates = ReservationServices.get_possible_reservation_dates(user_id, seat_type)
+    
+    # Make the dates iso format
+    for i in range(len(list_of_dates)):
+        list_of_dates[i] = list_of_dates[i].isoformat()
+
     d = {'success' : True, "dates" : list_of_dates}
     return jsonify(d), 200
 
