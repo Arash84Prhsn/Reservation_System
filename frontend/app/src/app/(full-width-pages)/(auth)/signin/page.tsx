@@ -1,4 +1,4 @@
-import NewSignInForm from "@/components/auth/NewSignInForm";
+import NewSignInForm from "@/features/auth/components/NewSignInForm";
 // import { Metadata } from "next";
 
 // export const metadata: Metadata = {

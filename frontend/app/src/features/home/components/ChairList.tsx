@@ -5,7 +5,7 @@ import { GrUserAdmin } from "react-icons/gr";
 import { ChairState } from "@/app/type";
 
 import { cn } from "@/utilities/cn";
-import { SmallButtonCard } from "../common/small-cards/SmallButtonCard";
+import { SmallButtonCard } from "../../../components/common/small-cards/SmallButtonCard";
 
 type ChairListParams = {
   chair: ChairState | null;

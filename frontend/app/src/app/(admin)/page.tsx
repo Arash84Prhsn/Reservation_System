@@ -1,13 +1,13 @@
 "use client";
 import Calendar from "@/components/calendar/Calendar";
-import ChairList from "@/components/home/ChairList";
+import ChairList from "@/features/home/components/ChairList";
 // import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { CalendarEvent, ChairState } from "../type";
-import ColorLegend from "@/components/home/ColorLegend";
-import ReserveList from "@/components/home/ReserveList";
+import ColorLegend from "@/features/home/components/ColorLegend";
+import ReserveList from "@/features/home/components/ReserveList";
 import { useSidebar } from "@/context/SidebarContext";
-import SeatMap from "@/components/home/seat-map";
+import SeatMap from "@/features/home/components/seat-map";
 
 export default function Ecommerce() {
   const { isMobile } = useSidebar();

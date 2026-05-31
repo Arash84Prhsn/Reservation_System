@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { SmallHoverCard } from "../common/small-cards/SmallHoverCard"; // مسیر این کامپوننت را چک کن
+import { SmallHoverCard } from "../../../components/common/small-cards/SmallHoverCard"; // مسیر این کامپوننت را چک کن
 import { CalendarEvent } from "@/app/type"; // مسیر این تایپ را چک کن
 // import { SmallBaseCard } from "./SmallBaseCard"; // مسیر این کامپوننت را چک کن
 // import { cn } from "@/utilities/cn"; // مسیر این تابع را چک کن

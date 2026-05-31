@@ -2,38 +2,35 @@
 // TODO: correct the name
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
-// import Button from "@/components/ui/button/Button";
+import Button from "@/components/ui/button/Button";
 import { EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import React, { useState } from "react";
-import ComponentCard from "../common/ComponentCard";
-// import Checkbox from "../form/input/Checkbox";
-
-const NewSignUpForm = () => {
+import ComponentCard from "../../../components/common/ComponentCard";
+const NewSignInForm = () => {
   const [showPassword, setShowPassword] = useState(false);
-//   const [isChecked, setIsChecked] = useState(false);
 
   const title = (
     <p className="text-title-sm sm:text-title-md mb-2 text-center text-gray-800 dark:text-white/90">
-      ثبت نام در سامانه
+      ورود به سامانه
     </p>
   );
   return (
     <div className="flex h-screen items-center justify-center">
       <ComponentCard title={title} className="shadow-2xl">
-        <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
+        <div className="flex w-full max-w-md flex-1 flex-col justify-center">
           <div>
             {/* <div className="mb-5 sm:mb-8">
-              <h1 className="text-title-sm sm:text-title-md mb-2 font-semibold text-gray-800 dark:text-white/90">
-                Sign Up
+              <h1 className="fa text-title-sm sm:text-title-md mb-2 font-semibold text-gray-800 dark:text-white/90">
+                ورود به سامانه
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Enter your email and password to sign up!
-              </p>
+              Enter your email and password to sign in!
+            </p>
             </div> */}
             <div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
-                {/* <button className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+                <button className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
                   <svg
                     width="20"
                     height="20"
@@ -58,23 +55,23 @@ const NewSignUpForm = () => {
                       fill="#EB4335"
                     />
                   </svg>
-                  Sign up with Google
-                </button> */}
+                  Sign in with Google
+                </button>
                 {/* <button className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
-                  <svg
-                    width="21"
-                    className="fill-current"
-                    height="20"
-                    viewBox="0 0 21 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M15.6705 1.875H18.4272L12.4047 8.75833L19.4897 18.125H13.9422L9.59717 12.4442L4.62554 18.125H1.86721L8.30887 10.7625L1.51221 1.875H7.20054L11.128 7.0675L15.6705 1.875ZM14.703 16.475H16.2305L6.37054 3.43833H4.73137L14.703 16.475Z" />
-                  </svg>
-                  Sign up with X
-                </button> */}
+                <svg
+                  width="21"
+                  className="fill-current"
+                  height="20"
+                  viewBox="0 0 21 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M15.6705 1.875H18.4272L12.4047 8.75833L19.4897 18.125H13.9422L9.59717 12.4442L4.62554 18.125H1.86721L8.30887 10.7625L1.51221 1.875H7.20054L11.128 7.0675L15.6705 1.875ZM14.703 16.475H16.2305L6.37054 3.43833H4.73137L14.703 16.475Z" />
+                </svg>
+                Sign in with X
+              </button> */}
               </div>
-              {/* <div className="relative py-3 sm:py-5">
+              <div className="relative py-3 sm:py-5">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-200 dark:border-gray-800"></div>
                 </div>
@@ -83,56 +80,23 @@ const NewSignUpForm = () => {
                     Or
                   </span>
                 </div>
-              </div> */}
+              </div>
               <form>
-                <div className="space-y-5">
-                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                    {/* <!-- Last Name --> */}
-                    <div className="sm:col-span-1">
-                      <Label className="fa">
-                        نام خانوادگی<span className="text-error-500">*</span>
-                      </Label>
-                      <Input
-                        type="text"
-                        id="lname"
-                        name="lname"
-                        className="fa"
-                      />
-                    </div>
-                    {/* <!-- First Name --> */}
-                    <div className="sm:col-span-1">
-                      <Label className="fa">
-                        نام<span className="text-error-500">*</span>
-                      </Label>
-                      <Input
-                        type="text"
-                        id="fname"
-                        name="fname"
-                        className="fa"
-                      />
-                    </div>
-                  </div>
-                  {/* <!-- Email --> */}
+                <div className="space-y-6">
                   <div>
                     <Label className="fa">
-                      ایمیل<span className="text-error-500">*</span>
+                      ایمیل <span className="text-error-500">*</span>{" "}
                     </Label>
-                    <Input
-                      type="email"
-                      id="email"
-                      name="email"
-                      placeholder="Enter your email"
-                    />
+                    <Input placeholder="info@gmail.com" type="email" />
                   </div>
-                  {/* <!-- Password --> */}
                   <div>
                     <Label className="fa">
-                      رمزعبور<span className="text-error-500">*</span>
+                      رمز عبور <span className="text-error-500">*</span>{" "}
                     </Label>
                     <div className="relative">
                       <Input
-                        placeholder="Enter your password"
                         type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
                       />
                       <span
                         onClick={() => setShowPassword(!showPassword)}
@@ -146,41 +110,38 @@ const NewSignUpForm = () => {
                       </span>
                     </div>
                   </div>
-                  {/* <!-- Checkbox --> */}
-                  {/* <div className="flex items-center gap-3">
-                    <Checkbox
-                      className="h-5 w-5"
-                      checked={isChecked}
-                      onChange={setIsChecked}
-                    />
-                    <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
-                      By creating an account means you agree to the{" "}
-                      <span className="text-gray-800 dark:text-white/90">
-                        Terms and Conditions,
-                      </span>{" "}
-                      and our{" "}
-                      <span className="text-gray-800 dark:text-white">
-                        Privacy Policy
-                      </span>
-                    </p>
+                  <div className="flex items-center justify-between">
+                    {/* <div className="flex items-center gap-3">
+                    <Checkbox checked={isChecked} onChange={setIsChecked} />
+                    <span className="text-theme-sm block font-normal text-gray-700 dark:text-gray-400">
+                      Keep me logged in
+                    </span>
                   </div> */}
-                  {/* <!-- Button --> */}
+                    <p className="fa w-full">
+                      <Link
+                        href="/reset-password"
+                        className="text-brand-500 hover:text-brand-600 dark:text-brand-400 text-sm font-bold"
+                      >
+                        فراموش رمز عبور؟
+                      </Link>
+                    </p>
+                  </div>
                   <div>
-                    <button className="bg-brand-500 shadow-theme-xs hover:bg-brand-600 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-bold text-white transition">
-                      ثبت نام
-                    </button>
+                    <Button className="w-full" size="sm">
+                      <p className="font-bold">ورود</p>
+                    </Button>
                   </div>
                 </div>
               </form>
 
-              <div className="fa mt-5 ">
+              <div className="fa mt-5">
                 <p className="text-center text-sm font-normal text-gray-700 sm:text-start dark:text-gray-400">
-                  قبلا ثبت نام کردید ؟ {""}
+                  اکانت ندارید ؟ {""}
                   <Link
-                    href="/signin"
+                    href="/signup"
                     className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                   >
-                    ورود
+                    ساخت اکانت
                   </Link>
                 </p>
               </div>
@@ -192,4 +153,4 @@ const NewSignUpForm = () => {
   );
 };
 
-export default NewSignUpForm;
+export default NewSignInForm;
