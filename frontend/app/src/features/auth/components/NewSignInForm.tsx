@@ -7,8 +7,20 @@ import { EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import React, { useState } from "react";
 import ComponentCard from "../../../components/common/ComponentCard";
+import { useLoginForm } from "../hooks/use-login-form";
 const NewSignInForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const {
+    username,
+    password,
+    // error,
+    pending,
+    onSubmit,
+    setUsername,
+    setPassword,
+    // setError,
+    // setPending,
+  } = useLoginForm();
 
   const title = (
     <p className="text-title-sm sm:text-title-md mb-2 text-center text-gray-800 dark:text-white/90">
@@ -17,7 +29,7 @@ const NewSignInForm = () => {
   );
   return (
     <div className="flex h-screen items-center justify-center">
-      <ComponentCard title={title} className="shadow-2xl">
+      <ComponentCard title={title} className="shadow-2xl min-w-96">
         <div className="flex w-full max-w-md flex-1 flex-col justify-center">
           <div>
             {/* <div className="mb-5 sm:mb-8">
@@ -29,8 +41,8 @@ const NewSignInForm = () => {
             </p>
             </div> */}
             <div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
-                <button className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+              {/* <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5"> */}
+              {/* <button className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
                   <svg
                     width="20"
                     height="20"
@@ -56,8 +68,8 @@ const NewSignInForm = () => {
                     />
                   </svg>
                   Sign in with Google
-                </button>
-                {/* <button className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+                </button> */}
+              {/* <button className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
                 <svg
                   width="21"
                   className="fill-current"
@@ -70,8 +82,8 @@ const NewSignInForm = () => {
                 </svg>
                 Sign in with X
               </button> */}
-              </div>
-              <div className="relative py-3 sm:py-5">
+              {/* </div> */}
+              {/* <div className="relative py-3 sm:py-5">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-200 dark:border-gray-800"></div>
                 </div>
@@ -80,14 +92,21 @@ const NewSignInForm = () => {
                     Or
                   </span>
                 </div>
-              </div>
-              <form>
+              </div> */}
+              <form onSubmit={(e) => onSubmit(e)}>
                 <div className="space-y-6">
                   <div>
                     <Label className="fa">
-                      ایمیل <span className="text-error-500">*</span>{" "}
+                      نام کاربری <span className="text-error-500">*</span>{" "}
                     </Label>
-                    <Input placeholder="info@gmail.com" type="email" />
+                    <Input
+                      type="text"
+                      id="fname"
+                      name="fname"
+                      className="fa"
+                      defaultValue={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                    />
                   </div>
                   <div>
                     <Label className="fa">
@@ -95,8 +114,10 @@ const NewSignInForm = () => {
                     </Label>
                     <div className="relative">
                       <Input
-                        type={showPassword ? "text" : "password"}
                         placeholder="Enter your password"
+                        type={showPassword ? "text" : "password"}
+                        defaultValue={password}
+                        onChange={(e) => setPassword(e.target.value)}
                       />
                       <span
                         onClick={() => setShowPassword(!showPassword)}
@@ -117,17 +138,17 @@ const NewSignInForm = () => {
                       Keep me logged in
                     </span>
                   </div> */}
-                    <p className="fa w-full">
+                    {/* <p className="fa w-full">
                       <Link
                         href="/reset-password"
                         className="text-brand-500 hover:text-brand-600 dark:text-brand-400 text-sm font-bold"
                       >
                         فراموش رمز عبور؟
                       </Link>
-                    </p>
+                    </p> */}
                   </div>
                   <div>
-                    <Button className="w-full" size="sm">
+                    <Button className="w-full" size="sm" disabled={pending}>
                       <p className="font-bold">ورود</p>
                     </Button>
                   </div>

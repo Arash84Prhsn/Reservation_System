@@ -1,5 +1,6 @@
 // import { Outfit } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
 
 import { SidebarProvider } from "@/context/SidebarContext";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -21,6 +22,7 @@ export default function RootLayout({
         <AuthProvider>
           <ThemeProvider>
             <SidebarProvider>{children}</SidebarProvider>
+            <Toaster richColors position="top-center" />
           </ThemeProvider>
         </AuthProvider>
       </body>

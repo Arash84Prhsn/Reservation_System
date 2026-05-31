@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { makeApiUrl } from "./config";
 import { HttpError, getErrorMessage } from "./errors";
 
@@ -42,7 +43,9 @@ export async function apiFetch<T = unknown>(
 
   const data = await res.json().catch(() => null);
 
+  // anything that is not 2xx is considered an error
   if (!res.ok) {
+    toast.error(getErrorMessage(data, res) || "خطا در ارتباط با سرور");
     throw new HttpError(getErrorMessage(data, res), res.status, data);
   }
 

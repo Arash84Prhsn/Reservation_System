@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { HttpError } from "../core/errors";
 import { apiFetch } from "../core/http";
 
@@ -18,6 +19,11 @@ export type RegisterInput = {
   password: string;
   phone: string;
   association: AssociationStatus;
+};
+
+export type LoginInput = {
+  username: string;
+  password: string;
 };
 
 export type User = {
@@ -49,12 +55,20 @@ export async function register(input: RegisterInput) {
   return res;
 }
 
-// export async function login(input: RegisterInput) {
-//   return apiFetch<ApiResponse<User>>("/auth/login", {
-//     method: "POST",
-//     body: input,
-//   });
-// }
+export async function login(input: LoginInput) {
+  const res = await apiFetch<ApiResponse<User>>("/auth/login", {
+    method: "POST",
+    body: input,
+  });
+
+  // if api status is 2xx but success is false throw err.
+  if (!res.success) {
+    toast.error(res.message || "ورود ناموفق بود");
+    throw new HttpError(res.message || "Login failed", 400, res);
+  }
+
+  return res;
+}
 
 // export async function sessionInfo() {
 //   return apiFetch<ApiResponse<User | null>>("/user/session_info", {

@@ -58,7 +58,7 @@ const NewSignUpForm = () => {
   );
   return (
     <div className="flex h-screen items-center justify-center">
-      <ComponentCard title={title} className="shadow-2xl">
+      <ComponentCard title={title} className="shadow-2xl min-w-96 ">
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
           <div>
             {/* <div className="mb-5 sm:mb-8">
@@ -143,7 +143,7 @@ const NewSignUpForm = () => {
                     {/* <!-- First Name --> */}
                     <div className="sm:col-span-1">
                       <Label className="fa">
-                        نام<span className="text-error-500">*</span>
+                        نام کاربری<span className="text-error-500">*</span>
                       </Label>
                       <Input
                         type="text"

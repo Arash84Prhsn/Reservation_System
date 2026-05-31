@@ -1,19 +1,14 @@
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { AssociationStatus, register } from "@/lib/api/services/auth.servise";
 import { useAuth } from "@/context/AuthContext";
+import { login } from "@/lib/api/services/auth.servise";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 
-export function useRegisterForm() {
+export function useLoginForm() {
   const router = useRouter();
 
   //STATES
-  const [association, setAssociation] = useState<AssociationStatus>(
-    AssociationStatus.None,
-  );
-  const [phone, setPhone] = useState("");
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,23 +26,17 @@ export function useRegisterForm() {
         data: receivedUser,
         // success,
         message,
-      } = await register({
-        association,
-        email,
-        password,
-        phone,
+      } = await login({
         username,
+        password,
       });
 
-      // false success is handled in the API service, so no need to check success here.
-      // if (success) {
-      toast.success(message || "ثبت‌نام با موفقیت انجام شد");
-      // }
+      toast.success(message || "ورود با موفقیت انجام شد");
 
       // set user to local storage
       LocalLogin({
-        username: receivedUser.username,
         email: receivedUser.email,
+        username: receivedUser.username,
         id: receivedUser.id,
         association: receivedUser.association,
         phone: receivedUser.phone,
@@ -70,18 +59,14 @@ export function useRegisterForm() {
   }
 
   return {
-    email,
-    password,
-    pending,
-    error,
     username,
-    phone,
-    association,
-    setEmail,
-    setPassword,
-    onSubmit,
-    setPhone,
     setUsername,
-    setAssociation,
+    password,
+    setPassword,
+    pending,
+    setPending,
+    error,
+    setError,
+    onSubmit,
   };
 }
