@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, CheckConstraint, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, CheckConstraint, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from backend.models import DeclarativeBase
 from datetime import datetime
@@ -12,12 +12,14 @@ class User(DeclarativeBase):
     email = Column(String, unique=True, nullable=True)
     phone = Column(String, unique=True, nullable=True)
     association = Column(String, nullable=True)
+    role_id = Column(Integer, ForeignKey('roles.id'), nullable=False, default=3) # 3 is the user role
     created_at = Column(DateTime, default=datetime.now)
     last_login = Column(DateTime, nullable=True)
     
     # Relationships
     reservations = relationship("Reservation", back_populates="user", cascade="all, delete-orphan")
     events = relationship("Event", back_populates='user')
+    role = relationship("Role", back_populates="users")
     
     # Table-level constraints
     __table_args__ = (
@@ -47,6 +49,24 @@ class User(DeclarativeBase):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'last_login': self.last_login.isoformat() if self.last_login else None
         }
+    
+     # ============ ROLE METHODS ============
+    
+    def has_role(self, role_name):
+        """Check if user has a specific role"""
+        return self.role.name == role_name if self.role else False
+    
+    def is_admin_role(self):
+        """Check if user is an admin"""
+        return self.has_role('admin')
+    
+    def is_event_manager_role(self):
+        """Check if user is an event manager"""
+        return self.has_role('event_manager')
+    
+    def is_user_role(self):
+        """Check if user is a regular user"""
+        return self.has_role('user')
     
     
     def __repr__(self):

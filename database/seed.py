@@ -1,8 +1,10 @@
 from database.connection import get_db_connection
 from backend.models.seats import Seat
 from backend.models.users import User
+from backend.models.roles import Role
 from backend.services.user_services import UserServices
 from sqlalchemy import text
+
 
 def seed_seats():
     """Insert the 10 seats into the database if they don't exist"""
@@ -33,12 +35,84 @@ def seed_seats():
     
     conn.close()
 
+def seed_admin_and_manager_users():
+    """Seed admin and event manager users into the database"""
+    from backend.models.users import User
+    from backend.models.roles import Role
+    from backend.services.user_services import UserServices
+    
+    conn = get_db_connection()
+    
+    # Get role IDs
+    admin_role = conn.query(Role).filter_by(name='admin').first()
+    event_manager_role = conn.query(Role).filter_by(name='event_manager').first()
+    user_role = conn.query(Role).filter_by(name='user').first()
+    
+    if not admin_role or not event_manager_role or not user_role:
+        print("Roles not found! Run init_roles() first.")
+        conn.close()
+        return
+    
+    # Define admin and manager users
+    special_users = [
+        ('ADMIN_ARASH', 'Arash1212', 'poorhasaniArash@gmail.com', None, "bachelor student", admin_role),
+        ('ADMIN_AMIN', 'AdminPass123', 'admin2@example.com', None, "bachelor student", admin_role),
+        ('Rezvan Najib', 'UserPass123', 'manager@example.com', None, "dotin associate", event_manager_role),
+    ]
+    
+    created_count = 0
+    updated_count = 0
+    skipped_count = 0
+    
+    for username, password, email, phone, association, role in special_users:
+        # Check if user already exists by username OR email
+        existing_user = conn.query(User).filter(
+            (User.username == username) | (User.email == email)
+        ).first()
+        
+        if existing_user:
+            if existing_user.username == username:
+                # User exists by username, check if role needs update
+                if existing_user.role_id != role.id:
+                    existing_user.role_id = role.id
+                    print(f"Updated role for existing user: {username} -> {role.name}")
+                    updated_count += 1
+                else:
+                    print(f"User already exists with correct role: {username}")
+                    skipped_count += 1
+            else:
+                # Email conflict - different username but same email
+                print(f"Email '{email}' already used by user '{existing_user.username}', skipping...")
+                skipped_count += 1
+        else:
+            # Create new user
+            password_hash = UserServices.hash_password(password)
+            new_user = User(
+                username=username,
+                password_hash=password_hash,
+                email=email,
+                phone=phone,
+                association=association,
+                role=role
+            )
+            conn.add(new_user)
+            print(f"Created new user: {username} ({role.name})")
+            created_count += 1
+    
+    conn.commit()
+    conn.close()
+    
+    print(f"\n=== Special Users Summary ===")
+    print(f"Created: {created_count} new users")
+    print(f"Updated: {updated_count} existing users")
+    print(f"Skipped: {skipped_count} existing users")
+
 def seed_users():
     """Insert 5 test users into the database if they don't exist"""
     conn = get_db_connection()
     
     # Check if users already exist
-    if conn.query(User).count() == 0:
+    if conn.query(User).count() < 10:
         users = [
             # Original 5 users
             ('alireza_ahmadi', 'UserPass123', 'alireza@example.com', None, 'Master\'s student'),
@@ -80,8 +154,6 @@ def seed_users():
         print(f"Users already exist ({conn.query(User).count()} users found), skipping seed.")
     
     conn.close()
-
-
 
     #=============================<SEEDING RESERVATIONS>============================================
 

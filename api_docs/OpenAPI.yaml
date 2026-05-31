@@ -636,7 +636,7 @@ paths:
   
   /auth/register:
     post:
-      summary: Register a new user
+      summary: Registers a new user and logs in if the registeration is successful
       operationId: registerUser
       tags:
         - Authentication

@@ -7,6 +7,7 @@ from .users import User
 from .seats import Seat
 from .reservations import Reservation
 from .events import Event
+from .roles import Role
 
 # Export models for easy access
-__all__ = ['DeclarativeBase', 'User', 'Seat', 'Reservation', 'Event']
+__all__ = ['DeclarativeBase', 'User', 'Seat', 'Reservation', 'Event', 'Role']

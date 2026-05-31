@@ -82,6 +82,17 @@ def register():
             association=association,
         )
 
+        # Set session
+        session['logged_in'] = True
+        session['user_id'] = newUser.id
+        session['username'] = newUser.username
+        session['email'] = newUser.email
+        session['phone'] = newUser.phone
+        session['association'] = newUser.association
+        
+        # Update last login
+        UserServices.update_last_login(newUser.id)
+
         return jsonify({
             'success' : True,
             'message' : 'اکانت شما با موفقیعت ایجاد شد',
@@ -112,12 +123,12 @@ def login():
         username = username.lower().strip()
     
     if not username or not password:
-        return jsonify({'success': False, 'message': 'Username and password required'}), 400
+        return jsonify({'success': False, 'message': 'نام کاربری و رمز عبور باید وارد شوند'}), 400
     
     user = UserServices.get_user_byUsername(username)
     
     if not user or not UserServices.verify_password(password, user.password_hash):
-        return jsonify({'success': False, 'message': 'Invalid username or password'}), 401
+        return jsonify({'success': False, 'message': 'نام کاربری یا رمز عبور اشتباه است'}), 401
     
     # Set session
     session['logged_in'] = True
