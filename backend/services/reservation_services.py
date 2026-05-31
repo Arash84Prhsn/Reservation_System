@@ -12,7 +12,7 @@ import jdatetime
 
 class ReservationServices:
 
-    # ====<Date utility functions are defined here>====
+    # =====================================<DATES UTILITIES>========================================
     
     # it must be noted all the functionality here is done using Gregorian calendars and the datetime
     # class Date object. The calendar conversion functions exist solely for API responses
@@ -253,7 +253,7 @@ class ReservationServices:
     
 
 
-    # ====<Validation operations>====
+    # ===================================<VALIDATION OPERATIONS>====================================
 
     @staticmethod
     def is_valid_reservation_time(start_time: time, end_time: time):
@@ -340,7 +340,7 @@ class ReservationServices:
         return reservation_type in RESERVATION_TYPES
     
 
-    # ====<RESERVATION STATUS>====
+    # =====================================<RESERVATION STATUS>=====================================
     
     @staticmethod
     def get_weekly_schedule_intervals_in_dates(start_of_week_date, seat_type, seat_number):
@@ -559,7 +559,7 @@ class ReservationServices:
         return result
 
 
-    # ============ RESERVATION CREATION ============
+    # ====================================<RESERVATION CREATION>====================================
 
     @staticmethod
     def check_fields_existence(**kwargs):
@@ -724,27 +724,8 @@ class ReservationServices:
             
             return conn.execute(stmnt).scalar()
 
-    #TODO
-    @staticmethod
-    def can_user_book_seat(user_id, seat_type, seat_number, reservation_date):
-        """
-        Checks to see if the user is allowed to reserve the given seat in the given date
 
-        :param user_id: id of the user
-        :param seat_type: Type of the seat (e.g. Dotin, Optimization, Laptop)
-        :param seat_number: Number for the seat type (e.g. Dotin 2, Optimization 1, laptop 3)
-        :param reservation_date: The date of the reservation
-        """
-
-        with get_db_connection() as conn:
-            user = UserServices.get_user_byID(user_id=user_id)
-            user = conn.merge(user)
-            
-            stmnt = select()
-
-
-
-    # ============ RESERVATION QUERIES ============
+    # ====================================<RESERVATION QUERIES>=====================================
 
     @staticmethod
     def get_reservation_by_id(reservation_id):
@@ -770,8 +751,59 @@ class ReservationServices:
             result = conn.execute(stmnt).scalar()
 
             return result
+        
 
-    # ====<Reservation cancelling>===
+    @staticmethod
+    def update_expired_reservations_and_events():
+        """Update status of expired reservations and events to 'over'"""
+        from datetime import datetime
+        from sqlalchemy import update
+        from database import get_db_connection
+        from backend.models.reservations import Reservation
+        from backend.models.events import Event
+        
+        now = datetime.now()
+        today = now.date()
+        current_time = now.time()
+        
+        with get_db_connection() as conn:
+            # Update expired reservations
+            r1 = conn.execute(
+                update(Reservation).where(
+                    Reservation.status == 'active',
+                    Reservation.reservation_date < today
+                ).values(status='over')
+            )
+            
+            r2 = conn.execute(
+                update(Reservation).where(
+                    Reservation.status == 'active',
+                    Reservation.reservation_date == today,
+                    Reservation.end_time <= current_time
+                ).values(status='over')
+            )
+            
+            # Update expired events
+            e1 = conn.execute(
+                update(Event).where(
+                    Event.status == 'active',
+                    Event.date < today
+                ).values(status='over')
+            )
+            
+            e2 = conn.execute(
+                update(Event).where(
+                    Event.status == 'active',
+                    Event.date == today,
+                    Event.end_time <= current_time
+                ).values(status='over')
+            )
+            
+            conn.commit()
+            
+            return r1.rowcount + r2.rowcount, e1.rowcount + e2.rowcount
+
+    # ===================================<RESERVATION CANCELLING>===================================
 
     @staticmethod
     def cancel_reservation(reservation_id):

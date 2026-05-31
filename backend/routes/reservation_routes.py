@@ -6,7 +6,7 @@ from datetime import datetime, date, time, timedelta
 
 reservation_bp = Blueprint('reservation', __name__, url_prefix='/api/reservation')
 
-# =====<GETTING THE SCHEDULES>=====
+# ==================================<GETTING THE SCHEDULES>=========================================
 
 @reservation_bp.route("/get_user_active_reservations", methods=["GET"])
 def get_user_acitve_reservations():
@@ -144,7 +144,7 @@ def get_week_schedule_by_date():
             'message': 'Invalid date format. Please use YYYY-MM-DD'
         }), 400
     
-# ========<MAKING RESERVATIONS>========
+# ==================================<MAKING RESERVATIONS>===========================================
 
 @reservation_bp.route("/is_next_week_open", methods=["GET"])
 def is_next_week_open():
@@ -337,7 +337,7 @@ def final_reservation_submission():
         return jsonify({"success" : False, "message" : str(e)}), 500
     
 
-    
+# ==============================<RESERVATION CANCELLATION>==========================================
 
 reservation_bp.route("/cancel_reservation_with_all_info", methods=["PUT"])
 def cancel_reservation_with_all_info():

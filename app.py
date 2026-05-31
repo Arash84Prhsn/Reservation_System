@@ -6,15 +6,16 @@ from flask_admin.contrib.sqla import ModelView
 from backend.models import *
 from database.connection import get_db_connection
 from database.connection import init_db
-from database.seed import seed_seats, seed_users
+from database.seed import seed_seats, seed_users, seed_reservations_for_current_week, delete_all_reservations
 from backend.routes import blueprints
+from backend.services.scheduledTasks import init_scheduler
 
 # initialize the app
 app = Flask(__name__)
 
 # CORS setup
 CORS(app, 
-     supports_credentials=True,  # ← This is CRITICAL for cookies
+     supports_credentials=True,
      origins=["http://localhost:3000", "http://localhost:5000", "http://127.0.0.1:3000"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
      allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
@@ -32,6 +33,8 @@ for bp in blueprints:
 init_db()
 seed_seats()
 seed_users()
+delete_all_reservations()
+seed_reservations_for_current_week()
 
 # Connect the admin page to the models
 db_session = get_db_connection()
@@ -39,6 +42,9 @@ admin.add_view(ModelView(User, db_session, endpoint='admin_user_view', name='Use
 admin.add_view(ModelView(Seat, db_session, endpoint='admin_seat_view', name='Seats'))
 admin.add_view(ModelView(Reservation, db_session, endpoint='admin_reservation_view', name='Reservations'))
 admin.add_view(ModelView(Event, db_session, endpoint='admin_event_view', name='Events'))
+
+# Finally init the scheduled tasks
+init_scheduler(app=app)
 
 # if this file is run directly then start the backend app
 if __name__ == '__main__':

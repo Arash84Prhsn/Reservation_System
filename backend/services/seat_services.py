@@ -117,12 +117,12 @@ class SeatServices:
                                Reservation.reservation_date == date_of_day
                            )
             
-            reservations_of_day = conn.execute(stmnt).all()
+            reservations_of_day = conn.execute(stmnt).mappings().all()
 
             for row in reservations_of_day:
                 id = row["id"]
-                reservation_type = row["reservation_type"]
                 start_time = row["start_time"].isoformat()
+                reservation_type = row["reservation_type"]
                 end_time = row["end_time"].isoformat()
 
                 results["reservations"].append({"start_time" : start_time,
