@@ -24,10 +24,26 @@ info:
     |----------|----------|-------------|-------|-------|
     | alireza_ahmadi | UserPass123 | Master's student | alireza@example.com | - |
     | sara_mohammadi | UserPass123 | PhD student | sara@example.com | - |
-    | mehdi_karimi | UserPass123 | Dotin associate | - | 09123456789 |
+    | mehdi_karimi | UserPass123 | Dotin employee | - | 09123456789 |
     | narges_hosseini | UserPass123 | Bachelor student | narges@example.com | - |
     | amir_rezaei | UserPass123 | Related Company | - | 09198765432 |
+    | محمد رضایی | UserPass123 | Bachelor student | mohammad@example.com | - |
+    | زهرا کریمی | UserPass123 | Master's student | zahra@example.com | - |
+    | علی محمدی | UserPass123 | Dotin employee | - | 09351234567 |
+    | فاطمه حسینی | UserPass123 | PhD student | fatemeh@example.com | - |
+    | رضا احمدی | UserPass123 | Related Company | - | 09361234567 |
+    | مریم کاظمی | UserPass123 | Bachelor student | maryam@example.com | - |
+    | حسین رستمی | UserPass123 | Dotin associate | - | 09371234567 |
+    | سارا موسوی | UserPass123 | Master's student | sara_mousavi@example.com | - |
+    | امیرعباس نوروزی | UserPass123 | Data science competitions | - | 09381234567 |
+    | نگار مظلومی | UserPass123 | Bachelor student | negar@example.com | - |
+      
     
+    ## Mock Reservations (for development)
+    
+    Upon running the program a total of 58 mock reservations for the current week will be inserted
+    to the database
+
     ## Authentication
     This API uses session-based authentication. After successful login, a session cookie is automatically set.
     All subsequent requests requiring authentication must include this cookie.
