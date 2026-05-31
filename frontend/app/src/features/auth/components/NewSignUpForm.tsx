@@ -20,7 +20,7 @@ const NewSignUpForm = () => {
     association,
     phone,
     email,
-    error,
+    // error,
     onSubmit,
     password,
     pending,

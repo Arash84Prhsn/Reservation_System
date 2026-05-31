@@ -1,3 +1,4 @@
+import { HttpError } from "../core/errors";
 import { apiFetch } from "../core/http";
 
 export enum AssociationStatus {
@@ -34,11 +35,18 @@ export type ApiResponse<T> = {
 };
 
 export async function register(input: RegisterInput) {
-  return apiFetch<ApiResponse<User>>("/auth/register", {
+  const res = await apiFetch<ApiResponse<User>>("/auth/register", {
     method: "POST",
     body: input,
     // credentials: "omit",
   });
+
+  // if api status is 2xx but success is false throw err.
+  if (!res.success) {
+    throw new HttpError(res.message || "Registration failed", 400, res);
+  }
+
+  return res;
 }
 
 // export async function login(input: RegisterInput) {

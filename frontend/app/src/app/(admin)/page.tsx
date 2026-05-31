@@ -1,17 +1,18 @@
 "use client";
 import Calendar from "@/components/calendar/Calendar";
 import ChairList from "@/features/home/components/ChairList";
-// import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { CalendarEvent, ChairState } from "../type";
 import ColorLegend from "@/features/home/components/ColorLegend";
 import ReserveList from "@/features/home/components/ReserveList";
 import { useSidebar } from "@/context/SidebarContext";
 import SeatMap from "@/features/home/components/seat-map";
+import { useRouter } from "next/navigation";
 
 export default function Ecommerce() {
   const { isMobile } = useSidebar();
-  // const { user } = useAuth();
+  const { user } = useAuth();
   const [chair, setChair] = useState<ChairState | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
 
@@ -54,21 +55,21 @@ export default function Ecommerce() {
 
   // if user is NOT logged-in, go to sign-in page.
 
-  // const router = useRouter();
+  const router = useRouter();
 
   // useEffect(() => {
   //   logout();
   // }, []);
 
-  // useEffect(() => {
-  //   if (!user) {
-  //     router.replace("/signin");
-  //   }
-  // }, [user, router]);
+  useEffect(() => {
+    if (!user) {
+      router.replace("/signin");
+    }
+  }, [user, router]);
 
-  // if (!user) {
-  //   return <div>Loading </div>; // Or return null;
-  // }
+  if (!user) {
+    return <div>Loading </div>; // Or return null;
+  }
 
   const onChairSelect = (
     chairType: ChairState["chairType"],

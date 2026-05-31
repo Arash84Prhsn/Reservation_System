@@ -1,4 +1,5 @@
 "use client";
+import { User } from "@/lib/api/services/auth.servise";
 import {
   createContext,
   useContext,
@@ -6,12 +7,6 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-};
 
 type AuthContextType = {
   user: User | null;
