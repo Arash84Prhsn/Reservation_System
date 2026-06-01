@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 
 export default function Ecommerce() {
   const { isMobile } = useSidebar();
-  const { user } = useAuth();
+  const { user, isUserInitialized } = useAuth();
   const [chair, setChair] = useState<ChairState | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
 
@@ -62,13 +62,12 @@ export default function Ecommerce() {
   // }, []);
 
   useEffect(() => {
-    if (!user) {
-      router.replace("/signin");
-    }
-  }, [user, router]);
+    if (!isUserInitialized) return;
+    if (!user) router.replace("/signin");
+  }, [user, router, isUserInitialized]);
 
-  if (!user) {
-    return <div>Loading </div>; // Or return null;
+  if (!user || !isUserInitialized) {
+    return <div>Loading </div>;
   }
 
   const onChairSelect = (

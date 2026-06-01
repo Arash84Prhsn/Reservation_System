@@ -2,7 +2,12 @@
 
 import React, { memo } from "react";
 import { cx, getSeatRect, toPercentStyle } from "./SeatMap.utils";
-import { STATUS_COLOR, STATUS_LABEL, type Seat } from "./SeatMap.config";
+import {
+  SeatColorTypes,
+  STATUS_COLOR,
+  STATUS_LABEL,
+  type Seat,
+} from "./SeatMap.config";
 
 interface SeatProps {
   seat: Seat;
@@ -19,22 +24,31 @@ export const SeatComponent = memo(function SeatComponent({
 }: SeatProps) {
   const rect = getSeatRect(seat.side, seat.index, total);
   const style = toPercentStyle(rect);
-  const isDisabled = seat.status === "reserved" || seat.status === "disabled";
-  const effectiveStatus = isSelected ? "selected" : seat.status;
+  // const isDisabled = seat.status === "reserved" || seat.status === "disabled";
+  const isDisabled = seat.status === "disabled" || seat.type === "manager";
+  const effectiveColorStatus: SeatColorTypes = isSelected
+    ? "selected"
+    : seat.type === "manager"
+      ? "disabled"
+      : seat.type; // manager seats are shown as disabled (not selectable) according to the requirements.
 
+  const effectiveLabelStatus = isSelected ? "selected" : seat.status;
+
+  const fullLabel = `${seat.type}${seat.number}`;
   return (
     <button
       style={{ position: "absolute", ...style }}
       className={cx(
         "flex items-center justify-center rounded-md text-xs font-bold text-white transition-all",
-        STATUS_COLOR[effectiveStatus],
+        STATUS_COLOR[effectiveColorStatus],
       )}
       disabled={isDisabled}
       onClick={() => !isDisabled && onSelect(seat.id)}
-      aria-label={`صندلی ${seat.id} - ${STATUS_LABEL[effectiveStatus]}`}
+      aria-label={`صندلی ${fullLabel} - ${STATUS_LABEL[effectiveLabelStatus]}`}
       aria-pressed={isSelected}
+      title={fullLabel}
     >
-      {seat.index + 1}
+      {seat.number}
     </button>
   );
 });
