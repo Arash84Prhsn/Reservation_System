@@ -1,0 +1,123 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Welcome to the Reservation System Admin Panel</h1>
+            <p class="lead">Manage users, seats, reservations, and events from this dashboard.</p>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ total_users if total_users else 0 }}</h3>
+                    <p>Total Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ total_seats if total_seats else 0 }}</h3>
+                    <p>Total Seats</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ total_reservations if total_reservations else 0 }}</h3>
+                    <p>Total Reservations</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ total_events if total_events else 0 }}</h3>
+                    <p>Total Events</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Quick Actions</h4>
+                </div>
+                <div class="card-body">
+                    <a href="{{ url_for('admin_user_view.index_view') }}" class="btn btn-primary">Manage Users</a>
+                    <a href="{{ url_for('admin_reservation_view.index_view') }}" class="btn btn-success">View Reservations</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Recent Activity</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        {% for res in recent_reservations %}
+                        <li>Reservation #{{ res.id }} by {{ res.user.username if res.user else 'Unknown' }} on {{ res.reservation_date }}</li>
+                        {% else %}
+                        <li>No recent reservations</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+    /* Optional: Add some basic styling for cards if Bootstrap isn't fully loaded */
+    .card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    .card-header {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        font-weight: bold;
+    }
+    .card-body {
+        padding: 15px;
+    }
+    .mt-4 {
+        margin-top: 1.5rem;
+    }
+    .text-center {
+        text-align: center;
+    }
+    .btn {
+        display: inline-block;
+        padding: 8px 16px;
+        margin: 5px;
+        border-radius: 4px;
+        text-decoration: none;
+    }
+    .btn-primary {
+        background: #007bff;
+        color: white;
+    }
+    .btn-success {
+        background: #28a745;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block page_title %}
+    <!-- Empty this block -->
+{% endblock %}

@@ -25,10 +25,10 @@ SEAT_TYPES = ['manager',
               'optimization',
               'laptop']
 
-SEAT_NUMBER_RANGES = {"manager" : "1",
-                      "dotin" : "1-4",
-                      "optimization" : "1-2",
-                      "laptop" : "1-3"}
+SEAT_COUNTS = {'manager' : 1,
+               'dotin' : 4,
+               'optimization' : 2,
+               'laptop' : 3}
 
 RESERVATION_STATUS = ['active',
                       'cancelled',

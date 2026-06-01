@@ -1,0 +1,57 @@
+
+/* Make admin panel full width */
+body > .container {
+    width: 98% !important;
+    max-width: 98% !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+
+.container {
+    width: 98% !important;
+    max-width: 98% !important;
+}
+
+.row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.col-sm-12, .col-md-12, .col-lg-12 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.table-responsive {
+    overflow-x: auto !important;
+    width: 100% !important;
+}
+
+td, th {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+}
+
+.filter-form {
+    width: 100% !important;
+}
+
+.search-form input[type="text"] {
+    width: 300px !important;
+}
+
+/* Make the admin navbar better */
+.navbar {
+    margin-bottom: 20px !important;
+}
+
+/* Improve table readability */
+.table {
+    font-size: 14px;
+}
+
+/* Make action buttons more compact */
+.btn {
+    padding: 4px 8px !important;
+    margin: 0 2px !important;
+}

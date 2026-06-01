@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, send_from_directory
 from flask_cors import CORS
 from flask_admin import Admin
 from flask_admin.theme import Bootstrap4Theme
@@ -10,9 +10,10 @@ from database.seed import seed_admin_and_manager_users
 from database.seed import seed_seats, seed_users, seed_reservations_for_current_week, delete_all_reservations
 from backend.routes import blueprints
 from backend.services.scheduledTasks import init_scheduler
+from backend.admin import init_admin
 
 # initialize the app
-app = Flask(__name__)
+app = Flask(__name__, template_folder="backend/templates")
 
 # CORS setup
 CORS(app, 
@@ -23,7 +24,8 @@ CORS(app,
      expose_headers=["Content-Type", "Set-Cookie"]
 )
 
-admin = Admin(app, name="Reservation service administration", theme=Bootstrap4Theme(swatch="sandstone"))
+admin = init_admin(app=app)
+
 app.secret_key = "c995897f9499dc39986fad92f8e02a28cfb01b4d4aae2a0e53b0cabccd4ba49b"
 
 # register all the blueprints specified in the backend/routes/__init__.py

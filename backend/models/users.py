@@ -70,4 +70,8 @@ class User(DeclarativeBase):
     
     
     def __repr__(self):
-        return f"<User(id={self.id}, username='{self.username}')>"
+        return f"""user_id={self.id}\n
+        username='{self.username}'
+        association='{self.association}'
+        is_dotin='{self.isDotinAssociate()}'
+        """

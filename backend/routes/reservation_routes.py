@@ -243,6 +243,11 @@ def make_reservation():
     reservation_date = date.fromisoformat(reservation_date)
     start_time = time.fromisoformat(start_time)
     end_time = time.fromisoformat(end_time)
+
+    # System only reservations are not allowed on laptop seats!
+    if seat_type == 'laptop' and ReservationServices.is_reservation_system_only(reservation_type):
+        return jsonify({"success" : False,
+                        "message" : "هدف رزرو مورد نظر برای صندلی لپتاپ قابل قبول نیست"})
     
     # Make sure the give time interval is valid and follows our rules
     valid, msg = ReservationServices.is_valid_reservation_time(start_time, end_time)
@@ -259,14 +264,13 @@ def make_reservation():
     possible = ReservationServices.is_date_possibly_reservable(reservation_date, user_id, seat_type)
     if not possible:
         return jsonify({"success" : False,
-                        "message" : "The given date is not accessible for reservations"}), 400
+                        "message" : "تاریخ مرد نظر در دسترس نمی باشد"}), 400
     
     # Make sure the reservation_type is valid
     is_reservation_type_valid = ReservationServices.is_reservation_type_valid(reservation_type)
     if not is_reservation_type_valid:
         return jsonify({"success" : False,
-                        "message" : "The given reservation_type is not valid"}), 400
-    
+                        "message" : "هدف رزرو داده شده قابل قبول نیست"}), 400
     
     # Make sure the seat_number is in the correct range for the corresponding type
     is_seat_number_valid = SeatServices.is_seat_number_valid(seat_type, seat_number)
