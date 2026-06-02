@@ -330,6 +330,71 @@ components:
           maximum: 4
           example: 1
 
+    # Interval format schemas
+    TimeInterval:
+      type: object
+      properties:
+        start_time:
+          type: string
+          format: time
+          example: "09:00:00"
+        end_time:
+          type: string
+          format: time
+          example: "10:00:00"
+
+    ReservationInterval:
+      type: object
+      properties:
+        start_time:
+          type: string
+          format: time
+          example: "09:00:00"
+        end_time:
+          type: string
+          format: time
+          example: "10:00:00"
+        reserved_by:
+          type: integer
+          description: "User ID of who made the reservation"
+          example: 4
+        reservation_type:
+          type: string
+          enum: ["only running programs", "internship", "project", "dorsan desk"]
+          description: "Type of reservation"
+          example: "internship"
+
+    DailyScheduleInterval:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: "The date for this schedule entry (YYYY-MM-DD)"
+          example: "2026-05-30"
+        events:
+          type: array
+          description: "List of events occurring on this date"
+          items:
+            $ref: '#/components/schemas/TimeInterval'
+        reservations:
+          type: array
+          description: "List of reservations on this date"
+          items:
+            $ref: '#/components/schemas/ReservationInterval'
+
+    WeeklyScheduleIntervalsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        dates:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyScheduleInterval'
+
+    # Timeslot format schemas
     TimeSlot:
       type: object
       properties:
@@ -995,39 +1060,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  dates:
-                    type: array
-                    items:
-                      type: object
-                      additionalProperties:
-                        type: object
-                        properties:
-                          events:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                start_time:
-                                  type: string
-                                end_time:
-                                  type: string
-                          reservations:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                start_time:
-                                  type: string
-                                end_time:
-                                  type: string
-                                reserved_by:
-                                  type: string
-                                reservation_type:
-                                  type: string
+                $ref: '#/components/schemas/WeeklyScheduleIntervalsResponse'
         '400':
           description: Missing or invalid parameters
           content:
@@ -1054,39 +1087,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  dates:
-                    type: array
-                    items:
-                      type: object
-                      additionalProperties:
-                        type: object
-                        properties:
-                          events:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                start_time:
-                                  type: string
-                                end_time:
-                                  type: string
-                          reservations:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                start_time:
-                                  type: string
-                                end_time:
-                                  type: string
-                                reserved_by:
-                                  type: string
-                                reservation_type:
-                                  type: string
+                $ref: '#/components/schemas/WeeklyScheduleIntervalsResponse'
         '400':
           description: Missing or invalid parameters
           content:
