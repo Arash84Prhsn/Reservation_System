@@ -6,7 +6,7 @@ import {
   TABLE_W,
   TABLE_H,
   SEAT_GAP,
-  type Seat,
+  type MobileSeat,
   type SeatRect,
   type SeatSide,
   type SeatMapConfig,
@@ -80,7 +80,7 @@ export function makeSeat(
   status: SeatStatus = "available",
   type: SeatTypes,
   number: number,
-): Seat {
+): MobileSeat {
   // //added 1 disabled seat for demo:
   // if (side === "bottom" && index === 0) {
   //   status = "disabled";
@@ -119,7 +119,7 @@ interface UseSeatMapProps {
 }
 
 export function useSeatMap({ data }: UseSeatMapProps) {
-  const seats = useMemo<Seat[]>(() => {
+  const seats = useMemo<MobileSeat[]>(() => {
     const counters: Record<SeatTypes, number> = {
       dotin: 0,
       optimization: 0,

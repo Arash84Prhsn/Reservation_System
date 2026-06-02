@@ -1,5 +1,5 @@
 import {
-  ScheduleDay,
+  ScheduleTimeslotDay,
   SeatType,
   weekly_schedule_timeslots,
 } from "@/lib/api/services/reservation.service";
@@ -12,7 +12,7 @@ export function useWeeklyScheduleTimeslots(
   const { date, seatType, seatNumber } = params;
   const enabled = options?.enabled ?? true;
 
-  const [schedule, setSchedule] = useState<ScheduleDay[]>([]);
+  const [schedule, setSchedule] = useState<ScheduleTimeslotDay[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

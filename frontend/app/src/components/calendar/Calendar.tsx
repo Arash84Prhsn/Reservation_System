@@ -23,17 +23,19 @@ import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import { useModal } from "@/hooks/useModal";
 import { Modal } from "@/components/ui/modal";
 
-import { CalendarEvent, ChairState } from "@/app/type";
+import { CalendarEvent } from "@/app/type";
 import Select from "../form/Select";
+import { DesktopSeat } from "@/app/(admin)/page";
+import { useAuth } from "@/context/AuthContext";
 // import SelectInputs from "../form/form-elements/SelectInputs";
 
 type CalendarProps = {
-  chair?: ChairState;
+  seat?: DesktopSeat;
   events?: CalendarEvent[];
   onAddEvent?: Dispatch<SetStateAction<CalendarEvent[]>>;
 };
 
-const Calendar = ({ chair, events, onAddEvent }: CalendarProps) => {
+const Calendar = ({ seat, events, onAddEvent }: CalendarProps) => {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null,
   );
@@ -49,6 +51,7 @@ const Calendar = ({ chair, events, onAddEvent }: CalendarProps) => {
   const calendarRef = useRef<FullCalendar>(null);
 
   const { isOpen, openModal, closeModal } = useModal();
+  const { user } = useAuth();
 
   // to prevent time picker to change date when it is NOT valid.
   const previousValidStartRef = useRef<DateObject | null>(null);
@@ -175,7 +178,7 @@ const Calendar = ({ chair, events, onAddEvent }: CalendarProps) => {
       end: end.toISOString(),
       extendedProps: {
         calendar: eventLevel,
-        chair: chair,
+        seat: seat,
       },
     };
 
@@ -205,6 +208,10 @@ const Calendar = ({ chair, events, onAddEvent }: CalendarProps) => {
     <div className="w-full rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="custom-calendar">
         <FullCalendar
+          eventBackgroundColor="transparent"
+          eventBorderColor="transparent"
+          eventTextColor="inherit"
+          eventContent={renderEventContent(user?.id)}
           eventOverlap={false}
           selectOverlap={false}
           ref={calendarRef}
@@ -225,7 +232,6 @@ const Calendar = ({ chair, events, onAddEvent }: CalendarProps) => {
           events={events}
           select={handleDateSelect}
           eventClick={handleEventClick}
-          eventContent={renderEventContent}
           headerToolbar={{
             left: "prev,next today",
             center: "title",
@@ -362,25 +368,37 @@ const Calendar = ({ chair, events, onAddEvent }: CalendarProps) => {
   );
 };
 
-const renderEventContent = (eventInfo: EventContentArg) => {
-  const color = eventInfo.event.extendedProps?.calendar || "Primary";
-  const chair = eventInfo.event.extendedProps.chair;
+type EventType = "reservation" | "event";
 
-  const colorClass = `fc-bg-${color.toLowerCase()}`;
+const renderEventContent =
+  (userId?: number) => (eventInfo: EventContentArg) => {
+    const reservedByID = eventInfo.event.extendedProps?.reservedBy as
+      | number
+      | undefined;
 
-  return (
-    <div className={`fc-event-main flex flex-col ${colorClass} rounded-sm p-1`}>
-      <div className="text-xs font-semibold">{eventInfo.timeText}</div>
+    const type = (eventInfo.event.extendedProps?.type ?? "event") as EventType;
 
-      {/* <div className="text-xs">{eventInfo.event.title}</div> */}
+    const isMine =
+      type === "reservation" && userId != null && reservedByID === userId;
 
-      {chair && (
-        <div className="text-[11px] opacity-80">
-          صندلی {chair.chairType}-{chair.chairNumber}
+    const baseColorByType: Record<EventType, string> = {
+      reservation: "bg-purple-400",
+      event: "bg-gray-400",
+    };
+
+    const reservationColor = isMine ? "bg-blue-400" : baseColorByType[type];
+
+    return (
+      <div
+        className={`flex h-full w-full flex-col rounded-sm ${reservationColor} p-1 text-white`}
+      >
+        <div className="text-xs font-semibold">
+          {eventInfo.event.extendedProps.seat}
         </div>
-      )}
-    </div>
-  );
-};
+        <div className="text-xs font-semibold">{eventInfo.timeText}</div>
+        <div className="truncate text-xs">{eventInfo.event.title}</div>
+      </div>
+    );
+  };
 
 export default Calendar;

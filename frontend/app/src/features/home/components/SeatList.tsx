@@ -2,29 +2,26 @@
 
 import { GiOfficeChair } from "react-icons/gi";
 import { GrUserAdmin } from "react-icons/gr";
-import { ChairState } from "@/app/type";
 
 import { cn } from "@/utilities/cn";
 import { SmallButtonCard } from "../../../components/common/small-cards/SmallButtonCard";
+import { DesktopSeat } from "@/app/(admin)/page";
 
-type ChairListParams = {
-  chair: ChairState | null;
-  onChairSelect: (
-    chairType: ChairState["chairType"],
-    chairNumber: number,
-  ) => void;
+type SeatListParams = {
+  seat: DesktopSeat | null;
+  onChairSelect: (inputSeat: DesktopSeat) => void;
 };
 
-type ChairGroup = {
+type SeatGroup = {
   title: string;
-  prefix: ChairState["chairType"] | "admin";
+  prefix: DesktopSeat["type"] | "admin";
   colorClass: string;
   count: number;
   subtitle?: string;
   isAdmin?: boolean;
 };
 
-const chairGroups: ChairGroup[] = [
+const chairGroups: SeatGroup[] = [
   {
     title: "مدیر",
     prefix: "admin",
@@ -34,33 +31,33 @@ const chairGroups: ChairGroup[] = [
     isAdmin: true,
   },
   {
-    title: "صندلی های A",
-    prefix: "A",
+    title: "صندلی های Dotin",
+    prefix: "dotin",
     colorClass: "bg-sky-200",
     count: 4,
   },
   {
-    title: "صندلی های B",
-    prefix: "B",
+    title: "صندلی های Optimization",
+    prefix: "optimization",
     colorClass: "bg-purple-200",
     count: 2,
   },
   {
-    title: "صندلی های C",
-    prefix: "C",
+    title: "صندلی های Laptop",
+    prefix: "laptop",
     colorClass: "bg-green-200",
     count: 3,
   },
 ];
 
-const ChairList = ({ chair, onChairSelect }: ChairListParams) => {
+const SeatList = ({ seat, onChairSelect }: SeatListParams) => {
   return (
     <div className="flex h-full w-50 flex-col rounded-2xl border-2 border-gray-300 bg-white p-4">
       <p className="text-center text-2xl">صندلی / زمان</p>
       <p className="text-center text-lg">نوع صندلی</p>
 
       {chairGroups.map((group) => {
-        const isSelectedGroup = chair?.chairType === group.prefix;
+        const isSelectedGroup = seat?.type === group.prefix;
 
         return (
           <div key={group.prefix} className="mt-7">
@@ -74,7 +71,7 @@ const ChairList = ({ chair, onChairSelect }: ChairListParams) => {
                 const chairNumber = index + 1;
                 const chairId = `${group.prefix}${chairNumber}`;
                 const isSelected =
-                  isSelectedGroup && chair?.chairNumber === chairNumber;
+                  isSelectedGroup && seat?.number === chairNumber;
 
                 const chairIcon = <GiOfficeChair size={30} />;
 
@@ -94,10 +91,10 @@ const ChairList = ({ chair, onChairSelect }: ChairListParams) => {
                     className={baseCardClassName}
                     onClick={() => {
                       if (!group.isAdmin) {
-                        onChairSelect(
-                          group.prefix as ChairState["chairType"],
-                          chairNumber,
-                        );
+                        onChairSelect({
+                          type: group.prefix as DesktopSeat["type"],
+                          number: chairNumber,
+                        });
                       }
                     }}
                   />
@@ -110,4 +107,4 @@ const ChairList = ({ chair, onChairSelect }: ChairListParams) => {
     </div>
   );
 };
-export default ChairList;
+export default SeatList;

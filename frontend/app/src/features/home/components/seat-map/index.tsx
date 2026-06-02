@@ -4,5 +4,5 @@ export type {
   SeatMapConfig,
   SeatData,
   SeatStatus,
-  Seat,
+  MobileSeat,
 } from "./SeatMap.config";

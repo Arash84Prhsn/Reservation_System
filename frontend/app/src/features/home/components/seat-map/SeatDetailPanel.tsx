@@ -11,7 +11,7 @@ import React, {
   // useRef,
   useState,
 } from "react";
-import { type SeatStatus, Seat } from "./SeatMap.config";
+import { type SeatStatus, MobileSeat } from "./SeatMap.config";
 import { CalendarEvent, ChairState } from "@/app/type";
 import DatePicker, { DateObject } from "react-multi-date-picker";
 import Select from "@/components/form/Select";
@@ -35,7 +35,7 @@ import { useModal } from "@/hooks/useModal";
 import useOpenDatesForUser from "../../hooks/use-oepn-dates-for-user";
 
 type SeatDetailPanelProps = {
-  seat: Seat;
+  seat: MobileSeat;
   status: SeatStatus;
   onDeselect: () => void;
 };

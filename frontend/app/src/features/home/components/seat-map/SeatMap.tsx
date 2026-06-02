@@ -4,24 +4,20 @@ import React, { Dispatch, SetStateAction } from "react";
 import { SeatComponent } from "./Seat";
 import { useSeatMap, useSelectedSeat } from "./SeatMap.utils";
 import { type SeatMapConfig, type SeatData } from "./SeatMap.config";
-import { CalendarEvent, ChairState } from "@/app/type";
+import { CalendarEvent } from "@/app/type";
 import { Table } from "./Table";
 import { SeatDetailPanel } from "./SeatDetailPanel";
+import { DesktopSeat } from "@/app/(admin)/page";
 
 interface SeatMapProps {
   config?: SeatMapConfig;
   data?: SeatData[];
-  chair?: ChairState;
   events?: CalendarEvent[];
   onAddEvent?: Dispatch<SetStateAction<CalendarEvent[]>>;
 }
 
 // ─── SeatMap (main) ──────────────────────────────────────
-export default function SeatMap({
-  config,
-  data,
-  chair,
-}: SeatMapProps) {
+export default function SeatMap({ config, data }: SeatMapProps) {
   const { seats, config: mergedConfig } = useSeatMap({ config, data });
   const { selectedId, select, deselect, isSelected } = useSelectedSeat();
 

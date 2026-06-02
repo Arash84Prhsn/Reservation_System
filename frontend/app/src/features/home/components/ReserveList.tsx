@@ -3,6 +3,8 @@
 import React, { useMemo } from "react";
 import { SmallHoverCard } from "../../../components/common/small-cards/SmallHoverCard"; // مسیر این کامپوننت را چک کن
 import { CalendarEvent } from "@/app/type"; // مسیر این تایپ را چک کن
+import { SeatType } from "@/lib/api/services/reservation.service";
+import { DesktopSeat } from "@/app/(admin)/page";
 // import { SmallBaseCard } from "./SmallBaseCard"; // مسیر این کامپوننت را چک کن
 // import { cn } from "@/utilities/cn"; // مسیر این تابع را چک کن
 
@@ -46,12 +48,9 @@ function formatDayFa(dateValue?: string | Date | null): string {
 
 // تابع برای گرفتن لیبل صندلی (با فرض اینکه chair وجود دارد)
 // اگر chair در داده‌های واقعی شما نیست، این تابع و فراخوانی آن را حذف کن
-function getChairLabel(chair?: {
-  chairType: string;
-  chairNumber: number;
-}): string {
-  if (!chair) return "نامشخص";
-  return `${chair.chairType}${chair.chairNumber}`;
+function getSeatLabel(seat?: DesktopSeat): string {
+  if (!seat) return "نامشخص";
+  return `${seat.type}${seat.number}`;
 }
 
 const ReserveList = ({ events }: ReserveListProps) => {
@@ -133,19 +132,19 @@ const ReserveList = ({ events }: ReserveListProps) => {
                         {formatTimeFa(String(event.end))}
                       </p>
 
-                      {/* نمایش صندلی - در صورتی که extendedProps.chair وجود داشته باشد */}
-                      {event.extendedProps?.chair && (
+                      {/* نمایش صندلی - در صورتی که extendedProps.seat وجود داشته باشد */}
+                      {event.extendedProps?.seat && (
                         <p className="text-sm text-gray-600">
-                          صندلی: {getChairLabel(event.extendedProps.chair)}
+                          صندلی: {getSeatLabel(event.extendedProps.seat)}
                         </p>
                       )}
 
                       {/* نمایش تقویم - در صورتی که extendedProps.calendar وجود داشته باشد */}
-                      {event.extendedProps?.calendar && (
+                      {/* {event.extendedProps?.calendar && (
                         <p className="text-sm text-gray-600">
                           تقویم: {event.extendedProps.calendar}
                         </p>
-                      )}
+                      )} */}
 
                       {/* خط جداکننده بین رزروها */}
                       {index < group.events.length - 1 && (

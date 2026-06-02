@@ -1,16 +1,14 @@
-// components/Seat.tsx
-
 import React, { memo } from "react";
 import { cx, getSeatRect, toPercentStyle } from "./SeatMap.utils";
 import {
   SeatColorTypes,
   STATUS_COLOR,
   STATUS_LABEL,
-  type Seat,
+  type MobileSeat,
 } from "./SeatMap.config";
 
 interface SeatProps {
-  seat: Seat;
+  seat: MobileSeat;
   total: number;
   isSelected: boolean;
   onSelect: (id: string) => void;

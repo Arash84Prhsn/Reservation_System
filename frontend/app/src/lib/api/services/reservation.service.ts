@@ -44,7 +44,7 @@ export interface ScheduleSlot {
   reserved_by: number; // user id
 }
 
-export interface ScheduleDay {
+export interface ScheduleTimeslotDay {
   date: string; // YYYY-MM-DD
   slots: ScheduleSlot[];
 }
@@ -57,7 +57,7 @@ export interface WeeklyScheduleTimeslotsInput {
 export interface WeeklyScheduleTimeslotsResponse {
   success: true;
   message?: string;
-  schedule: ScheduleDay[];
+  schedule: ScheduleTimeslotDay[];
 }
 
 // type: dates that user can reserve.
@@ -81,6 +81,36 @@ export interface FinalReservationSubmissionResponse {
   message: string;
 }
 
+// type: current week schedule intervals (desktop)
+export interface CurrentWeekScheduleIntervalsInput {
+  seat_type: SeatType;
+  seat_number: number;
+}
+
+export interface ReservationItem {
+  start_time: string;
+  end_time: string;
+  reservation_type: ReservationType;
+  reserved_by: number;
+}
+
+export interface EventItem {
+  start_time: string;
+  end_time: string;
+}
+
+export interface ScheduleIntervalDay {
+  date: string;
+  events: EventItem[];
+  reservations: ReservationItem[];
+}
+
+export interface CurrentWeekScheduleIntervalsResponse {
+  success: boolean;
+  dates: ScheduleIntervalDay[];
+}
+
+//API functions
 // make reservation API
 export async function make_reservation(input: ReservationInfo) {
   const res = await apiFetch<ApiResponse<ReservationResponse>>(
@@ -158,5 +188,25 @@ export async function final_reservation_submission(
       res,
     );
   }
+  return res;
+}
+
+export async function current_week_schedule_intervals(
+  input: CurrentWeekScheduleIntervalsInput,
+) {
+  const res = await apiFetch<CurrentWeekScheduleIntervalsResponse>(
+    "/reservation/current_week_schedule_intervals",
+    {
+      method: "POST",
+      body: input,
+    },
+  );
+
+  // if api status is 2xx but success is false throw err.
+  if (!res.success) {
+    toast.error("خطا در دریافت اسلات‌های زمانی هفته جاری");
+    throw new HttpError("Failed to fetch time slots", 400, res);
+  }
+
   return res;
 }

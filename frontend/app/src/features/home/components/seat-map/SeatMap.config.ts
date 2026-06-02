@@ -2,7 +2,7 @@ export type SeatSide = "top" | "bottom" | "left" | "right";
 export type SeatStatus = "available" | "selected" | "disabled";
 export type SeatTypes = "dotin" | "optimization" | "laptop" | "manager";
 
-export interface Seat {
+export interface MobileSeat {
   id: string;
   side: SeatSide;
   index: number;
