@@ -731,10 +731,10 @@ class ReservationServices:
     @staticmethod
     def get_reservation_by_id(reservation_id):
         """Get a reservation object by ID"""
-        with get_db_connection() as conn:
-            stmnt = select().where(Reservation.id == reservation_id)
-            reservation = conn.execute(statement=stmnt).first()
-            return reservation
+        conn = get_db_connection()
+        reservation = conn.query(Reservation).filter_by(id=reservation_id).first()
+        conn.close()
+        return reservation
 
     @staticmethod
     def find_reservation_id(reservation_date, start_time, reservation_type, user_id, seat_id):
@@ -838,43 +838,3 @@ class ReservationServices:
             conn.commit()
 
             return True, "رزرو با موفقیعت کنسل شد"
-
-
-    @staticmethod
-    def cancel_reservation(reservation_id, user_id):
-        """
-        Cancel a reservation.
-
-        :returns: (success, message) typle where `success` is boolean and `message` is a string
-        """
-        session = get_db_connection()
-        try:
-            reservation = session.query(Reservation).filter(
-                and_(
-                    Reservation.id == reservation_id,
-                    Reservation.user_id == user_id
-                )
-            ).first()
-            
-            if not reservation:
-                return False, "Reservation not found"
-            
-            if reservation.status != 'active':
-                return False, "Reservation is already cancelled"
-            
-            # Check if can cancel (not started yet)
-            now = datetime.now()
-            reservation_datetime = datetime.combine(reservation.reservation_date, reservation.start_time)
-            if now >= reservation_datetime:
-                return False, "Cannot cancel reservation after start time"
-            
-            reservation.status = 'cancelled'
-            reservation.cancelled_at = datetime.now()
-            session.commit()
-            
-            return True, "Reservation cancelled successfully"
-        except Exception as e:
-            session.rollback()
-            return False, f"Error cancelling reservation: {str(e)}"
-        finally:
-            session.close()
