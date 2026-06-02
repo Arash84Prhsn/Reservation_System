@@ -5,7 +5,7 @@ import {
 import React, { use, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-export default function UseOpenDatesForUser(seatType: SeatType) {
+export default function useOpenDatesForUser(seatType: SeatType) {
   const [openDates, setOpenDates] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

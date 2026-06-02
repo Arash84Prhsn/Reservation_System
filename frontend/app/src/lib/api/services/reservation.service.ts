@@ -67,6 +67,20 @@ export interface OpenDatesForUserResponse {
   dates: string[];
 }
 
+// type: final reservation submission
+export interface FinalReservationSubmissionInput {
+  reservation_date: string;
+  reservation_type: ReservationType;
+  start_time: string;
+  end_time: string;
+  seat_type: SeatType;
+  seat_number: number;
+}
+export interface FinalReservationSubmissionResponse {
+  success: boolean;
+  message: string;
+}
+
 // make reservation API
 export async function make_reservation(input: ReservationInfo) {
   const res = await apiFetch<ApiResponse<ReservationResponse>>(
@@ -120,6 +134,29 @@ export async function open_dates_for_user(seat_type: SeatType) {
   if (!res.success) {
     toast.error(res.message || "دریافت روز های قابل رزرو ناموفق بود");
     throw new HttpError(res.message || "Login failed", 400, res);
+  }
+  return res;
+}
+
+export async function final_reservation_submission(
+  input: FinalReservationSubmissionInput,
+) {
+  const res = await apiFetch<FinalReservationSubmissionResponse>(
+    "/reservation/final_reservation_submission",
+    {
+      method: "POST",
+      body: input,
+    },
+  );
+
+  // if api status is 2xx but success is false throw err.
+  if (!res.success) {
+    toast.error(res.message || "خطا در ثبت نهایی رزرو");
+    throw new HttpError(
+      res.message || "Final reservation submission failed",
+      400,
+      res,
+    );
   }
   return res;
 }
