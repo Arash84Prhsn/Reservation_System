@@ -1003,31 +1003,29 @@ paths:
                     type: array
                     items:
                       type: object
-                      additionalProperties:
-                        type: object
-                        properties:
-                          events:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                start_time:
-                                  type: string
-                                end_time:
-                                  type: string
-                          reservations:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                start_time:
-                                  type: string
-                                end_time:
-                                  type: string
-                                reserved_by:
-                                  type: string
-                                reservation_type:
-                                  type: string
+                      properties:
+                        events:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              start_time:
+                                type: string
+                              end_time:
+                                type: string
+                        reservations:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              start_time:
+                                type: string
+                              end_time:
+                                type: string
+                              reserved_by:
+                                type: string
+                              reservation_type:
+                                type: string
         '400':
           description: Missing or invalid parameters
           content:
@@ -1062,31 +1060,29 @@ paths:
                     type: array
                     items:
                       type: object
-                      additionalProperties:
-                        type: object
-                        properties:
-                          events:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                start_time:
-                                  type: string
-                                end_time:
-                                  type: string
-                          reservations:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                start_time:
-                                  type: string
-                                end_time:
-                                  type: string
-                                reserved_by:
-                                  type: string
-                                reservation_type:
-                                  type: string
+                      properties:
+                        events:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              start_time:
+                                type: string
+                              end_time:
+                                type: string
+                        reservations:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              start_time:
+                                type: string
+                              end_time:
+                                type: string
+                              reserved_by:
+                                type: string
+                              reservation_type:
+                                type: string
         '400':
           description: Missing or invalid parameters
           content:
