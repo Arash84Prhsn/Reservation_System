@@ -37,3 +37,8 @@ RESERVATION_STATUS = ['active',
 EVENT_STATUS = ['active',
                 'cancelled',
                 'over']
+
+TIME_SLOT_STATUS = ['free',
+                    'event',
+                    'reserved_by_user',
+                    'reserved_by_others']

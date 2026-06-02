@@ -225,7 +225,7 @@ class ReservationServices:
                 Reservation.status == "active"
             )
 
-            rows = conn.execute(stmnt).all()
+            rows = conn.execute(stmnt).mappings().all()
             results = []
             
             for row in rows:
@@ -371,8 +371,9 @@ class ReservationServices:
         Week starts on SATURDAY and ends on WEDNESDAY. The status of each slot can be one of the 3
         following values:
         1. free
-        2. reserved
-        3. event
+        2. reserved_by_user
+        3. reserved_by_others
+        4. event
 
         In the case that the status is free or event, the "reservation_type" and the "reserved_by"
         fields are None(null)
