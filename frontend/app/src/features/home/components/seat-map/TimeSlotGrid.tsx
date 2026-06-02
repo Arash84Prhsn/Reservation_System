@@ -1,12 +1,4 @@
-import React, { useState } from "react";
-
-// وضعیت‌های ممکن برای هر اسلات
-export type SlotStatus =
-  | "available"
-  | "reserved"
-  | "selected"
-  | "disabled"
-  | "mine";
+export type SlotStatus = "selected" | ScheduleSlotStatus;
 
 export interface TimeSlot {
   id: string; // e.g., "08:00"
@@ -15,48 +7,55 @@ export interface TimeSlot {
 }
 
 interface TimeSlotGridProps {
-  onRangeSelect: (start: string, end: string) => void;
-  // برای چک کردن وضعیت اسلات‌ها از بیرون (مثل دیتابیس)
   slots: TimeSlot[];
+
+  startTime: string;
+  endTime: string;
+
+  setStartTime: (time: string) => void;
+  setEndTime: (time: string) => void;
+
+  onRangeSelect?: (start: string, end: string) => void;
 }
+import { ScheduleSlotStatus } from "@/lib/api/services/reservation.service";
 import clsx from "clsx"; // برای مدیریت کاندیشنال کلاس‌ها
 
-interface TimeSlotGridProps {
-  slots: TimeSlot[];
-  onRangeSelect: (start: string, end: string) => void;
-}
-
-export function TimeSlotGrid({ slots, onRangeSelect }: TimeSlotGridProps) {
-  const [tempStart, setTempStart] = useState<string | null>(null);
-  const [tempEnd, setTempEnd] = useState<string | null>(null);
-
-  console.log("slots: ", slots);
+export function TimeSlotGrid({
+  slots,
+  onRangeSelect,
+  startTime,
+  endTime,
+  setStartTime,
+  setEndTime,
+}: TimeSlotGridProps) {
+  // console.log("slots: ", slots);
 
   const handleSlotClick = (time: string, status: SlotStatus) => {
-    if (status === "reserved" || status === "disabled") return;
+    if (status === "reserved" || status === "event") return;
 
-    if (!tempStart || (tempStart && tempEnd)) {
+    if (!startTime || (startTime && endTime)) {
       // شروع یک انتخاب جدید
-      setTempStart(time);
-      setTempEnd(null);
+      setStartTime(time);
+      setEndTime("");
+      return;
     } else {
       // انتخاب پایان (باید بزرگتر از شروع باشد)
-      if (time > tempStart) {
-        setTempEnd(time);
-        onRangeSelect(tempStart, time);
+      if (time > startTime) {
+        setEndTime(time);
+        onRangeSelect?.(startTime, time);
       } else {
         // اگر کاربر روی زمانی قبل از شروع کلیک کرد، آن را به عنوان شروع جدید در نظر بگیر
-        setTempStart(time);
-        setTempEnd(null);
+        setStartTime(time);
+        setEndTime("");
       }
     }
   };
 
   const getSlotStyle = (slot: TimeSlot) => {
     const isSelected =
-      tempStart && tempEnd
-        ? slot.time >= tempStart && slot.time <= tempEnd
-        : slot.time === tempStart;
+      startTime && endTime
+        ? slot.time >= startTime && slot.time <= endTime
+        : slot.time === startTime;
 
     return clsx(
       "flex h-12 cursor-pointer items-center justify-center rounded-md border text-xs transition-all",
@@ -64,11 +63,11 @@ export function TimeSlotGrid({ slots, onRangeSelect }: TimeSlotGridProps) {
         "bg-gray-700 border-gray-600 text-gray-400 cursor-not-allowed":
           slot.status === "reserved",
         "bg-red-900 border-red-700 text-red-200 cursor-not-allowed":
-          slot.status === "disabled",
+          slot.status === "event",
         "bg-green-700 border-green-500 text-white": slot.status === "mine",
         "bg-blue-600 text-white border-blue-400": isSelected, // انتخاب شده توسط کاربر
         "bg-gray-800 border-gray-600 text-gray-200 hover:border-gray-400":
-          slot.status === "available" && !isSelected,
+          slot.status === "free" && !isSelected,
       },
     );
   };
@@ -76,13 +75,15 @@ export function TimeSlotGrid({ slots, onRangeSelect }: TimeSlotGridProps) {
   return (
     <div className="grid grid-cols-6 gap-2">
       {slots.map((slot) => (
-        <div
+        <button
           key={slot.id}
+          type="button"
           onClick={() => handleSlotClick(slot.time, slot.status)}
           className={getSlotStyle(slot)}
+          disabled={slot.status === "reserved" || slot.status === "event"}
         >
           {slot.time}
-        </div>
+        </button>
       ))}
     </div>
   );

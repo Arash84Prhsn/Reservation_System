@@ -46,7 +46,7 @@ export const DEFAULT_SEAT_CONFIG: Required<SeatMapConfig> = {
   top: 3,
   bottom: 4,
   left: 2,
-  right: 2,
+  right: 1,
 };
 
 export const STATUS_LABEL: Record<SeatStatus, string> = {
@@ -57,7 +57,7 @@ export const STATUS_LABEL: Record<SeatStatus, string> = {
 
 export const STATUS_COLOR: Record<SeatColorTypes, string> = {
   dotin: "bg-emerald-500 hover:bg-emerald-400 cursor-pointer",
-  optimization: "bg-rose-500 cursor-not-allowed opacity-70",
+  optimization: "bg-rose-500 hover:bg-rose-400 cursor-pointer opacity-70",
   laptop: "bg-yellow-500 hover:bg-yellow-400 cursor-pointer",
   manager: "bg-purple-500 hover:bg-purple-400 cursor-pointer", // this color is not using because manager seat is not selectable according to the requirements.
 
@@ -66,7 +66,7 @@ export const STATUS_COLOR: Record<SeatColorTypes, string> = {
 };
 
 export const LAYOUT: Record<SeatSide, SeatTypes[]> = {
-  right: ["laptop", "laptop"],
+  right: ["laptop"],
   bottom: ["dotin", "optimization", "optimization", "dotin"],
   left: ["laptop", "laptop"],
   top: ["dotin", "dotin", "manager"],

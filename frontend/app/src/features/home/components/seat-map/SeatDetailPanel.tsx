@@ -1,8 +1,12 @@
 // ─── SeatDetailPanel ─────────────────────────────────────
 // previous seat detail is end of this file
+
+//TODO: read these 4 opened pages.
+
 import React, {
   Dispatch,
   SetStateAction,
+  useEffect,
   useMemo,
   // useRef,
   useState,
@@ -14,144 +18,98 @@ import Select from "@/components/form/Select";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import { SlotStatus, TimeSlot, TimeSlotGrid } from "./TimeSlotGrid";
+import {
+  ReservationType,
+  ScheduleDay,
+  ScheduleSlotStatus,
+  SeatType,
+} from "@/lib/api/services/reservation.service";
+import { useMakeReservation } from "../../hooks/use-make-reservation";
+import { useWeeklyScheduleTimeslots } from "../../hooks/use-weekly-shedule-timeslots";
+import UseOpenDatesForUser from "../../hooks/use-oepn-dates-for-user";
 
-export function SeatDetailPanel({
-  seat,
-  //   status,
-  // onDeselect,
-  chair,
-  // events,
-  onAddEvent,
-}: {
+type SeatDetailPanelProps = {
   seat: Seat;
   status: SeatStatus;
   onDeselect: () => void;
-  chair: ChairState | undefined;
-  events: CalendarEvent[] | undefined;
-  onAddEvent: Dispatch<SetStateAction<CalendarEvent[]>> | undefined;
-}) {
-  const initialSlots = useMemo(() => {
-    const data: TimeSlot[] = [];
-    for (let hour = 8; hour < 14; hour++) {
-      for (let minute = 0; minute < 60; minute += 15) {
-        const timeStr = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
-        let stat: SlotStatus = "available";
-        if (hour === 9) stat = "mine";
-        else if (hour === 10) stat = "reserved";
-        else if (hour === 11) stat = "disabled";
+};
 
-        data.push({ id: timeStr, time: timeStr, status: stat });
-      }
-    }
-    return data;
-  }, []);
+export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
+  const {
+    reservationDate,
+    reservationType,
+    startTime,
+    endTime,
+    pending,
 
-  const [startTime, setStartTime] = useState<DateObject>(
-    new DateObject().set({ hour: 8, minute: 0 }),
-  ); // editable
-  const [endTime, setEndTime] = useState<DateObject>(
-    new DateObject().set({ hour: 8, minute: 15 }),
-  ); // editable
+    setReservationDate,
+    setReservationType,
+    setStartTime,
+    setEndTime,
+    setSeatType,
+    setSeatNumber,
 
-  const [selectedDate, setSelectedDate] = useState<DateObject>(
-    new DateObject(),
+    makeReservation,
+    resetReservationForm,
+  } = useMakeReservation();
+
+  const { openDates, loading, error } = UseOpenDatesForUser(
+    seat.type as SeatType,
   );
 
-  const options = [
-    { value: "A", label: "A" },
-    { value: "B", label: "B" },
-    { value: "C", label: "C" },
+  console.log("opendates : ", openDates);
+
+  const pcReservationOptions: { value: ReservationType; label: string }[] = [
+    { value: "only running programs", label: "محاسبات" },
+    { value: "dorsan desk", label: "درسان دسک" },
+    { value: "internship", label: "کارآموزی" },
+    { value: "project", label: "پروژه" },
   ];
 
-  const resetModalFields = () => {
-    // setEventTitle("");
-    setStartTime(new DateObject().set({ hour: 8, minute: 0 }));
-    setEndTime(new DateObject().set({ hour: 8, minute: 15 }));
-    // setEventLevel("Primary");
-    // setSelectedEvent(null);
-  };
+  const laptopReservationOptions: { value: ReservationType; label: string }[] =
+    [
+      { value: "internship", label: "کارآموزی" },
+      { value: "project", label: "پروژه" },
+    ];
 
-  const mergeDateAndTime = (date: DateObject, time: DateObject): Date => {
-    const merged = new Date(date.toDate()); // تبدیل به Date واقعی
+  useEffect(() => {
+    setSeatType(seat.type as SeatType);
+    setSeatNumber(seat.number);
+  }, [seat.type, seat.number, setSeatType, setSeatNumber]);
 
-    merged.setHours(time.hour, time.minute, 0, 0);
+  async function handleSubmitReservation() {
+    const result = await makeReservation();
 
-    return merged;
-  };
+    if (!result) return;
 
-  const handleAddOrUpdateEvent = () => {
-    if (!selectedDate || !startTime || !endTime) {
-      alert("همه فیلدها الزامی است");
-      return;
-    }
-
-    const start = mergeDateAndTime(selectedDate, startTime);
-    const end = mergeDateAndTime(selectedDate, endTime);
-    // console.log("start:", start);
-    // console.log("end:", end);
-
-    if (end.getTime() <= start.getTime()) {
-      alert("زمان پایان باید بعد از زمان شروع باشد");
-      return;
-    }
-
-    // if (!validateWorkingHours(start) || !validateWorkingHours(end)) {
-    //   alert("ساعت کاری فقط بین ۸ تا ۱۴ است");
-    //   return;
-    // }
-
-    const newEventData = {
-      // title: eventTitle,
-      start: start.toISOString(),
-      end: end.toISOString(),
-      extendedProps: {
-        // calendar: eventLevel,
-        chair: chair,
-      },
-    };
-
-    // if (selectedEvent) {
-    //   onAddEvent((prev) =>
-    //     prev.map((ev) =>
-    //       ev.id === selectedEvent.id ? { ...ev, ...newEventData } : ev,
-    //     ),
-    //   );
-    // } else {
-    if (!onAddEvent) return;
-    onAddEvent((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString(),
-        ...newEventData,
-        allDay: false,
-      },
-    ]);
-    // }
-
-    // closeModal();
-    resetModalFields();
-  };
-
-  // const handleReserveClick = () => {
-  // openModal();
-  // };
-
-  // console.log("end: ", endTime);
+    resetReservationForm();
+  }
 
   const fullLabel = `${seat.type}${seat.number}`;
 
+  function handleDateChange(value: DateObject | DateObject[] | null) {
+    if (!value) return;
+
+    if (Array.isArray(value)) return;
+
+    const jsDate = value.toDate();
+
+    const year = jsDate.getFullYear();
+    const month = String(jsDate.getMonth() + 1).padStart(2, "0");
+    const day = String(jsDate.getDate()).padStart(2, "0");
+
+    const gregorianDate = `${year}-${month}-${day}`;
+
+    setReservationDate(gregorianDate);
+  }
+
   return (
     <div className="mt-4 rounded-xl bg-gray-800 p-4 text-white shadow-lg">
-      {/* Header */}
       <div className="mb-4 text-sm leading-6">
         صندلی <strong>{fullLabel}</strong>
-        {/* <span className="mx-2">—</span>
-        {STATUS_LABEL[status]} */}
       </div>
 
-      {/* Content */}
       <div className="flex flex-col gap-4">
-        {/* Date Picker */}
         <div className="flex gap-2">
           <div className="w-full">
             <label className="mb-1.5 block text-sm font-medium text-gray-300">
@@ -159,30 +117,37 @@ export function SeatDetailPanel({
             </label>
 
             <DatePicker
-              minDate={new DateObject()}
-              maxDate={new DateObject().add(7, "days")}
+              minDate={new DateObject(openDates[0])}
+              maxDate={new DateObject(openDates[openDates.length - 1])}
               editable={false}
-              value={selectedDate}
               calendar={persian}
               locale={persian_fa}
               containerStyle={{ width: "100%" }}
               inputClass="fa h-11 w-full rounded-lg border border-gray-300 bg-white px-4 text-sm text-black"
               className="text-black"
               containerClassName="w-full"
-              onChange={(v) => setSelectedDate(v as DateObject)}
+              onChange={handleDateChange}
+              value={reservationDate ? new DateObject(reservationDate) : null}
             />
           </div>
 
-          {/* Select */}
           <div className="w-full">
             <label className="mb-1.5 block text-sm font-medium text-gray-300">
-              تایپ رزرویشن
+              نوع رزرو
             </label>
 
             <Select
-              options={options}
+              options={
+                seat.type === "laptop"
+                  ? laptopReservationOptions
+                  : pcReservationOptions
+              }
               placeholder="انتخاب کنید"
               className="relative text-black"
+              // defaultValue={reservationType}
+              onChange={(value) =>
+                setReservationType(value as ReservationType | null)
+              }
             />
           </div>
         </div>
@@ -192,21 +157,23 @@ export function SeatDetailPanel({
             انتخاب زمان
           </label>
 
-          <TimeSlotGrid
-            slots={initialSlots}
+          <TimeSlotGridContainer
+            date={reservationDate}
+            endTime={endTime}
+            startTime={startTime}
+            seatNumber={seat.number}
+            seatType={seat.type as SeatType}
+            setStartTime={setStartTime}
+            setEndTime={setEndTime}
             onRangeSelect={(start, end) => {
               console.log(`انتخاب بازه: ${start} تا ${end}`);
-              // اینجا می‌توانید استیت‌های start و end خود را آپدیت کنید
             }}
           />
         </div>
 
-        {/* Buttons */}
         <div className="flex flex-col gap-3 pt-2 sm:flex-row">
           <button
-            onClick={() => {
-              resetModalFields();
-            }}
+            onClick={resetReservationForm}
             type="button"
             className="w-full rounded-lg bg-gray-600 px-4 py-3 text-sm font-medium transition hover:bg-gray-500"
           >
@@ -214,14 +181,87 @@ export function SeatDetailPanel({
           </button>
 
           <button
-            onClick={handleAddOrUpdateEvent}
+            onClick={handleSubmitReservation}
             type="button"
-            className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium transition hover:bg-blue-700"
+            disabled={pending}
+            className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {2 == 2 ? "ویرایش رزرو" : "ثبت رزرو"}
+            {pending ? "در حال ثبت..." : "ثبت رزرو"}
           </button>
         </div>
       </div>
     </div>
+  );
+}
+
+function TimeSlotGridContainer(props: {
+  date: string;
+  seatType: SeatType;
+  seatNumber: number;
+
+  startTime: string;
+  endTime: string;
+  setStartTime: (t: string) => void;
+  setEndTime: (t: string) => void;
+  onRangeSelect?: (start: string, end: string) => void;
+}) {
+  const { schedule, loading, error } = useWeeklyScheduleTimeslots(
+    {
+      date: props.date,
+      seatType: props.seatType,
+      seatNumber: props.seatNumber,
+    },
+    {
+      enabled: Boolean(props.date && props.seatType && props.seatNumber),
+    },
+  );
+
+  const slots = useMemo<TimeSlot[]>(() => {
+    const selectedDay = schedule.find((day) => day.date === props.date);
+
+    if (!selectedDay) return [];
+
+    return selectedDay.slots.map((slot) => ({
+      id: `${selectedDay.date}-${slot.timeslot_number}`,
+      time: slot.start_time,
+      status: slot.status,
+    }));
+  }, [schedule, props.date]);
+
+  if (!props.date) {
+    return (
+      <div className="text-sm text-gray-400">
+        ابتدا تاریخ رزرو را انتخاب کنید.
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="text-sm text-gray-300">در حال دریافت زمان‌ها...</div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-sm text-red-400">{error}</div>;
+  }
+
+  if (slots.length === 0) {
+    return (
+      <div className="text-sm text-gray-400">
+        برای این تاریخ اسلاتی پیدا نشد.
+      </div>
+    );
+  }
+
+  return (
+    <TimeSlotGrid
+      slots={slots}
+      startTime={props.startTime}
+      endTime={props.endTime}
+      setStartTime={props.setStartTime}
+      setEndTime={props.setEndTime}
+      onRangeSelect={props.onRangeSelect}
+    />
   );
 }
