@@ -291,6 +291,23 @@ components:
           type: string
           nullable: true
 
+    # ============ SEAT SCHEMAS ============
+    SeatCounts:
+      type: object
+      properties:
+        manager:
+          type: integer
+          example: 1
+        dotin:
+          type: integer
+          example: 4
+        optimization:
+          type: integer
+          example: 2
+        laptop:
+          type: integer
+          example: 3
+
     # ============ RESERVATION SCHEMAS ============
 
     WeeklyScheduleRequest:
@@ -1016,6 +1033,27 @@ paths:
           description: Not logged in
         '409':
           description: Phone number already exists
+
+  # ==================== SEAT ENDPOINTS ====================
+  /seats/get_seat_types_and_counts:
+    get:
+      summary: Get seat types and their counts
+      description: Returns a list of all seat types and how many seats of each type exist in the lab
+      operationId: getSeatTypesAndCounts
+      tags:
+        - Seats
+      responses:
+        '200':
+          description: Seat types and counts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  seat_types:
+                    $ref: '#/components/schemas/SeatCounts'
 
   # ==================== RESERVATION ENDPOINTS ====================
 
