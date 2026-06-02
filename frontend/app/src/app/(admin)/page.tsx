@@ -9,6 +9,7 @@ import ReserveList from "@/features/home/components/ReserveList";
 import { useSidebar } from "@/context/SidebarContext";
 import SeatMap from "@/features/home/components/seat-map";
 import { useRouter } from "next/navigation";
+import BottomNavBar from "@/layout/BottomNavBar";
 
 export default function Ecommerce() {
   const { isMobile } = useSidebar();
@@ -84,6 +85,7 @@ export default function Ecommerce() {
         <div>
           <SeatMap />
           <ColorLegend />
+          <BottomNavBar />
         </div>
       ) : (
         //mobile
