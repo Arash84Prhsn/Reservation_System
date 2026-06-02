@@ -82,6 +82,7 @@ def get_this_week_schedule_timeslots():
     data: dict = request.get_json()
     seat_type: str = data.get("seat_type")
     seat_number = data.get("seat_number")
+    user_id = session.get("user_id")
 
     if not seat_type:
         return jsonify({"success" : False,
@@ -98,7 +99,7 @@ def get_this_week_schedule_timeslots():
                         "message" : "Invalid seat_type has been given"}), 400
     
     d = date.today()
-    schedule = ReservationServices.get_weekly_schedule_timeslots_in_dates(d,seat_type, seat_number)
+    schedule = ReservationServices.get_weekly_schedule_timeslots_in_dates(d,seat_type, seat_number, user_id)
     schedule["success"] = True
     return jsonify(schedule)
 
@@ -113,6 +114,7 @@ def get_week_schedule_by_date():
     date_str = data.get("date")
     seat_type: str = data.get("seat_type")
     seat_number = data.get("seat_number")
+    user_id = session.get("user_id")
 
     if not date_str:
         return jsonify({"success" : False,
@@ -134,7 +136,7 @@ def get_week_schedule_by_date():
 
     try:
         d = date.fromisoformat(date_str)
-        schedule = ReservationServices.get_weekly_schedule_timeslots_in_dates(d, seat_type, seat_number)
+        schedule = ReservationServices.get_weekly_schedule_timeslots_in_dates(d, seat_type, seat_number, user_id)
         schedule["success"] = True
         return jsonify(schedule)
     

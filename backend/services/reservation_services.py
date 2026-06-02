@@ -365,14 +365,14 @@ class ReservationServices:
 
 
     @staticmethod
-    def get_weekly_schedule_timeslots_in_dates(date_obj, seat_type, seat_number):
+    def get_weekly_schedule_timeslots_in_dates(date_obj, seat_type, seat_number, current_user_id):
         """
         Get the weekly schedule for a specific seat for the week containing the given date.
-        Week starts on SATURDAY and ends on WEDNESDAY. The status of each slot can be one of the 3
+        Week starts on SATURDAY and ends on WEDNESDAY. The status of each slot can be one of the 4
         following values:
         1. free
-        2. reserved_by_user
-        3. reserved_by_others
+        2. reserved_by_user (current user's reservation)
+        3. reserved_by_others (someone else's reservation)
         4. event
 
         In the case that the status is free or event, the "reservation_type" and the "reserved_by"
@@ -382,24 +382,7 @@ class ReservationServices:
         :param seat_type: Type of the seat (e.g., 'laptop', 'Dotin')
         :param seat_number: Seat number within its type
         :returns: List of objects, each containing a date and its time slots for the specific seat
-        
-        Example output:
-        {
-            "schedule": [
-                {
-                    'date': '2026-05-16',
-                    'slots': [
-                        {'timeslot_number': 1, 'start_time': '08:00', 'end_time': '08:15', 'status': 'free', ...},
-                        ...
-                    ]
-                },
-                ...
-            ]
-        }
         """
-        from datetime import timedelta
-        from sqlalchemy import select
-        from backend.services.reservation_services import ReservationServices
         
         # First, get the seat ID
         with get_db_connection() as conn:
@@ -438,7 +421,7 @@ class ReservationServices:
             })
         
         with get_db_connection() as conn:
-            # Get all reservations for the specific seat for the week (implicit join)
+            # Get all reservations for the specific seat for the week
             reservation_stmt = select(
                 Reservation.reservation_date,
                 Reservation.start_time,
@@ -447,14 +430,13 @@ class ReservationServices:
                 User.id.label('reserved_by')
             ).where(
                 Reservation.user_id == User.id,
-                Reservation.seat_id == seat_id,  # Filter by specific seat
+                Reservation.seat_id == seat_id,
                 Reservation.reservation_date.in_([d['date'] for d in dates]),
                 Reservation.status == 'active'
             )
             reservations = conn.execute(reservation_stmt).all()
             
             # Get all events for the week (events are not seat-specific, they affect all seats)
-            # For events, we still need to show them because they block the entire workspace
             event_stmt = select(
                 Event.date,
                 Event.start_time,
@@ -494,7 +476,7 @@ class ReservationServices:
                 'user_id': event.reserved_by
             })
         
-        # Build the result as a LIST (order guaranteed: Saturday to Wednesday)
+        # Build the result
         result = {"schedule": []}
         for day_info in dates:
             date_str = day_info['date_str']
@@ -533,11 +515,17 @@ class ReservationServices:
                         break
                 
                 if reservation_match:
+                    # Determine if the reservation belongs to the current user or someone else
+                    if reservation_match['user_id'] == current_user_id:
+                        status = 'reserved_by_user'
+                    else:
+                        status = 'reserved_by_others'
+                    
                     day_schedule.append({
                         'timeslot_number': slot['timeslot_number'],
                         'start_time': slot['start_time'],
                         'end_time': slot['end_time'],
-                        'status': 'reserved',
+                        'status': status,
                         'reservation_type': reservation_match['type'],
                         'reserved_by': reservation_match['user_id']
                     })
@@ -551,7 +539,6 @@ class ReservationServices:
                         'reserved_by': None
                     })
             
-            # Append each date as an object in the list
             result['schedule'].append({
                 'date': date_str,
                 'slots': day_schedule
