@@ -53,8 +53,15 @@ class User(DeclarativeBase):
      # ============ ROLE METHODS ============
     
     def has_role(self, role_name):
-        """Check if user has a specific role"""
-        return self.role.name == role_name if self.role else False
+        """Check if user has a specific role by role_id"""
+        # Map role_id to role names (you could cache this)
+        role_map = {
+            1: 'admin',
+            2: 'event_manager', 
+            3: 'user'
+        }
+        role = role_map.get(self.role_id)
+        return role == role_name
     
     def is_admin_role(self):
         """Check if user is an admin"""
