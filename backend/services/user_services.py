@@ -21,6 +21,19 @@ class UserServices:
         return session.get("logged_in") is not None
 
     @staticmethod
+    def get_logged_in_user():
+        """
+        Returns the currently logged in `User` object. If user is not logged in, returns `None`
+        """
+        if not UserServices.is_user_logged_in():
+            return None
+        
+        user_id = session.get("user_id")
+        user = UserServices.get_user_byID(user_id)
+
+        return user
+        
+    @staticmethod
     def hash_password(password):
         """Hash a password with bcrypt - works on all Python versions"""
         # Convert to string if needed

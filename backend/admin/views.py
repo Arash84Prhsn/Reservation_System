@@ -4,6 +4,7 @@ from flask_admin.contrib.sqla import ModelView
 from database import get_db_connection
 from backend.models import User, Seat, Reservation, Event
 from sqlalchemy.orm import joinedload
+from sqlalchemy import func
 
 class CustomAdminIndexView(AdminIndexView):
     """Custom admin homepage"""
@@ -17,10 +18,10 @@ class CustomAdminIndexView(AdminIndexView):
         total_reservations = conn.query(Reservation).count()
         total_events = conn.query(Event).count()
         
-        # Eagerly load the 'user' relationship to avoid detached instance error
+        # Eagerly load both 'user' and 'user.role' to avoid detached instance error
         recent_reservations = conn.query(Reservation).options(
-            joinedload(Reservation.user)
-        ).order_by(Reservation.created_at.desc()).limit(15).all()
+            joinedload(Reservation.user).joinedload(User.role)
+        ).order_by(Reservation.created_at.desc()).limit(10).all()
         
         conn.close()
         
@@ -34,10 +35,99 @@ class CustomAdminIndexView(AdminIndexView):
         )
 
 class CustomModelView(ModelView):
-    """Base ModelView with authentication"""
+    """Base ModelView with authentication and search capabilities"""
+    
+    # Default sort
+    column_default_sort = ('id', False)
+
+    # Diplay the ID column
+    column_display_pk = True
+    
+    # Number of items per page
+    page_size = 25
     
     def is_accessible(self):
-        return session.get('is_admin', False)
+        return session.get("is_admin", False)
     
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for('admin_auth.login', next=request.url))
+
+
+# You can also create specific views for different models
+class UserModelView(CustomModelView):
+    """User-specific view with custom searchable fields"""
+    
+    # Eagerly load role to avoid detached instance error
+    column_labels = {
+        'username': 'Username',
+        'email': 'Email',
+        'phone': 'Phone',
+        'association': 'Association',
+        'role': 'Role',  # This will now work because role is eager loaded
+        'created_at': 'Created At',
+        'last_login': 'Last Login'
+    }
+    
+    # Override the default query to eager load role
+    def get_query(self):
+        return self.session.query(self.model).options(joinedload(User.role))
+    
+    def get_count_query(self):
+        return self.session.query(func.count('*')).select_from(self.model)
+
+
+class ReservationModelView(CustomModelView):
+    """Reservation-specific view"""
+
+    column_searchable_list = ['reservation_type', 'status']
+    column_filters = ['reservation_date', 'status', 'seat_id', 'reservation_type']
+    column_labels = {
+        'id': 'ID',
+        'user': 'User',
+        'seat': 'Seat',
+        'reservation_date': 'Date',
+        'start_time': 'Start',
+        'end_time': 'End',
+        'reservation_type': 'Purpose',
+        'status': 'Status'
+    }
+
+class SeatModelView(CustomModelView):
+    """Seat-specific view"""
+    
+    column_searchable_list = ['seat_type', 'seat_number']
+    column_filters = ['seat_type', 'is_reservable']
+    column_labels = {
+        'id': 'ID',
+        'seat_type': 'Seat Type',
+        'seat_number': 'Seat Number',
+        'is_reservable': 'Is Reservable'
+    }
+    
+    # Make boolean values show as Yes/No instead of True/False
+    column_formatters = {
+        'is_reservable': lambda v, c, m, p: 'Yes' if m.is_reservable else 'No'
+    }
+
+
+class EventModelView(CustomModelView):
+    column_searchable_list = ['status', 'date', 'status', 'user_id']
+    column_filters = ['date', 'status', 'user_id']
+    
+    # Hide these columns from list view if they're too verbose
+    column_exclude_list = ['created_at', 'cancelled_at']
+    
+    column_labels = {
+        'id': 'ID',
+        'user': 'Created By',
+        'date': 'Date',
+        'start_time': 'Start',
+        'end_time': 'End',
+        'status': 'Status',
+    }
+    
+    column_formatters = {
+        'date': lambda v, c, m, p: m.date.strftime('%Y-%m-%d') if m.date else '-',
+        'start_time': lambda v, c, m, p: m.start_time.strftime('%H:%M') if m.start_time else '-',
+        'end_time': lambda v, c, m, p: m.end_time.strftime('%H:%M') if m.end_time else '-',
+    }

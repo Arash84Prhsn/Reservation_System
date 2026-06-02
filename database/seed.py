@@ -55,9 +55,9 @@ def seed_admin_and_manager_users():
     
     # Define admin and manager users
     special_users = [
-        ('ADMIN_ARASH', 'Arash1212', 'poorhasaniArash@gmail.com', None, "bachelor student", admin_role),
-        ('ADMIN_AMIN', 'AdminPass123', 'admin2@example.com', None, "bachelor student", admin_role),
-        ('Rezvan Najib', 'UserPass123', 'manager@example.com', None, "dotin associate", event_manager_role),
+        ('admin_arash', 'Arash1212', 'poorhasaniArash@gmail.com', None, "bachelor student", admin_role),
+        ('admin_amin', 'AdminPass123', 'admin2@example.com', None, "bachelor student", admin_role),
+        ('rezvan najib', 'UserPass123', 'manager@example.com', None, "dotin associate", event_manager_role),
     ]
     
     created_count = 0

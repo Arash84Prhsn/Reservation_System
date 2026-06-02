@@ -89,6 +89,7 @@ def register():
         session['email'] = newUser.email
         session['phone'] = newUser.phone
         session['association'] = newUser.association
+        session['is_admin'] = False
         
         # Update last login
         UserServices.update_last_login(newUser.id)
@@ -137,6 +138,11 @@ def login():
     session['email'] = user.email
     session['phone'] = user.phone
     session['association'] = user.association
+    session["is_admin"] = False
+
+    # Check to see if the logged in user is at least an event manager
+    if user.is_event_manager_role() or user.is_admin_role():
+        session["is_admin"] = True
     
     # Update last login
     UserServices.update_last_login(user.id)

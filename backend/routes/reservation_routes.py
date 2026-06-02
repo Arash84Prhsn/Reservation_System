@@ -299,7 +299,7 @@ def make_reservation():
 
     return jsonify(status), 200;
 
-reservation_bp.route("/final_reservation_submission", methods=["POST"])
+@reservation_bp.route("/final_reservation_submission", methods=["POST"])
 def final_reservation_submission():
     if not UserServices.is_user_logged_in():
         return jsonify({"success" : False,
@@ -343,7 +343,7 @@ def final_reservation_submission():
 
 # ==============================<RESERVATION CANCELLATION>==========================================
 
-reservation_bp.route("/cancel_reservation_with_all_info", methods=["PUT"])
+@reservation_bp.route("/cancel_reservation_with_all_info", methods=["PUT"])
 def cancel_reservation_with_all_info():
     if not UserServices.is_user_logged_in():
         return jsonify({"success" : False,
@@ -387,7 +387,7 @@ def cancel_reservation_with_all_info():
     return jsonify({"success" : True,
                     "message" : msg}), 200
 
-reservation_bp.route("/cancel_reservation_by_id", methods=["PUT"])
+@reservation_bp.route("/cancel_reservation_by_id", methods=["PUT"])
 def cancel_reservation_by_id():
     if not UserServices.is_user_logged_in():
         return jsonify({"success" : False,

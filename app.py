@@ -1,16 +1,15 @@
-from flask import Flask, request, send_from_directory
+from flask import Flask
 from flask_cors import CORS
-from flask_admin import Admin
-from flask_admin.theme import Bootstrap4Theme
-from flask_admin.contrib.sqla import ModelView
 from backend.models import *
 from database.connection import get_db_connection
 from database.connection import init_db, init_roles
 from database.seed import seed_admin_and_manager_users
-from database.seed import seed_seats, seed_users, seed_reservations_for_current_week, delete_all_reservations
+from database.seed import seed_seats, seed_users, seed_reservations_for_current_week
+from database.seed import delete_all_reservations
 from backend.routes import blueprints
 from backend.services.scheduledTasks import init_scheduler
 from backend.admin import init_admin
+from backend.admin.views import UserModelView, ReservationModelView, EventModelView, SeatModelView
 
 # initialize the app
 app = Flask(__name__, template_folder="backend/templates")
@@ -24,8 +23,10 @@ CORS(app,
      expose_headers=["Content-Type", "Set-Cookie"]
 )
 
+# Initialize the admin page settings
 admin = init_admin(app=app)
 
+# Set the secret key for the app here
 app.secret_key = "c995897f9499dc39986fad92f8e02a28cfb01b4d4aae2a0e53b0cabccd4ba49b"
 
 # register all the blueprints specified in the backend/routes/__init__.py
@@ -46,10 +47,11 @@ seed_reservations_for_current_week()
 # Connect the admin page to the models
 db_session = get_db_connection()
 
-admin.add_view(ModelView(User, db_session, endpoint='admin_user_view', name='Users'))
-admin.add_view(ModelView(Seat, db_session, endpoint='admin_seat_view', name='Seats'))
-admin.add_view(ModelView(Reservation, db_session, endpoint='admin_reservation_view', name='Reservations'))
-admin.add_view(ModelView(Event, db_session, endpoint='admin_event_view', name='Events'))
+# Add views for the tables
+admin.add_view(UserModelView(User, db_session, endpoint='admin_user_view', name='Users'))
+admin.add_view(SeatModelView(Seat, db_session, endpoint='admin_seat_view', name='Seats'))
+admin.add_view(ReservationModelView(Reservation, db_session, endpoint='admin_reservation_view', name='Reservations'))
+admin.add_view(EventModelView(Event, db_session, endpoint='admin_event_view', name='Events'))
 
 # Finally init the scheduled tasks
 init_scheduler(app=app)
