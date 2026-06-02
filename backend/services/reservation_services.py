@@ -356,10 +356,9 @@ class ReservationServices:
 
         for i in range(5):
             date_of_day: date = start_of_week_date + timedelta(days=i)
-            date_of_day = date_of_day.isoformat()
-            result["dates"].append({date_of_day : SeatServices.get_seat_schedule_for_day(seat_type,
-                                                                                         seat_number,
-                                                                                         date_of_day)})
+            result["dates"].append(SeatServices.get_seat_schedule_for_day(seat_type,
+                                                                          seat_number,
+                                                                          date_of_day))
         return result
 
 

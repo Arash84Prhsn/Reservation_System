@@ -78,7 +78,7 @@ class SeatServices:
     # ============<SCHEDULES>============
 
     @staticmethod
-    def get_seat_schedule_for_day(seat_type, seat_number, date_of_day):
+    def get_seat_schedule_for_day(seat_type, seat_number, date_of_day: date):
         """
         Retruns a dict of two keys, "reservations" & "events". the value for which is a 
         list of dicts that contain information for the reservations or the events respectively.
@@ -88,7 +88,7 @@ class SeatServices:
         :param date_of_day: The date in question
         """
 
-        results = {"events" : [], "reservations" : []}
+        results = {"date" : date_of_day.isoformat(), "events" : [], "reservations" : []}
 
         seat_id = SeatServices.get_seat_id_by_type_number(seat_type, seat_number)
 
