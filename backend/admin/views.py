@@ -7,7 +7,15 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy import func
 
 class CustomAdminIndexView(AdminIndexView):
-    """Custom admin homepage"""
+    """Custom admin homepage with authentication"""
+    
+    def is_accessible(self):
+        """Check if user is logged in as admin"""
+        return session.get("is_admin", False)
+    
+    def inaccessible_callback(self, name, **kwargs):
+        """Redirect to login page if not authenticated"""
+        return redirect(url_for('admin_auth.login', next=request.url))
     
     @expose('/')
     def index(self):
@@ -34,13 +42,14 @@ class CustomAdminIndexView(AdminIndexView):
             recent_reservations=recent_reservations
         )
 
+
 class CustomModelView(ModelView):
     """Base ModelView with authentication and search capabilities"""
     
     # Default sort
     column_default_sort = ('id', False)
 
-    # Diplay the ID column
+    # Display the ID column
     column_display_pk = True
     
     # Number of items per page
@@ -53,22 +62,22 @@ class CustomModelView(ModelView):
         return redirect(url_for('admin_auth.login', next=request.url))
 
 
-# You can also create specific views for different models
 class UserModelView(CustomModelView):
     """User-specific view with custom searchable fields"""
     
-    # Eagerly load role to avoid detached instance error
+    column_searchable_list = ['username', 'email', 'phone']
+    column_filters = ['association', 'role_id', 'created_at', 'last_login']
     column_labels = {
         'username': 'Username',
         'email': 'Email',
         'phone': 'Phone',
         'association': 'Association',
-        'role': 'Role',  # This will now work because role is eager loaded
+        'role': 'Role',
         'created_at': 'Created At',
         'last_login': 'Last Login'
     }
     
-    # Override the default query to eager load role
+    # Override the default query to eager load role and avoid detached instance error
     def get_query(self):
         return self.session.query(self.model).options(joinedload(User.role))
     
@@ -78,7 +87,7 @@ class UserModelView(CustomModelView):
 
 class ReservationModelView(CustomModelView):
     """Reservation-specific view"""
-
+    
     column_searchable_list = ['reservation_type', 'status']
     column_filters = ['reservation_date', 'status', 'seat_id', 'reservation_type']
     column_labels = {
@@ -91,6 +100,17 @@ class ReservationModelView(CustomModelView):
         'reservation_type': 'Purpose',
         'status': 'Status'
     }
+    
+    # Override the default query to eager load user and seat
+    def get_query(self):
+        return self.session.query(self.model).options(
+            joinedload(Reservation.user),
+            joinedload(Reservation.seat)
+        )
+    
+    def get_count_query(self):
+        return self.session.query(func.count('*')).select_from(self.model)
+
 
 class SeatModelView(CustomModelView):
     """Seat-specific view"""
@@ -111,7 +131,9 @@ class SeatModelView(CustomModelView):
 
 
 class EventModelView(CustomModelView):
-    column_searchable_list = ['status', 'date', 'status', 'user_id']
+    """Event-specific view"""
+    
+    column_searchable_list = ['status', 'date']
     column_filters = ['date', 'status', 'user_id']
     
     # Hide these columns from list view if they're too verbose
@@ -131,3 +153,10 @@ class EventModelView(CustomModelView):
         'start_time': lambda v, c, m, p: m.start_time.strftime('%H:%M') if m.start_time else '-',
         'end_time': lambda v, c, m, p: m.end_time.strftime('%H:%M') if m.end_time else '-',
     }
+    
+    # Override the default query to eager load user
+    def get_query(self):
+        return self.session.query(self.model).options(joinedload(Event.user))
+    
+    def get_count_query(self):
+        return self.session.query(func.count('*')).select_from(self.model)

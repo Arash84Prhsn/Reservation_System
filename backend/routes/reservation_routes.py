@@ -326,6 +326,11 @@ def final_reservation_submission():
     if not exists:
         return jsonify({"success" : False,
                         "message" : msg})
+    
+    reservation_date = date.fromisoformat(reservation_date)
+    start_time = time.fromisoformat(start_time)
+    end_time = time.fromisoformat(end_time)
+
     try:
         ReservationServices.create_reservation(reservation_date,
                                             reservation_type,

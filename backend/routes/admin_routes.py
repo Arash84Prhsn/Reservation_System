@@ -14,9 +14,6 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-
-        if username:
-            username = username.lower().strip()
         
         # Get user from database
         user = UserServices.get_user_byUsername(username)

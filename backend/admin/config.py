@@ -13,7 +13,7 @@ def init_admin(app):
         app,
         name="Reservation System Admin",
         theme=Bootstrap4Theme(swatch="lumen"),
-        index_view=CustomAdminIndexView()  # This is the key!
+        index_view=CustomAdminIndexView()  # This is critical for authentication
     )
     
     # Inject custom CSS
