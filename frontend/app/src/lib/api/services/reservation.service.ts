@@ -110,6 +110,15 @@ export interface CurrentWeekScheduleIntervalsResponse {
   dates: ScheduleIntervalDay[];
 }
 
+// type: weekly schedule intervals (desktop)
+export interface WeeklyScheduleIntervalsInput extends CurrentWeekScheduleIntervalsInput {
+  date: string;
+}
+
+export interface WeeklyScheduleIntervalsResponse extends CurrentWeekScheduleIntervalsResponse {
+  message?: string;
+}
+
 //API functions
 // make reservation API
 export async function make_reservation(input: ReservationInfo) {
@@ -206,6 +215,26 @@ export async function current_week_schedule_intervals(
   if (!res.success) {
     toast.error("خطا در دریافت اسلات‌های زمانی هفته جاری");
     throw new HttpError("Failed to fetch time slots", 400, res);
+  }
+
+  return res;
+}
+
+export async function weekly_schedule_intervals(
+  input: WeeklyScheduleIntervalsInput,
+) {
+  const res = await apiFetch<WeeklyScheduleIntervalsResponse>(
+    "/reservation/weekly_schedule_intervals",
+    {
+      method: "POST",
+      body: input,
+    },
+  );
+
+  // if api status is 2xx but success is false throw err.
+  if (!res.success) {
+    toast.error(res.message || "خطا در دریافت رزروه های هفته خواسته شده");
+    throw new HttpError("Failed to fetch intervals", 400, res);
   }
 
   return res;

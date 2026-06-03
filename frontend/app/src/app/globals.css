@@ -178,6 +178,26 @@
 }
 
 /* fullCalendar */
+/* container toolbar */
+/* .fc .fc-toolbar {
+  direction: rtl;
+} */
+
+/* group buttons keep LTR order (so prev stays left of next visually) */
+/* .fc .fc-toolbar-chunk:first-child {
+  direction: ltr;
+} */
+
+.fc .fc-myNext-button, 
+.fc .fc-myPrev-button {
+  color: #4B5563 !important; /* رنگ آیکون */
+  /* background-color: white !important; */
+  /* font-weight: bold; */
+  /* font-size: 1.5rem; بزرگ کردن آیکون */
+  /* line-height: 1rem; */
+  /* padding: 0 10px !important; */
+}
+
 .fc .fc-timegrid-slot {
   height: 3rem !important;
 }

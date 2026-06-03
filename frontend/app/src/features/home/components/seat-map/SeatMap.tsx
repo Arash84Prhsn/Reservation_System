@@ -7,7 +7,6 @@ import { type SeatMapConfig, type SeatData } from "./SeatMap.config";
 import { CalendarEvent } from "@/app/type";
 import { Table } from "./Table";
 import { SeatDetailPanel } from "./SeatDetailPanel";
-import { DesktopSeat } from "@/app/(admin)/page";
 
 interface SeatMapProps {
   config?: SeatMapConfig;

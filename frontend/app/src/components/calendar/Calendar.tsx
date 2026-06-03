@@ -33,9 +33,15 @@ type CalendarProps = {
   seat?: DesktopSeat;
   events?: CalendarEvent[];
   onAddEvent?: Dispatch<SetStateAction<CalendarEvent[]>>;
+  onChangeWeekClick?: (date: string) => void;
 };
 
-const Calendar = ({ seat, events, onAddEvent }: CalendarProps) => {
+const Calendar = ({
+  seat,
+  events,
+  onAddEvent,
+  onChangeWeekClick,
+}: CalendarProps) => {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null,
   );
@@ -208,13 +214,13 @@ const Calendar = ({ seat, events, onAddEvent }: CalendarProps) => {
     <div className="w-full rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="custom-calendar">
         <FullCalendar
+          // calendar custom UI
           eventBackgroundColor="transparent"
           eventBorderColor="transparent"
           eventTextColor="inherit"
-          eventContent={renderEventContent(user?.id)}
+          // some configuration
           eventOverlap={false}
           selectOverlap={false}
-          ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           locale={faLocale}
           editable
@@ -229,13 +235,33 @@ const Calendar = ({ seat, events, onAddEvent }: CalendarProps) => {
           slotDuration="00:15:00"
           slotLabelInterval="00:15:00"
           snapDuration="00:15:00"
+          headerToolbar={{
+            left: "myPrev,myNext today",
+            center: "title",
+            right: "timeGridWeek,timeGridDay",
+          }}
+          customButtons={{
+            myNext: {
+              text: "◀", // یا ""
+              hint: "بعدی",
+              click: () => calendarRef.current?.getApi().next(),
+            },
+            myPrev: {
+              text: "▶", // یا ""
+              hint: "قبلی",
+              click: () => calendarRef.current?.getApi().prev(),
+            },
+          }}
+          // ref & handlres
+          eventContent={renderEventContent(user?.id)}
+          ref={calendarRef}
           events={events}
           select={handleDateSelect}
           eventClick={handleEventClick}
-          headerToolbar={{
-            left: "prev,next today",
-            center: "title",
-            right: "timeGridWeek,timeGridDay",
+          datesSet={(arg) => {
+            const date = new DateObject(arg.start).format("YYYY-MM-DD");
+
+            onChangeWeekClick?.(date);
           }}
         />
       </div>
@@ -370,8 +396,8 @@ const Calendar = ({ seat, events, onAddEvent }: CalendarProps) => {
 
 type EventType = "reservation" | "event";
 
-const renderEventContent =
-  (userId?: number) => (eventInfo: EventContentArg) => {
+const renderEventContent = (userId?: number) =>
+  function EventContent(eventInfo: EventContentArg) {
     const reservedByID = eventInfo.event.extendedProps?.reservedBy as
       | number
       | undefined;
