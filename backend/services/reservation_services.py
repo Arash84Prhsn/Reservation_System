@@ -576,7 +576,7 @@ class ReservationServices:
 
     @staticmethod
     def check_reservation_for_conflicts(reservation_date, start_time, end_time,
-                                            reservation_type, seat_type, seat_number):
+                                        reservation_type, seat_type, seat_number):
         """
         Checks for any conflicts of reservations or events. In the case that the reservation
         is only meant for running programs then any reservation conflict invalidates it. However,
@@ -640,7 +640,7 @@ class ReservationServices:
             # Now check to see if any of the coflicts was from non system only reservations:
             non_system_conflicts = []
             for c in conflicts:
-                if ReservationServices.is_reservation_system_only(c.reservation_type):
+                if not ReservationServices.is_reservation_system_only(c.reservation_type):
                     non_system_conflicts.append(c)
 
             if non_system_conflicts:

@@ -37,6 +37,14 @@
         <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
+                    <h3>{{ total_active_reservations if total_active_reservations else 0 }}</h3>
+                    <p>Active Reservations</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
                     <h3>{{ total_events if total_events else 0 }}</h3>
                     <p>Total Events</p>
                 </div>
@@ -52,7 +60,9 @@
                 </div>
                 <div class="card-body">
                     <a href="{{ url_for('admin_user_view.index_view') }}" class="btn btn-primary">Manage Users</a>
-                    <a href="{{ url_for('admin_reservation_view.index_view') }}" class="btn btn-success">View Reservations</a>
+                    <a href="{{ url_for('admin_seat_view.index_view') }}" class="btn btn-light">Check out seats</a>
+                    <a href="{{ url_for('admin_reservation_view.index_view') }}" class="btn btn-info">View Reservations</a>
+                    <a href="{{ url_for('admin_event_view.index_view') }}" class="btn btn-success">View Events and Meetings</a>
                 </div>
             </div>
         </div>
@@ -119,5 +129,5 @@
 {% endblock %}
 
 {% block page_title %}
-    <!-- Empty this block -->
+    <!-- Empty this block to remove the default home text-->
 {% endblock %}

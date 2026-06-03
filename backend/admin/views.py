@@ -25,6 +25,9 @@ class CustomAdminIndexView(AdminIndexView):
         total_seats = conn.query(Seat).count()
         total_reservations = conn.query(Reservation).count()
         total_events = conn.query(Event).count()
+        total_active_reservations = conn.query(Reservation).where(Reservation.status=="active").count()
+        total_active_events = conn.query(Event).where(Event.status=="active").count()
+
         
         # Eagerly load both 'user' and 'user.role' to avoid detached instance error
         recent_reservations = conn.query(Reservation).options(
@@ -39,6 +42,8 @@ class CustomAdminIndexView(AdminIndexView):
             total_seats=total_seats,
             total_reservations=total_reservations,
             total_events=total_events,
+            total_active_reservations = total_active_reservations,
+            total_active_events = total_active_events,
             recent_reservations=recent_reservations
         )
 
