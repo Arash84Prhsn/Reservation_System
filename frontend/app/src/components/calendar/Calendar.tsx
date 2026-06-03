@@ -1,391 +1,264 @@
 "use client";
-
-import React, { useState, useRef, Dispatch, SetStateAction } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import {
-  // EventInput,
+  EventInput,
   DateSelectArg,
   EventClickArg,
   EventContentArg,
 } from "@fullcalendar/core";
-
-import { DateObject } from "react-multi-date-picker";
-import persian from "react-date-object/calendars/persian";
-import persian_fa from "react-date-object/locales/persian_fa";
-import faLocale from "@fullcalendar/core/locales/fa";
-
-import DatePicker from "react-multi-date-picker";
-import TimePicker from "react-multi-date-picker/plugins/time_picker";
-
 import { useModal } from "@/hooks/useModal";
 import { Modal } from "@/components/ui/modal";
 
-import { CalendarEvent } from "@/app/type";
-import Select from "../form/Select";
-import { DesktopSeat } from "@/app/(admin)/page";
-import { useAuth } from "@/context/AuthContext";
-// import SelectInputs from "../form/form-elements/SelectInputs";
+interface CalendarEvent extends EventInput {
+  extendedProps: {
+    calendar: string;
+  };
+}
 
-type CalendarProps = {
-  seat?: DesktopSeat;
-  events?: CalendarEvent[];
-  onAddEvent?: Dispatch<SetStateAction<CalendarEvent[]>>;
-  onChangeWeekClick?: (date: string) => void;
-};
-
-const Calendar = ({
-  seat,
-  events,
-  onAddEvent,
-  onChangeWeekClick,
-}: CalendarProps) => {
+const Calendar: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
-    null,
+    null
   );
-
   const [eventTitle, setEventTitle] = useState("");
-
-  const [selectedDate, setSelectedDate] = useState<DateObject | null>(null);
-  const [startTime, setStartTime] = useState<DateObject | null>(null); // read-only
-  const [endTime, setEndTime] = useState<DateObject | null>(null); // editable
-
-  const [eventLevel, setEventLevel] = useState("Primary");
-
+  const [eventStartDate, setEventStartDate] = useState("");
+  const [eventEndDate, setEventEndDate] = useState("");
+  const [eventLevel, setEventLevel] = useState("");
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const calendarRef = useRef<FullCalendar>(null);
-
   const { isOpen, openModal, closeModal } = useModal();
-  const { user } = useAuth();
 
-  // to prevent time picker to change date when it is NOT valid.
-  const previousValidStartRef = useRef<DateObject | null>(null);
-  const previousValidEndRef = useRef<DateObject | null>(null);
-
-  const options = [
-    { value: "A", label: "A" },
-    { value: "B", label: "B" },
-    { value: "C", label: "C" },
-  ];
-
-  // =========================
-  // Helpers
-  // =========================
-
-  // const roundTo15Minutes = (date: Date) => {
-  //   const ms = 1000 * 60 * 15;
-
-  //   return new Date(Math.round(date.getTime() / ms) * ms);
-  // };
-
-  const mergeDateAndTime = (date: DateObject, time: DateObject): Date => {
-    const merged = new Date(date.toDate()); // تبدیل به Date واقعی
-
-    merged.setHours(time.hour, time.minute, 0, 0);
-
-    return merged;
+  const calendarsEvents = {
+    Danger: "danger",
+    Success: "success",
+    Primary: "primary",
+    Warning: "warning",
   };
 
-  // TODO: make these 2 helper to one
-  const validateWorkingHours = (date: Date) => {
-    const hour = date.getHours();
-    return hour >= 8 && hour < 14;
-  };
-
-  const isValidWorkingTime = (date: DateObject) => {
-    const js = date.toDate();
-    const hour = js.getHours();
-
-    return hour >= 8 && hour < 14;
-  };
-
-  const resetModalFields = () => {
-    setEventTitle("");
-    // setStartTime(null);
-    setEndTime(null);
-    setEventLevel("Primary");
-    setSelectedEvent(null);
-  };
-
-  // =========================
-  // Calendar handlers
-  // =========================
+  useEffect(() => {
+    // Initialize with some events
+    setEvents([
+      {
+        id: "1",
+        title: "Event Conf.",
+        start: new Date().toISOString().split("T")[0],
+        extendedProps: { calendar: "Danger" },
+      },
+      {
+        id: "2",
+        title: "Meeting",
+        start: new Date(Date.now() + 86400000).toISOString().split("T")[0],
+        extendedProps: { calendar: "Success" },
+      },
+      {
+        id: "3",
+        title: "Workshop",
+        start: new Date(Date.now() + 172800000).toISOString().split("T")[0],
+        end: new Date(Date.now() + 259200000).toISOString().split("T")[0],
+        extendedProps: { calendar: "Primary" },
+      },
+    ]);
+  }, []);
 
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     resetModalFields();
-
-    const date = new DateObject(selectInfo.start);
-
-    date.set({ calendar: persian, locale: persian_fa });
-
-    setSelectedDate(date);
-
-    setStartTime(
-      new DateObject(selectInfo.start).set({
-        calendar: persian,
-        locale: persian_fa,
-      }),
-    );
-    setEndTime(new DateObject(selectInfo.end));
-
+    setEventStartDate(selectInfo.startStr);
+    setEventEndDate(selectInfo.endStr || selectInfo.startStr);
     openModal();
   };
 
   const handleEventClick = (clickInfo: EventClickArg) => {
     const event = clickInfo.event;
-
     setSelectedEvent(event as unknown as CalendarEvent);
-
     setEventTitle(event.title);
-
-    const start = event.start ? new DateObject(event.start) : null;
-    const end = event.end ? new DateObject(event.end) : null;
-
-    // تبدیل Date معمولی به DateObject
-    if (start) {
-      setSelectedDate(new DateObject(start));
-      setStartTime(new DateObject(start));
-    }
-
-    if (end) setEndTime(new DateObject(end));
-    previousValidStartRef.current = start;
-    previousValidEndRef.current = end;
-
-    setEventLevel(event.extendedProps.calendar || "Primary");
-
+    setEventStartDate(event.start?.toISOString().split("T")[0] || "");
+    setEventEndDate(event.end?.toISOString().split("T")[0] || "");
+    setEventLevel(event.extendedProps.calendar);
     openModal();
   };
 
   const handleAddOrUpdateEvent = () => {
-    if (!eventTitle || !selectedDate || !startTime || !endTime) {
-      alert("همه فیلدها الزامی است");
-      return;
-    }
-
-    const start = mergeDateAndTime(selectedDate, startTime);
-    const end = mergeDateAndTime(selectedDate, endTime);
-    console.log("start:", start);
-    console.log("end:", end);
-
-    if (end.getTime() <= start.getTime()) {
-      alert("زمان پایان باید بعد از زمان شروع باشد");
-      return;
-    }
-
-    if (!validateWorkingHours(start) || !validateWorkingHours(end)) {
-      alert("ساعت کاری فقط بین ۸ تا ۱۴ است");
-      return;
-    }
-
-    const newEventData = {
-      title: eventTitle,
-      start: start.toISOString(),
-      end: end.toISOString(),
-      extendedProps: {
-        calendar: eventLevel,
-        seat: seat,
-      },
-    };
-
-    if (!onAddEvent) return;
     if (selectedEvent) {
-      onAddEvent((prev) =>
-        prev.map((ev) =>
-          ev.id === selectedEvent.id ? { ...ev, ...newEventData } : ev,
-        ),
+      // Update existing event
+      setEvents((prevEvents) =>
+        prevEvents.map((event) =>
+          event.id === selectedEvent.id
+            ? {
+                ...event,
+                title: eventTitle,
+                start: eventStartDate,
+                end: eventEndDate,
+                extendedProps: { calendar: eventLevel },
+              }
+            : event
+        )
       );
     } else {
-      onAddEvent((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          ...newEventData,
-          allDay: false,
-        },
-      ]);
+      // Add new event
+      const newEvent: CalendarEvent = {
+        id: Date.now().toString(),
+        title: eventTitle,
+        start: eventStartDate,
+        end: eventEndDate,
+        allDay: true,
+        extendedProps: { calendar: eventLevel },
+      };
+      setEvents((prevEvents) => [...prevEvents, newEvent]);
     }
-
     closeModal();
     resetModalFields();
   };
 
+  const resetModalFields = () => {
+    setEventTitle("");
+    setEventStartDate("");
+    setEventEndDate("");
+    setEventLevel("");
+    setSelectedEvent(null);
+  };
+
   return (
-    <div className="w-full rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+    <div className="rounded-2xl border  border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="custom-calendar">
         <FullCalendar
-          // calendar custom UI
-          eventBackgroundColor="transparent"
-          eventBorderColor="transparent"
-          eventTextColor="inherit"
-          // some configuration
-          eventOverlap={false}
-          selectOverlap={false}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          locale={faLocale}
-          editable
-          selectable
-          direction="rtl"
-          firstDay={6}
-          hiddenDays={[4, 5]}
-          initialView="timeGridWeek"
-          allDaySlot={false}
-          slotMinTime="08:00:00"
-          slotMaxTime="14:00:00"
-          slotDuration="00:15:00"
-          slotLabelInterval="00:15:00"
-          snapDuration="00:15:00"
-          headerToolbar={{
-            left: "myPrev,myNext today",
-            center: "title",
-            right: "timeGridWeek,timeGridDay",
-          }}
-          customButtons={{
-            myNext: {
-              text: "◀", // یا ""
-              hint: "بعدی",
-              click: () => calendarRef.current?.getApi().next(),
-            },
-            myPrev: {
-              text: "▶", // یا ""
-              hint: "قبلی",
-              click: () => calendarRef.current?.getApi().prev(),
-            },
-          }}
-          // ref & handlres
-          eventContent={renderEventContent(user?.id)}
           ref={calendarRef}
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          initialView="dayGridMonth"
+          headerToolbar={{
+            left: "prev,next addEventButton",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay",
+          }}
           events={events}
+          selectable={true}
           select={handleDateSelect}
           eventClick={handleEventClick}
-          datesSet={(arg) => {
-            const date = new DateObject(arg.start).format("YYYY-MM-DD");
-
-            onChangeWeekClick?.(date);
+          eventContent={renderEventContent}
+          customButtons={{
+            addEventButton: {
+              text: "Add Event +",
+              click: openModal,
+            },
           }}
         />
       </div>
-
       <Modal
         isOpen={isOpen}
-        onClose={() => {
-          closeModal();
-          resetModalFields();
-        }}
-        className="max-w-[700px] overflow-visible p-6 lg:p-10"
+        onClose={closeModal}
+        className="max-w-[700px] p-6 lg:p-10"
       >
-        <div className="relative flex flex-col overflow-visible px-2">
+        <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
           <div>
-            <h5 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              {selectedEvent ? "تغییر رزرو" : "رزرو جدید"}
+            <h5 className="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
+              {selectedEvent ? "Edit Event" : "Add Event"}
             </h5>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Plan your next big moment: schedule or edit an event to stay on
+              track
+            </p>
           </div>
-
           <div className="mt-8">
-            {/* title */}
-            <div className="flex justify-between gap-15">
-              <div className="w-full">
-                <label className="fa mb-1.5 block font-medium text-gray-700 dark:text-gray-400">
-                  تاریخ انتخابی
+            <div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Event Title
                 </label>
-                <div className="h-11 w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-600">
-                  {selectedDate?.format("YYYY/MM/DD")}
-                </div>
+                <input
+                  id="event-title"
+                  type="text"
+                  value={eventTitle}
+                  onChange={(e) => setEventTitle(e.target.value)}
+                  className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                />
               </div>
-              <div className="w-full">
-                <label className="fa mb-1.5 block font-medium text-gray-700 dark:text-gray-400">
-                  تایپ رزرویشن
-                </label>
-                <Select
-                  options={options}
-                  placeholder="انتخاب کنید"
-                  onChange={(value) => setEventTitle(value)}
-                  // onChange={(e) => setEventTitle(e)}
-                  className="fa dark:bg-dark-900"
+            </div>
+            <div className="mt-6">
+              <label className="block mb-4 text-sm font-medium text-gray-700 dark:text-gray-400">
+                Event Color
+              </label>
+              <div className="flex flex-wrap items-center gap-4 sm:gap-5">
+                {Object.entries(calendarsEvents).map(([key, value]) => (
+                  <div key={key} className="n-chk">
+                    <div
+                      className={`form-check form-check-${value} form-check-inline`}
+                    >
+                      <label
+                        className="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400"
+                        htmlFor={`modal${key}`}
+                      >
+                        <span className="relative">
+                          <input
+                            className="sr-only form-check-input"
+                            type="radio"
+                            name="event-level"
+                            value={key}
+                            id={`modal${key}`}
+                            checked={eventLevel === key}
+                            onChange={() => setEventLevel(key)}
+                          />
+                          <span className="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700">
+                            <span
+                              className={`h-2 w-2 rounded-full bg-white ${
+                                eventLevel === key ? "block" : "hidden"
+                              }`}  
+                            ></span>
+                          </span>
+                        </span>
+                        {key}
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Enter Start Date
+              </label>
+              <div className="relative">
+                <input
+                  id="event-start-date"
+                  type="date"
+                  value={eventStartDate}
+                  onChange={(e) => setEventStartDate(e.target.value)}
+                  className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                 />
               </div>
             </div>
 
-            {/* dates */}
-            <div className="mt-6 flex flex-row-reverse justify-end gap-10">
-              {/* start */}
-              <div className="w-full">
-                <div>
-                  <label className="fa mb-1.5 block text-sm font-medium text-gray-700">
-                    زمان شروع
-                  </label>
-
-                  <div className="h-11 w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-600">
-                    {startTime?.format("HH:mm")}
-                  </div>
-                </div>
-              </div>
-
-              {/* end */}
-              <div className="w-full">
-                <label className="fa mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  زمان پایان
-                </label>
-
-                <DatePicker
-                  editable={false}
-                  value={
-                    endTime
-                      ? new DateObject().set({
-                          hour: endTime.hour,
-                          minute: endTime.minute,
-                        })
-                      : null
-                  }
-                  disableDayPicker
-                  format="HH:mm"
-                  calendar={persian}
-                  locale={persian_fa}
-                  containerStyle={{ width: "100%" }}
-                  inputClass="fa h-11 w-full rounded-lg border border-gray-300 px-4 text-sm"
-                  plugins={[
-                    <TimePicker key="end-time" hideSeconds mStep={15} />,
-                  ]}
-                  onChange={(time) => {
-                    if (!time) return;
-
-                    if (!isValidWorkingTime(time)) {
-                      alert("ساعت فقط بین ۸ تا ۱۴ قابل انتخاب است");
-
-                      // برگرداندن به مقدار معتبر قبلی (اگر وجود داشت)
-                      if (previousValidEndRef.current) {
-                        setEndTime(new DateObject(previousValidEndRef.current));
-                      }
-                    } else {
-                      // ذخیره مقدار جدید به عنوان معتبر
-                      previousValidEndRef.current = new DateObject(time);
-                      setEndTime(time);
-                    }
-                  }}
+            <div className="mt-6">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Enter End Date
+              </label>
+              <div className="relative">
+                <input
+                  id="event-end-date"
+                  type="date"
+                  value={eventEndDate}
+                  onChange={(e) => setEventEndDate(e.target.value)}
+                  className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                 />
               </div>
             </div>
           </div>
-
-          {/* footer */}
-          <div className="mt-6 flex items-center gap-3 sm:justify-end">
+          <div className="flex items-center gap-3 mt-6 modal-footer sm:justify-end">
             <button
-              onClick={() => {
-                closeModal();
-                resetModalFields();
-              }}
+              onClick={closeModal}
               type="button"
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium"
+              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
             >
-              بستن
+              Close
             </button>
-
             <button
               onClick={handleAddOrUpdateEvent}
               type="button"
-              className="bg-brand-500 hover:bg-brand-600 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
+              className="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
             >
-              {selectedEvent ? "ویرایش رزرو" : "ثبت رزرو"}
+              {selectedEvent ? "Update Changes" : "Add Event"}
             </button>
           </div>
         </div>
@@ -394,37 +267,17 @@ const Calendar = ({
   );
 };
 
-type EventType = "reservation" | "event";
-
-const renderEventContent = (userId?: number) =>
-  function EventContent(eventInfo: EventContentArg) {
-    const reservedByID = eventInfo.event.extendedProps?.reservedBy as
-      | number
-      | undefined;
-
-    const type = (eventInfo.event.extendedProps?.type ?? "event") as EventType;
-
-    const isMine =
-      type === "reservation" && userId != null && reservedByID === userId;
-
-    const baseColorByType: Record<EventType, string> = {
-      reservation: "bg-purple-400",
-      event: "bg-gray-400",
-    };
-
-    const reservationColor = isMine ? "bg-blue-400" : baseColorByType[type];
-
-    return (
-      <div
-        className={`flex h-full w-full flex-col rounded-sm ${reservationColor} p-1 text-white`}
-      >
-        <div className="text-xs font-semibold">
-          {eventInfo.event.extendedProps.seat}
-        </div>
-        <div className="text-xs font-semibold">{eventInfo.timeText}</div>
-        <div className="truncate text-xs">{eventInfo.event.title}</div>
-      </div>
-    );
-  };
+const renderEventContent = (eventInfo: EventContentArg) => {
+  const colorClass = `fc-bg-${eventInfo.event.extendedProps.calendar.toLowerCase()}`;
+  return (
+    <div
+      className={`event-fc-color flex fc-event-main ${colorClass} p-1 rounded-sm`}
+    >
+      <div className="fc-daygrid-event-dot"></div>
+      <div className="fc-event-time">{eventInfo.timeText}</div>
+      <div className="fc-event-title">{eventInfo.event.title}</div>
+    </div>
+  );
+};
 
 export default Calendar;

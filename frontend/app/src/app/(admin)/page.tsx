@@ -1,18 +1,14 @@
 "use client";
-import Calendar from "@/components/calendar/Calendar";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import ColorLegend from "@/features/home/components/ColorLegend";
-import ReserveList from "@/features/home/components/ReserveList";
 import { useSidebar } from "@/context/SidebarContext";
 import SeatMap from "@/features/home/components/seat-map";
 import { useRouter } from "next/navigation";
 import BottomNavBar from "@/layout/BottomNavBar";
 import { SeatType } from "@/lib/api/services/reservation.service";
-import { mapScheduleIntervalsToCalendarEvents } from "@/features/home/components/mapScheduleIntervalsToCalendarEvents";
 import SeatList from "@/features/home/components/SeatList";
-import useWeeklyScheduleIntervals from "@/features/home/hooks/use-weekly-schedule-intervals";
-import { DateObject } from "react-multi-date-picker";
+import HomeCalendar from "@/features/home/components/HomeCalendar";
 
 export interface DesktopSeat {
   type: SeatType;
@@ -23,34 +19,8 @@ export default function Ecommerce() {
   const { isMobile } = useSidebar();
   const { user, isUserInitialized } = useAuth();
   const [seat, setSeat] = useState<DesktopSeat | null>(null);
-  const [selectedWeekDate, setSelectedWeekDate] = useState<string>(
-    new DateObject().format("YYYY-MM-DD"),
-  );
 
   const router = useRouter();
-
-  // TODO: Add refetch
-  // const { scheduleIntervals, loading, error } = useCurrentWeekScheduleIntervals(
-  //   {
-  //     seatType: seat?.type,
-  //     seatNumber: seat?.number,
-  //   },
-  // );
-
-  const { scheduleIntervals, loading, error } = useWeeklyScheduleIntervals({
-    seatType: seat?.type,
-    seatNumber: seat?.number,
-    date: selectedWeekDate, // <— dynamic!
-  });
-
-  const events = useMemo(() => {
-    return mapScheduleIntervalsToCalendarEvents(scheduleIntervals);
-  }, [scheduleIntervals]);
-
-  const handleNextWeekOrPreviousWeekClicked = (date: string) => {
-    console.log("Parent received new week date:", date);
-    setSelectedWeekDate(date);
-  };
 
   // if user is NOT logged-in, go to sign-in page.
   useEffect(() => {
@@ -68,6 +38,8 @@ export default function Ecommerce() {
 
   return (
     <div>
+      {/* mobile: */}
+
       {isMobile ? (
         <div>
           <SeatMap />
@@ -75,25 +47,13 @@ export default function Ecommerce() {
           <BottomNavBar />
         </div>
       ) : (
-        //mobile
+        // Desktop:
 
-        // Desktop
         <div className="flex justify-end gap-5">
-          <ReserveList events={events} />
+          {/* <ReserveList /> */}
 
           {/* if chair is not selected, don't show calendar */}
-          {seat && (
-            <Calendar
-              seat={seat}
-              events={events}
-              onChangeWeekClick={(date) =>
-                handleNextWeekOrPreviousWeekClicked(date)
-              }
-            />
-          )}
-
-          {/* Improve UX */}
-          {/* {improveUX} */}
+          {seat && <HomeCalendar seat={seat} />}
 
           <SeatList seat={seat} onChairSelect={onChairSelect} />
 
