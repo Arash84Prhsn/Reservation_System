@@ -651,8 +651,18 @@ class ReservationServices:
             # Now we know that the only reservations in conflict are system only!
             conflict_intervals = []
             for c in conflicts:
-                conflict_intervals.append({"start_time" : c.start_time.isoformat(),
-                                           "end_time" : c.end_time.isoformat()})
+                if c.end_time < end_time and c.start_time > start_time:
+                    conflict_intervals.append({"start_time" : c.start_time.isoformat(),
+                                            "end_time" : c.end_time.isoformat()})
+                elif c.end_time < end_time:
+                    conflict_intervals.append({"start_time" : start_time.isoformat(),
+                                            "end_time" : c.end_time.isoformat()})
+                elif c.start_time > start_time:
+                    conflict_intervals.append({"start_time" : c.start_time.isoformat(),
+                                            "end_time" : end_time.isoformat()})
+                else:
+                    conflict_intervals.append({"start_time" : start_time.isoformat(),
+                                            "end_time" : end_time.isoformat()})
             
             return {"success" : True,
                     "message" : "Your reservations has been validated with a warning",

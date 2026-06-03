@@ -246,6 +246,11 @@ def make_reservation():
     start_time = time.fromisoformat(start_time)
     end_time = time.fromisoformat(end_time)
 
+    # Check to see if the user has hit the reservation limit
+    if ReservationServices.has_hit_daily_reservation_limit(user_id, reservation_date):
+        return jsonify({"success" : False,
+                        "message" : "شما در هر روز اجازه دارید حداکثر 2 رزرو داشته باشید"}), 400
+
     # System only reservations are not allowed on laptop seats!
     if seat_type == 'laptop' and ReservationServices.is_reservation_system_only(reservation_type):
         return jsonify({"success" : False,
@@ -333,6 +338,28 @@ def final_reservation_submission():
     start_time = time.fromisoformat(start_time)
     end_time = time.fromisoformat(end_time)
 
+    # Check to see if the user has hit the reservation limit
+    if ReservationServices.has_hit_daily_reservation_limit(user_id, reservation_date):
+        return jsonify({"success" : False,
+                        "message" : "شما در هر روز اجازه دارید حداکثر 2 رزرو داشته باشید"}), 400
+
+    if seat_type == 'laptop' and ReservationServices.is_reservation_system_only(reservation_type):
+        return jsonify({"success" : False,
+                        "message" : "هدف رزرو مورد نظر برای صندلی لپتاپ قابل قبول نیست"}), 400
+
+    status = ReservationServices.check_reservation_for_conflicts(
+        reservation_date,
+        start_time,
+        end_time,
+        reservation_type,
+        seat_type,
+        seat_number
+    )
+
+    if not status.get("success"):
+        return jsonify({"success" : False,
+                        "message" : "Reservation is in conflict"}), 400
+
     try:
         ReservationServices.create_reservation(reservation_date,
                                             reservation_type,
@@ -342,7 +369,8 @@ def final_reservation_submission():
                                             seat_id)
         
         return jsonify({"success" : True,
-                        "message" : "رزرو شما با موفقیت ایجاد شد"}), 201
+                        "message" : "رزرو شما با موفقیت ایجاد شد",
+                        "warning" : status["warning"]["needed"]}), 201
     
     except Exception as e:
         return jsonify({"success" : False, "message" : str(e)}), 500
