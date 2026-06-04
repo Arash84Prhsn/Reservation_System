@@ -1,28 +1,13 @@
-// ─── SeatDetailPanel ─────────────────────────────────────
-// previous seat detail is end of this file
-
-//TODO: read these 4 opened pages.
-
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  // useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { type SeatStatus, MobileSeat } from "./SeatMap.config";
-import { CalendarEvent, ChairState } from "@/app/type";
 import DatePicker, { DateObject } from "react-multi-date-picker";
 import Select from "@/components/form/Select";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
-import { SlotStatus, TimeSlot, TimeSlotGrid } from "./TimeSlotGrid";
+import { TimeSlot, TimeSlotGrid } from "./TimeSlotGrid";
 import {
   FinalReservationSubmissionInput,
   ReservationType,
-  ScheduleDay,
-  ScheduleSlotStatus,
   SeatType,
 } from "@/lib/api/services/reservation.service";
 import { useMakeReservation } from "../../hooks/use-make-reservation";
@@ -33,6 +18,8 @@ import { Modal } from "@/components/ui/modal";
 import { useFinalReservationSubmission } from "../../hooks/use-final-reservation-submission";
 import { useModal } from "@/hooks/useModal";
 import useOpenDatesForUser from "../../hooks/use-oepn-dates-for-user";
+import { FinalReservationModal } from "./FinalReservationModal";
+import { toast } from "sonner";
 
 type SeatDetailPanelProps = {
   seat: MobileSeat;
@@ -153,7 +140,8 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
     const res = await handleSubmitReservation();
     if (!finalSubmissionInput) {
       // You can replace this with toast.error if you prefer.
-      console.warn("Reservation form is incomplete.");
+      // console.warn("Reservation form is incomplete.");
+      toast.error("DEV ERR: Reservation form is incomplete");
       return;
     }
 
@@ -352,128 +340,5 @@ function TimeSlotGridContainer(props: {
       setEndTime={props.setEndTime}
       onRangeSelect={props.onRangeSelect}
     />
-  );
-}
-
-// FinalReservationModal
-type FinalReservationModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  pending?: boolean;
-  data: FinalReservationSubmissionInput | null;
-};
-
-function getReservationTypeLabel(type: string | null | undefined) {
-  switch (type) {
-    case "only running programs":
-      return "محاسبات";
-    case "dorsan desk":
-      return "درسان دسک";
-    case "internship":
-      return "کارآموزی";
-    case "project":
-      return "پروژه";
-    default:
-      return "انتخاب نشده";
-  }
-}
-
-function getSeatTypeLabel(type: string | null | undefined) {
-  switch (type) {
-    case "pc":
-      return "کامپیوتر";
-    case "laptop":
-      return "لپ‌تاپ";
-    default:
-      return type || "نامشخص";
-  }
-}
-
-// Modal
-export function FinalReservationModal({
-  isOpen,
-  onClose,
-  onConfirm,
-  pending = false,
-  data,
-}: FinalReservationModalProps) {
-  if (!data) return null;
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      className="max-w-[560px] overflow-visible p-6 lg:p-8"
-    >
-      <div className="fa relative flex flex-col overflow-visible px-1 text-right">
-        <div>
-          <h5 className="mb-2 text-xl font-semibold text-gray-800 dark:text-white/90">
-            تایید نهایی رزرو
-          </h5>
-
-          <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
-            لطفاً اطلاعات رزرو را بررسی کنید. پس از تایید، رزرو شما ثبت نهایی
-            خواهد شد.
-          </p>
-        </div>
-
-        <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-white/[0.03]">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <InfoItem label="تاریخ رزرو" value={data.reservation_date} />
-
-            <InfoItem
-              label="نوع رزرو"
-              value={getReservationTypeLabel(data.reservation_type)}
-            />
-
-            <InfoItem label="زمان شروع" value={data.start_time} />
-
-            <InfoItem label="زمان پایان" value={data.end_time} />
-
-            <InfoItem
-              label="نوع صندلی"
-              value={getSeatTypeLabel(data.seat_type)}
-            />
-
-            <InfoItem label="شماره صندلی" value={String(data.seat_number)} />
-          </div>
-        </div>
-
-        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={pending}
-            className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]"
-          >
-            انصراف
-          </button>
-
-          <button
-            type="button"
-            onClick={onConfirm}
-            disabled={pending}
-            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {pending ? "در حال ثبت..." : "تایید و ثبت رزرو"}
-          </button>
-        </div>
-      </div>
-    </Modal>
-  );
-}
-
-function InfoItem({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <div className="mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-        {label}
-      </div>
-
-      <div className="min-h-11 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
-        {value || "—"}
-      </div>
-    </div>
   );
 }

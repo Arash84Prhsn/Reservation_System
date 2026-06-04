@@ -31,10 +31,14 @@ import { useAuth } from "@/context/AuthContext";
 import useWeeklyScheduleIntervals from "../hooks/use-weekly-schedule-intervals";
 import { mapScheduleIntervalsToCalendarEvents } from "./mapScheduleIntervalsToCalendarEvents";
 import {
+  FinalReservationSubmissionInput,
   ReservationType,
   SeatType,
 } from "@/lib/api/services/reservation.service";
 import { useMakeReservation } from "../hooks/use-make-reservation";
+import { FinalReservationModal } from "./seat-map/FinalReservationModal";
+import { useFinalReservationSubmission } from "../hooks/use-final-reservation-submission";
+import { toast } from "sonner";
 
 type CalendarMode = "create" | "view";
 
@@ -61,6 +65,9 @@ const LAPTOP_RESERVATION_OPTIONS: ReservationOption[] = [
 ];
 
 const HomeCalendar = ({ seat }: HomeCalendarProps) => {
+  const [verifiedReservationInput, setVerifiedReservationInput] =
+    useState<FinalReservationSubmissionInput | null>(null);
+
   const calendarRef = useRef<FullCalendar>(null);
 
   /**
@@ -68,7 +75,19 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
    */
   const previousValidEndRef = useRef<DateObject | null>(null);
 
-  const { isOpen, openModal, closeModal } = useModal();
+  // make-reservation modal
+  const {
+    isOpen: isMakeReservationModalOpen,
+    openModal: openMakeReservationModal,
+    closeModal: closeMakeReservationModal,
+  } = useModal();
+
+  // final-reservation modal
+  const {
+    isOpen: isFinalReservationModalOpen,
+    openModal: openFinalReservationModal,
+    closeModal: closeFinalReservationModal,
+  } = useModal();
 
   const [mode, setMode] = useState<CalendarMode>("create");
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
@@ -107,6 +126,10 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     resetReservationForm,
   } = useMakeReservation();
 
+  // final reservation submission api
+  const { submitFinalReservation, pending: finalSubmissionPending } =
+    useFinalReservationSubmission();
+
   /**
    * Keep selected seat data in reservation hook.
    * This avoids building API payload manually inside HomeCalendar.
@@ -118,13 +141,13 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     setSeatNumber(seat.number);
   }, [seat, setSeatType, setSeatNumber]);
 
-  // TODO: Add refetch
   // fetch intervals of the week
-  const { scheduleIntervals } = useWeeklyScheduleIntervals({
-    seatType: seat?.type,
-    seatNumber: seat?.number,
-    date: selectedWeekDate,
-  });
+  const { scheduleIntervals, refetch: refetchScheduleIntervals } =
+    useWeeklyScheduleIntervals({
+      seatType: seat?.type,
+      seatNumber: seat?.number,
+      date: selectedWeekDate,
+    });
 
   // make it usable for calendar
   const events = useMemo(
@@ -175,11 +198,12 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
   };
 
   const handleCloseModal = () => {
-    closeModal();
+    closeMakeReservationModal();
     resetModalFields();
   };
 
   const handleDateSelect = (selectInfo: DateSelectArg) => {
+    // openFinalReservationModal();
     resetModalFields();
 
     const selected = toPersianDateObject(selectInfo.start);
@@ -201,7 +225,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
 
     previousValidEndRef.current = end;
 
-    openModal();
+    openMakeReservationModal();
   };
 
   // edit api is not availabel yet.
@@ -261,17 +285,17 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     }
 
     if (!reservationType || !reservationDate || !startTime || !endTime) {
-      alert("همه فیلدها الزامی است");
+      toast.error("همه فیلدها الزامی است");
       return;
     }
 
     if (!startTimeObject || !endTimeObject) {
-      alert("زمان انتخابی معتبر نیست");
+      toast.error("زمان انتخابی معتبر نیست");
       return;
     }
 
     if (!isEndAfterStart(startTimeObject, endTimeObject)) {
-      alert("زمان پایان باید بعد از زمان شروع باشد");
+      toast.error("زمان پایان باید بعد از زمان شروع باشد");
       return;
     }
 
@@ -279,7 +303,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
       !isWithinWorkingHours(startTimeObject) ||
       !isWithinWorkingHours(endTimeObject)
     ) {
-      alert("ساعت کاری فقط بین ۸ تا ۱۴ است");
+      toast.error("ساعت کاری فقط بین ۸ تا ۱۴ است");
       return;
     }
 
@@ -290,11 +314,10 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
 
     if (!result.ok) return;
 
-    closeModal();
+    setVerifiedReservationInput(result.input);
+    closeMakeReservationModal();
+    openFinalReservationModal();
     resetModalFields();
-
-    // TODO:
-    // refetch intervals
   };
 
   const handleDatesSet = (dateInfo: DatesSetArg) => {
@@ -309,6 +332,20 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     }
   };
 
+  async function handleConfirmFinalSubmission() {
+    if (!verifiedReservationInput) return;
+
+    const res = await submitFinalReservation(verifiedReservationInput);
+
+    if (!res) return;
+
+    closeFinalReservationModal();
+    setVerifiedReservationInput(null);
+    refetchScheduleIntervals();
+    resetReservationForm();
+
+    // onDeselect?.();
+  }
   return (
     <div className="w-full rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="custom-calendar">
@@ -361,7 +398,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
         />
       </div>
       <ReservationModalContent
-        isOpen={isOpen}
+        isOpen={isMakeReservationModalOpen}
         mode={mode}
         selectedEvent={selectedEvent}
         selectedDate={selectedDateObject}
@@ -374,6 +411,17 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
         onReservationTypeChange={setReservationType}
         onEndTimeChange={handleEndTimeChange}
         onSubmit={handleAddReservation}
+      />
+
+      <FinalReservationModal
+        isOpen={isFinalReservationModalOpen}
+        onClose={() => {
+          closeFinalReservationModal();
+          setVerifiedReservationInput(null);
+        }}
+        onConfirm={handleConfirmFinalSubmission}
+        pending={finalSubmissionPending}
+        data={verifiedReservationInput}
       />
     </div>
   );

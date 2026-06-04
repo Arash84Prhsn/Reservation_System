@@ -3,7 +3,7 @@ import {
   SeatType,
   weekly_schedule_intervals,
 } from "@/lib/api/services/reservation.service";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface UseWeeklyScheduleIntervalsParams {
   seatType?: SeatType;
@@ -23,57 +23,62 @@ export default function useWeeklyScheduleIntervals({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<unknown>(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  const activeRequestRef = useRef<boolean>(true);
 
-    async function fetchWeeklyScheduleIntervals() {
-      setLoading(true);
+  const fetchWeeklyScheduleIntervals = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    if (!seatType || !seatNumber || !date) {
+      setScheduleIntervals([]);
       setError(null);
+      setLoading(false);
+      return;
+    }
+    // it's a new request
+    activeRequestRef.current = true;
 
-      if (!seatType || !seatNumber || !date) {
+    try {
+      const response = await weekly_schedule_intervals({
+        seat_type: seatType,
+        seat_number: seatNumber,
+        date,
+      });
+
+      // if component is unmounted or new request is available, don't update.
+      if (!activeRequestRef.current) return;
+
+      if (response.success) {
+        setScheduleIntervals(response.dates);
+      } else {
         setScheduleIntervals([]);
-        setError(null);
-        setLoading(false);
-        return;
       }
+    } catch (error) {
+      if (!activeRequestRef.current) return;
 
-      try {
-        const response = await weekly_schedule_intervals({
-          seat_type: seatType,
-          seat_number: seatNumber,
-          date,
-        });
-
-        if (cancelled) return;
-
-        if (response.success) {
-          setScheduleIntervals(response.dates);
-        } else {
-          setScheduleIntervals([]);
-        }
-      } catch (error) {
-        if (cancelled) return;
-
-        console.error("Error fetching current week schedule intervals:", error);
-        setError(error);
-        setScheduleIntervals([]);
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+      console.error("Error fetching current week schedule intervals:", error);
+      setError(error);
+      setScheduleIntervals([]);
+    } finally {
+      if (!activeRequestRef.current) {
+        setLoading(false);
       }
     }
+  }, [seatType, seatNumber, date]);
 
+  useEffect(() => {
     fetchWeeklyScheduleIntervals();
 
+    // هنگام unmount یا تغییر پارامترها، درخواست‌های قبلی را غیرفعال می‌کنیم
     return () => {
-      cancelled = true;
+      activeRequestRef.current = false;
     };
-  }, [seatType, seatNumber, date]);
+  }, [fetchWeeklyScheduleIntervals]);
 
   return {
     scheduleIntervals,
     loading,
     error,
+    refetch: fetchWeeklyScheduleIntervals,
   };
 }
