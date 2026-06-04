@@ -31,7 +31,12 @@ export function TimeSlotGrid({
   // console.log("slots: ", slots);
 
   const handleSlotClick = (time: string, status: SlotStatus) => {
-    if (status === "reserved" || status === "event") return;
+    if (
+      status === "reserved_by_others" ||
+      status === "reserved_by_user" ||
+      status === "event"
+    )
+      return;
 
     if (!startTime || (startTime && endTime)) {
       // شروع یک انتخاب جدید
@@ -61,10 +66,11 @@ export function TimeSlotGrid({
       "flex h-12 cursor-pointer items-center justify-center rounded-md border text-xs transition-all",
       {
         "bg-gray-700 border-gray-600 text-gray-400 cursor-not-allowed":
-          slot.status === "reserved",
-        "bg-red-900 border-red-700 text-red-200 cursor-not-allowed":
           slot.status === "event",
-        "bg-green-700 border-green-500 text-white": slot.status === "mine",
+        "bg-purple-900 border-purple-700 text-purple-200 cursor-not-allowed":
+          slot.status === "reserved_by_others",
+        "bg-blue-700/60 border-blue-500 text-white":
+          slot.status === "reserved_by_user",
         "bg-blue-600 text-white border-blue-400": isSelected, // انتخاب شده توسط کاربر
         "bg-gray-800 border-gray-600 text-gray-200 hover:border-gray-400":
           slot.status === "free" && !isSelected,
@@ -80,7 +86,11 @@ export function TimeSlotGrid({
           type="button"
           onClick={() => handleSlotClick(slot.time, slot.status)}
           className={getSlotStyle(slot)}
-          disabled={slot.status === "reserved" || slot.status === "event"}
+          disabled={
+            slot.status === "reserved_by_others" ||
+            slot.status === "reserved_by_user" ||
+            slot.status === "event"
+          }
         >
           {slot.time}
         </button>

@@ -305,6 +305,8 @@ function TimeSlotGridContainer(props: {
     }));
   }, [schedule, props.date]);
 
+  console.log("slots: ", slots);
+
   if (!props.date) {
     return (
       <div className="text-sm text-gray-400">

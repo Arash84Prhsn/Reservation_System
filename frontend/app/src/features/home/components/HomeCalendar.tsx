@@ -346,6 +346,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
 
     // onDeselect?.();
   }
+
   return (
     <div className="w-full rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="custom-calendar">
@@ -388,6 +389,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
               click: () => calendarRef.current?.getApi().prev(),
             },
           }}
+          initialDate={getInitialPersianWeekDate()}
           // ref & handlres
           eventContent={renderEventContent(user?.id)}
           ref={calendarRef}
@@ -673,4 +675,19 @@ const formatTimeForApi = (time: DateObject) => {
 
   return `${hour}:${minute}`;
 };
+
+// if day passed wednesday, show next week
+function getInitialPersianWeekDate(): Date {
+  const today = new Date();
+  const dow = today.getDay(); // 0 (Sun) - 6 (Sat)
+
+  if (dow >= 4) {
+    const nextWeekSaturday = new Date(today);
+    const daysUntilSaturday = (6 - dow + 7) % 7 || 7;
+    nextWeekSaturday.setDate(today.getDate() + daysUntilSaturday);
+    return nextWeekSaturday;
+  }
+
+  return today;
+}
 export default HomeCalendar;

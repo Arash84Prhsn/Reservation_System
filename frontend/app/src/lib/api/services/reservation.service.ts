@@ -33,7 +33,11 @@ export interface ReservationResponse {
 }
 
 // type: schedule timeslots for a week (mobile)
-export type ScheduleSlotStatus = "free" | "reserved" | "mine" | "event"; // event is lab meeting (technicaly "disabled").
+export type ScheduleSlotStatus =
+  | "free"
+  | "reserved_by_user"
+  | "reserved_by_others"
+  | "event"; // event is lab meeting (technicaly "disabled").
 
 export interface ScheduleSlot {
   timeslot_number: number;
@@ -117,6 +121,21 @@ export interface WeeklyScheduleIntervalsInput extends CurrentWeekScheduleInterva
 
 export interface WeeklyScheduleIntervalsResponse extends CurrentWeekScheduleIntervalsResponse {
   message?: string;
+}
+
+// type: user active reservation
+export interface ActiveReservations {
+  reservation_id: number;
+  date: string;
+  day_of_week: number;
+  reservation_type: ReservationType;
+  start_time: string;
+  end_time: string;
+}
+export interface GetUserActiveReservationsResponse {
+  success: boolean;
+  message?: string;
+  reservations: ActiveReservations[];
 }
 
 //API functions
@@ -235,6 +254,22 @@ export async function weekly_schedule_intervals(
   if (!res.success) {
     toast.error(res.message || "خطا در دریافت رزروه های هفته خواسته شده");
     throw new HttpError("Failed to fetch intervals", 400, res);
+  }
+
+  return res;
+}
+
+export async function get_user_active_reservations() {
+  const res = await apiFetch<GetUserActiveReservationsResponse>(
+    "/reservation/get_user_active_reservations",
+    {
+      method: "GET",
+    },
+  );
+  // if api status is 2xx but success is false throw err.
+  if (!res.success) {
+    toast.error(res.message || "خطا در دریافت رزروه های فعال");
+    throw new HttpError("Failed to fetch active reservations", 400, res);
   }
 
   return res;
