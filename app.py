@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 from backend.models import *
 from database.connection import get_db_connection
@@ -24,7 +24,23 @@ CORS(app,
 )
 
 # Initialize the admin page settings
+@app.route('/static/css/<path:filename>')
+def serve_css(filename):
+    return send_from_directory('backend/static/css', filename)
+
 admin = init_admin(app=app)
+
+from flask_admin.menu import MenuLink
+
+# After creating admin (and before running the app)
+admin.add_link(MenuLink(
+    name='Logout',
+    url='/admin/logout',
+    category='',
+    icon_type='fa',
+    icon_value='fa-sign-out-alt',
+    class_name='logout-btn'
+))
 
 # Set the secret key for the app here
 app.secret_key = "c995897f9499dc39986fad92f8e02a28cfb01b4d4aae2a0e53b0cabccd4ba49b"

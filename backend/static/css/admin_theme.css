@@ -1,0 +1,321 @@
+/* ============ CUSTOM THEME ============ */
+:root {
+    --primary-green: #006839;
+    --primary-white: #ffffff;
+    --secondary-orange: #ff6900;
+    --text-dark: #333333;
+    --text-light: #ffffff;
+    --hover-green: #008045;
+    --hover-orange: #ff7a1a;
+}
+
+/* ============ BODY BACKGROUND GRADIENT (SIDES) ============ */
+body {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-orange) 100%) !important;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+/* ============ MAIN CONTENT CONTAINER ============ */
+.container {
+    background: var(--primary-white) !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+}
+
+/* ============ NAVBAR - FULL WIDTH, NO ROUNDING ============ */
+.navbar {
+    background-color: var(--primary-green) !important;
+    border-radius: 8px   !important;
+    margin: 0 !important;
+    width: 100% !important;
+    padding-top: 0.8rem !important;
+    padding-bottom: 0.8rem !important;
+}
+
+.navbar .container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    background: transparent !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+
+.navbar-brand,
+.navbar-nav > li > a,
+.sidebar a {
+    color: var(--primary-white) !important;
+}
+
+/* Orange pill for active nav items */
+.navbar-nav > li.active > a {
+    background-color: var(--secondary-orange) !important;
+    color: var(--primary-white) !important;
+    border-radius: 30px !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    padding: 8px 16px !important;
+    margin: 0 4px !important;
+}
+
+.navbar-nav > li > a:hover,
+.sidebar a:hover {
+    background-color: var(--hover-green) !important;
+    color: var(--primary-white) !important;
+    border-radius: 30px !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.sidebar a {
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    margin: 0 4px !important;
+}
+.sidebar li.active a {
+    background-color: var(--secondary-orange) !important;
+    border-radius: 30px !important;
+}
+
+/* ============ BUTTONS - DEFAULT ROUNDING ============ */
+.btn {
+    border-radius: 0.25rem !important;
+}
+.btn-primary {
+    background-color: var(--primary-green) !important;
+    border-color: var(--primary-green) !important;
+    color: var(--primary-white) !important;
+}
+.btn-primary:hover {
+    background-color: var(--hover-green) !important;
+    border-color: var(--hover-green) !important;
+}
+.btn-secondary {
+    background-color: var(--secondary-orange) !important;
+    border-color: var(--secondary-orange) !important;
+    color: var(--primary-white) !important;
+}
+.btn-secondary:hover {
+    background-color: var(--hover-orange) !important;
+    border-color: var(--hover-orange) !important;
+}
+
+/* Fix text color for danger (delete) buttons */
+.btn-danger,
+.btn-danger:link,
+.btn-danger:visited,
+.btn-danger a {
+    color: white !important;
+}
+
+/* ============ TABLE HEADER TEXT - FIX GREEN-ON-GREEN ============ */
+.table thead th {
+    background-color: var(--primary-green) !important;
+    color: var(--primary-white) !important;
+    border-bottom: 2px solid var(--secondary-orange) !important;
+}
+/* Fix for sortable column links (they are <a> inside <th>) */
+.table thead th a,
+.table thead th a:link,
+.table thead th a:visited {
+    color: var(--primary-white) !important;
+    text-decoration: none;
+}
+.table thead th a:hover {
+    color: var(--secondary-orange) !important;
+}
+/* Table row striping */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 104, 57, 0.05) !important;
+}
+
+/* ============ CARDS & PANELS ============ */
+.card-header {
+    background-color: var(--primary-green) !important;
+    color: var(--primary-white) !important;
+    border-bottom: 3px solid var(--secondary-orange) !important;
+}
+.card h3 {
+    color: var(--primary-green) !important;
+}
+
+/* ============ PAGINATION ============ */
+.pagination > .active > a,
+.pagination > .active > span {
+    background-color: var(--primary-green) !important;
+    border-color: var(--primary-green) !important;
+    color: var(--primary-white) !important;
+}
+.pagination > li > a:hover {
+    color: var(--secondary-orange) !important;
+}
+
+/* ============ FORMS ============ */
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--secondary-orange) !important;
+    outline: none !important;
+    box-shadow: 0 0 5px rgba(255, 105, 0, 0.3) !important;
+}
+
+/* ============ FILTERS & SEARCH ============ */
+.filter-form .btn {
+    background-color: var(--secondary-orange) !important;
+    color: var(--primary-white) !important;
+}
+.search-form .btn {
+    background-color: var(--primary-green) !important;
+    color: var(--primary-white) !important;
+}
+
+/* ============ ALERTS ============ */
+.alert-success {
+    background-color: var(--primary-green) !important;
+    color: var(--primary-white) !important;
+    border: none !important;
+}
+.alert-warning {
+    background-color: var(--secondary-orange) !important;
+    color: var(--primary-white) !important;
+    border: none !important;
+}
+
+/* ============ FOOTER ============ */
+.footer {
+    border-top: 1px solid var(--secondary-orange) !important;
+}
+
+/* ============ CUSTOM ADMIN INDEX PAGE ============ */
+.stat-card h3,
+.stat-card .stat-value {
+    color: var(--primary-green) !important;
+}
+.stat-card:hover {
+    border-bottom: 3px solid var(--secondary-orange) !important;
+}
+
+/* ============ LOGIN PAGE (if used separately) ============ */
+.login-container {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-orange) 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.login-card {
+    background: var(--primary-white);
+    border-radius: 12px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border-top: 5px solid var(--secondary-orange);
+}
+.login-card h1 {
+    color: var(--primary-green);
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+.login-card .btn-login {
+    background-color: var(--primary-green);
+    border: none;
+    color: white;
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.login-card .btn-login:hover {
+    background-color: var(--hover-green);
+}
+.login-card .btn-login:active {
+    background-color: var(--secondary-orange);
+}
+.login-card input:focus {
+    border-color: var(--secondary-orange);
+    box-shadow: 0 0 5px rgba(255,105,0,0.3);
+}
+.login-card .error {
+    background-color: #fee;
+    color: #c33;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    text-align: center;
+    border-left: 4px solid var(--secondary-orange);
+}
+
+/* ============ LINKS ============ */
+a {
+    color: var(--primary-green) !important;
+}
+a:hover {
+    color: var(--secondary-orange) !important;
+}
+
+
+/* Optional underline decoration */
+.container h2:first-of-type::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 3px;
+    background: var(--secondary-orange);
+    margin: 12px auto 0;
+    border-radius: 3px;
+}
+
+/* Also center the dashboard welcome heading if you want (remove if not needed) */
+.container h1:first-of-type {
+    text-align: center !important;
+    color: var(--primary-green) !important;
+    font-weight: 600 !important;
+    margin-bottom: 1.5rem !important;
+}
+.container h1:first-of-type::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 3px;
+    background: var(--secondary-orange);
+    margin: 12px auto 0;
+    border-radius: 3px;
+}
+
+/* ============ CENTER & STYLE MODEL VIEW TITLES (h4.mb-4) ============ */
+h4.mb-4 {
+    text-align: center !important;
+    color: var(--primary-green) !important;
+    font-weight: 600 !important;
+    margin-bottom: 1.5rem !important;
+    position: relative;
+    margin-top: 10px;
+}
+
+/* Orange underline decoration */
+h4.mb-4::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 3px;
+    background: var(--secondary-orange);
+    margin: 12px auto 0;
+    border-radius: 3px;
+}
+
+/* Styles the logout button */
+.logout-btn {
+    background-color: #c33 !important;
+    color: var(--primary-white) !important;
+    border-radius: 30px !important;
+    padding: 5px 15px !important;
+    margin-left: 10px !important;
+}
+

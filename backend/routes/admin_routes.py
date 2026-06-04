@@ -14,6 +14,10 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+
+        # Lowercase the username
+        if username:
+            username = username.lower().strip()
         
         # Get user from database
         user = UserServices.get_user_byUsername(username)
@@ -21,6 +25,12 @@ def login():
         if user and UserServices.verify_password(password, user.password_hash):
             # Check if user has admin or event_manager role
             if user.is_admin_role() or user.is_event_manager_role():
+                session['logged_in'] = True
+                session['user_id'] = user.id
+                session['username'] = user.username
+                session['email'] = user.email
+                session['phone'] = user.phone
+                session['association'] = user.association
                 session['is_admin'] = True
                 session['admin_id'] = user.id
                 session['admin_username'] = user.username
@@ -35,7 +45,5 @@ def login():
 @admin_auth_bp.route('/logout')
 def logout():
     """Admin logout"""
-    session.pop('is_admin', None)
-    session.pop('admin_id', None)
-    session.pop('admin_username', None)
+    session.clear()
     return redirect(url_for('admin_auth.login'))
