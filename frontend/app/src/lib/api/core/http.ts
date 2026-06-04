@@ -43,11 +43,31 @@ export async function apiFetch<T = unknown>(
 
   const data = await res.json().catch(() => null);
 
-  // anything that is not 2xx is considered an error
+  // anything that is not 2xx is considered an error (Except 401 )
   if (!res.ok) {
+    if (res.status === 401) {
+      toast.error("نشست شما منقضی شده است. لطفاً دوباره وارد شوید.");
+
+      handleUnauthorized();
+
+      throw new HttpError(getErrorMessage(data, res), res.status, data);
+    }
+
     toast.error(getErrorMessage(data, res) || "خطا در ارتباط با سرور");
     throw new HttpError(getErrorMessage(data, res), res.status, data);
   }
 
   return data as T;
+}
+
+// helpers
+function handleUnauthorized() {
+  localStorage.removeItem("auth_user");
+  localStorage.removeItem("auth_token");
+
+  window.dispatchEvent(new Event("auth:logout"));
+
+  if (window.location.pathname !== "/signin") {
+    window.location.href = "/signin";
+  }
 }

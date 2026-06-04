@@ -38,6 +38,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsUserInitialized(true);
   }, []);
 
+  // lestening to dispatch event which http.ts would send (for logout)
+  useEffect(() => {
+    const handleAuthLogout = () => {
+      setUser(null);
+      localStorage.removeItem("auth_user");
+      localStorage.removeItem("auth_token");
+      setIsUserInitialized(true);
+    };
+
+    window.addEventListener("auth:logout", handleAuthLogout);
+
+    return () => {
+      window.removeEventListener("auth:logout", handleAuthLogout);
+    };
+  }, []);
+
   const login = (userData: User) => {
     setUser(userData);
     localStorage.setItem("auth_user", JSON.stringify(userData));
