@@ -10,7 +10,6 @@ import { SeatType } from "@/lib/api/services/reservation.service";
 import SeatList from "@/features/home/components/SeatList";
 import HomeCalendar from "@/features/home/components/HomeCalendar";
 import ReserveList from "@/features/home/components/ReserveList";
-
 export interface DesktopSeat {
   type: SeatType;
   number: number;

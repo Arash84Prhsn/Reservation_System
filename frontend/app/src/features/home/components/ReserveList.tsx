@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { SmallHoverCard } from "../../../components/common/small-cards/SmallHoverCard";
-import useActiveReservations from "../hooks/use-get-active-reservations";
+import { useActiveReservations } from "../hooks/use-get-active-reservations";
 
 function formatTimeFa(time: string) {
   return new Intl.DateTimeFormat("fa-IR", {
@@ -21,7 +21,8 @@ function formatDayFa(date: string) {
 }
 
 const ReserveList = () => {
-  const { activeReservations, loading } = useActiveReservations();
+  const { activeReservations, loading, error, refetch } =
+    useActiveReservations();
 
   const groupedReservations = useMemo(() => {
     const map = new Map<string, typeof activeReservations>();

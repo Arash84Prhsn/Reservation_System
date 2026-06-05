@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { SidebarProvider } from "@/context/SidebarContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { Providers } from "./providers";
 
 // const outfit = Outfit({
 //   subsets: ["latin"],
@@ -16,15 +17,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html>
-      {/* <body className={`${outfit.className} dark:bg-gray-900`}> */}
-      <body className={` dark:bg-gray-900`}>
-        <AuthProvider>
-          <ThemeProvider>
-            <SidebarProvider>{children}</SidebarProvider>
-            <Toaster richColors position="top-center" />
-          </ThemeProvider>
-        </AuthProvider>
+    <html className={` dark:bg-gray-900`}>
+      <body>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

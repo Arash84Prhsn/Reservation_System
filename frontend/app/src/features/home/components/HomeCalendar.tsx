@@ -28,7 +28,6 @@ import Select from "../../../components/form/Select";
 import { CalendarEvent } from "@/app/type";
 import { DesktopSeat } from "@/app/(admin)/page";
 import { useAuth } from "@/context/AuthContext";
-import useWeeklyScheduleIntervals from "../hooks/use-weekly-schedule-intervals";
 import { mapScheduleIntervalsToCalendarEvents } from "./mapScheduleIntervalsToCalendarEvents";
 import {
   FinalReservationSubmissionInput,
@@ -39,6 +38,9 @@ import { useMakeReservation } from "../hooks/use-make-reservation";
 import { FinalReservationModal } from "./seat-map/FinalReservationModal";
 import { useFinalReservationSubmission } from "../hooks/use-final-reservation-submission";
 import { toast } from "sonner";
+import { useWeeklyScheduleIntervals } from "../hooks/use-weekly-schedule-intervals";
+import { useQueryClient } from "@tanstack/react-query";
+import { reservationKeys } from "../queryKeys";
 
 type CalendarMode = "create" | "view";
 
@@ -104,6 +106,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
   const isReadOnly = mode === "view";
 
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   /**
    * Reservation API related
@@ -142,7 +145,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
   }, [seat, setSeatType, setSeatNumber]);
 
   // fetch intervals of the week
-  const { scheduleIntervals, refetch: refetchScheduleIntervals } =
+  const { intervals: scheduleIntervals, refetch: refetchScheduleIntervals } =
     useWeeklyScheduleIntervals({
       seatType: seat?.type,
       seatNumber: seat?.number,
@@ -342,6 +345,9 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     closeFinalReservationModal();
     setVerifiedReservationInput(null);
     refetchScheduleIntervals();
+    await queryClient.invalidateQueries({
+      queryKey: reservationKeys.active(),
+    });
     resetReservationForm();
 
     // onDeselect?.();
