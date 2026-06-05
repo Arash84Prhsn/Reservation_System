@@ -233,23 +233,23 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
 
   // edit api is not availabel yet.
   const handleEventClick = (clickInfo: EventClickArg) => {
-    // const event = clickInfo.event;
-    // const start = event.start ? toPersianDateObject(event.start) : null;
-    // const end = event.end ? toPersianDateObject(event.end) : null;
-    // setMode("view");
-    // setSelectedEvent(event as unknown as CalendarEvent);
-    // setReservationType(
-    //   (event.extendedProps?.reservationType as ReservationType) ?? null,
-    // );
-    // if (start) {
-    //   setSelectedDate(start);
-    //   setStartTime(start);
-    // }
-    // if (end) {
-    //   setEndTime(end);
-    //   previousValidEndRef.current = end;
-    // }
-    // openModal();
+    const event = clickInfo.event;
+    const start = event.start ? toPersianDateObject(event.start) : null;
+    const end = event.end ? toPersianDateObject(event.end) : null;
+    setMode("view");
+    setSelectedEvent(event as unknown as CalendarEvent);
+    setReservationType(
+      (event.extendedProps?.reservationType as ReservationType) ?? null,
+    );
+    if (start) {
+      setReservationDate(formatDateForApi(start));
+      setStartTime(formatTimeForApi(start));
+    }
+    if (end) {
+      setEndTime(formatTimeForApi(end));
+      previousValidEndRef.current = end;
+    }
+    openMakeReservationModal();
   };
 
   const handleEndTimeChange = (time: DateObject | null) => {

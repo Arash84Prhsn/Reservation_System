@@ -138,6 +138,13 @@ export interface GetUserActiveReservationsResponse {
   reservations: ActiveReservations[];
 }
 
+// type: cancell reservation
+
+export interface CancelReservationByIdResponse {
+  success: boolean;
+  message: string;
+}
+
 //API functions
 // make reservation API
 export async function make_reservation(input: ReservationInfo) {
@@ -268,8 +275,28 @@ export async function get_user_active_reservations() {
   );
   // if api status is 2xx but success is false throw err.
   if (!res.success) {
-    toast.error(res.message || "خطا در دریافت رزروه های فعال");
+    toast.error(res.message || "خطا در دریافت رزرو های فعال");
     throw new HttpError("Failed to fetch active reservations", 400, res);
+  }
+
+  return res;
+}
+
+export async function cancel_reservation_by_id(reservation_id: number) {
+  const res = await apiFetch<CancelReservationByIdResponse>(
+    "/reservation/cancel_reservation_by_id",
+    {
+      method: "PUT",
+      body: {
+        reservation_id,
+      },
+    },
+  );
+
+  // if api status is 2xx but success is false throw err.
+  if (!res.success) {
+    toast.error(res.message || "خطا در حذف رزرو");
+    throw new HttpError("Failed to cancel reservation", 400, res);
   }
 
   return res;

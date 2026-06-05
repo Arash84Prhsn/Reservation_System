@@ -23,8 +23,8 @@ export function SmallHoverCard({
   ...baseProps
 }: SmallHoverCardProps) {
   const [isHovering, setIsHovering] = useState(false);
-  const triggerRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  // استفاده از ref برای مدیریت تایمر
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const positionClasses = {
     top: "bottom-full left-1/2 -translate-x-1/2 mb-2",
@@ -33,37 +33,38 @@ export function SmallHoverCard({
     right: "top-1/2 -translate-y-1/2 left-full ml-2",
   };
 
-  const animationClasses = {
-    enter: "opacity-0 scale-95",
-    enterActive: "opacity-100 scale-100 transition-all duration-300 ease-out",
-    exit: "opacity-100 scale-100",
-    exitActive: "opacity-0 scale-95 transition-all duration-200 ease-in",
+  // مدیریت ورود موس
+  const handleMouseEnter = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setIsHovering(true);
+  };
+
+  // مدیریت خروج موس با تاخیر
+  const handleMouseLeave = () => {
+    timerRef.current = setTimeout(() => {
+      setIsHovering(false);
+    }, 200); // 200 میلی‌ثانیه فرصت به کاربر برای حرکت موس به سمت content
   };
 
   return (
     <div
       className="group relative inline-block w-full"
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-      ref={triggerRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <SmallBaseCard {...baseProps} className={cn(hoverTriggerClassName)} />
 
       {isHovering && (
         <div
-          ref={contentRef}
           className={cn(
-            `absolute z-50`,
+            `absolute z-50 w-max`, // w-max اضافه شد تا محتوا به هم نریزد
             positionClasses[hoverPosition],
             hoverContentWrapperClassName,
           )}
         >
           <div
             className={cn(
-              `rounded-lg border border-gray-200 bg-white p-3 shadow-lg`,
-              isHovering
-                ? animationClasses.enterActive
-                : animationClasses.exitActive,
+              `rounded-lg border border-gray-200 bg-white p-3 shadow-lg transition-opacity duration-200`,
               hoverContentClassName,
             )}
           >
