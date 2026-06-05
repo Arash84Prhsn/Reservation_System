@@ -10,7 +10,7 @@ ASSOCIATIONS = ['dotin employee',
 
 DOTIN_ASSOCIATIONS = ['dotin employee',
                       'dotin associate',
-                      'data science competetions']
+                      'data science competitions']
 
 RESERVATION_TYPES = ['only running programs',
                      'dorsan desk',

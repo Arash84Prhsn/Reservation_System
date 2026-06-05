@@ -137,6 +137,7 @@ def seed_users():
         for username, password, email, phone, association in users:
             # Hash the password
             password_hash = UserServices.hash_password(password)
+            association = association.lower().strip()
             
             # Create user
             new_user = User(
@@ -368,31 +369,32 @@ def seed_events_for_current_week():
     current_week_start = ReservationServices.get_week_start_date(today)
     
     # Get admin user (first user or create a system user)
-    admin_user = conn.query(User).first()
+    admin_user = conn.query(User).where(User.username == "rezvan najib").first()
     if not admin_user:
         print("No users found, cannot create events")
         conn.close()
         return
     
     # Check if events already exist for current week
-    week_end = current_week_start + timedelta(days=4)
-    existing_count = conn.query(Event).filter(
-        Event.date >= current_week_start,
-        Event.date <= week_end
-    ).count()
+    # week_end = current_week_start + timedelta(days=4)
+    # existing_count = conn.query(Event).filter(
+    #     Event.date >= current_week_start,
+    #     Event.date <= week_end
+    # ).count()
     
-    if existing_count > 0:
-        print(f"Events already exist for current week ({existing_count} found), skipping seed.")
-        conn.close()
-        return
+    # if existing_count > 0:
+    #     print(f"Events already exist for current week ({existing_count} found), skipping seed.")
+    #     conn.close()
+    #     return
     
+
     # Events: (day_offset, start_time, end_time, description in notes)
     events = [
-        (0, '10:00', '12:00'),   # Saturday
-        (1, '14:00', '14:00'),   # Sunday (end of day)
-        (2, '09:00', '10:30'),   # Monday
-        (3, '11:00', '12:00'),   # Tuesday
-        (4, '13:00', '14:00'),   # Wednesday
+        (0, '10:00:00', '12:00:00'),   # Saturday
+        (1, '08:00:00', '08:30:00'),   # Sunday (end of day)
+        (2, '09:00:00', '10:30:00'),   # Monday
+        (3, '11:00:00', '12:00:00'),   # Tuesday
+        (4, '13:00:00', '14:00:00'),   # Wednesday
     ]
     
     created_count = 0
@@ -431,3 +433,11 @@ def seed_events_for_current_week():
     conn.close()
     
     print(f"Seeded {created_count} events for current week")
+
+def delete_all_events():
+    with get_db_connection() as conn:
+        stmnt = text("DELETE FROM events")
+        conn.execute(stmnt)
+        conn.commit()
+        print("DELETED ALL FROM EVENTS")
+        

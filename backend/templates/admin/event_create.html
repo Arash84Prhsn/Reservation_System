@@ -1,0 +1,186 @@
+{% extends 'admin/master.html' %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
+<style>
+    .event-form-container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+    }
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+    .form-group input:focus, .form-group select:focus {
+        outline: none;
+        border-color: #ff6900;
+        box-shadow: 0 0 5px rgba(255,105,0,0.3);
+    }
+    .btn-submit {
+        background-color: #006839;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        width: 100%;
+    }
+    .btn-submit:hover {
+        background-color: #008045;
+    }
+    .error {
+        color: #c33;
+        background: #fee;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border-left: 4px solid #ff6900;
+    }
+    .time-inputs {
+        display: flex;
+        gap: 10px;
+    }
+    .time-inputs select {
+        flex: 1;
+    }
+    h2 {
+        color: #006839;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="event-form-container">
+    <h2>ایجاد رویداد جدید</h2>
+    
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+    
+    <form method="POST" id="eventForm">
+        <!-- Date field with Persian datepicker -->
+        <div class="form-group">
+            <label>تاریخ رویداد (شمسی)</label>
+            <input type="text" id="persianDatepicker" name="date" placeholder="انتخاب تاریخ" required>
+        </div>
+        
+        <!-- Time fields -->
+        <div class="form-group">
+            <label>زمان شروع</label>
+            <div class="time-inputs">
+                <select name="start_hour" required>
+                    <option value="">ساعت</option>
+                    {% for h in range(8, 15) %}
+                    <option value="{{ h }}">{{ "%02d"|format(h) }}</option>
+                    {% endfor %}
+                </select>
+                <select name="start_minute" required>
+                    <option value="">دقیقه</option>
+                    <option value="00">00</option>
+                    <option value="15">15</option>
+                    <option value="30">30</option>
+                    <option value="45">45</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>زمان پایان</label>
+            <div class="time-inputs">
+                <select name="end_hour" required>
+                    <option value="">ساعت</option>
+                    {% for h in range(8, 15) %}
+                    <option value="{{ h }}">{{ "%02d"|format(h) }}</option>
+                    {% endfor %}
+                </select>
+                <select name="end_minute" required>
+                    <option value="">دقیقه</option>
+                    <option value="00">00</option>
+                    <option value="15">15</option>
+                    <option value="30">30</option>
+                    <option value="45">45</option>
+                </select>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn-submit">ایجاد رویداد</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block tail %}
+{{ super() }}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $("#persianDatepicker").persianDatepicker({
+            format: 'YYYY/MM/DD',
+            minDate: new persianDate().valueOf(),
+            initialValue: true,
+            autoClose: true,
+            onSelect: function() {
+                var persianDate = $("#persianDatepicker").val();
+                if (persianDate) {
+                    var parts = persianDate.split('/');
+                    var pDate = new persianDate([parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2])]);
+                    var gDate = pDate.toCalendar('gregorian');
+                    var gDateStr = gDate.getFullYear() + '-' + 
+                                   String(gDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                                   String(gDate.getDate()).padStart(2, '0');
+                    $("#gregorianDate").val(gDateStr);
+                }
+            }
+        });
+    });
+    
+    document.getElementById('eventForm').addEventListener('submit', function(e) {
+        var startHour = parseInt(document.querySelector('[name="start_hour"]').value);
+        var startMin = parseInt(document.querySelector('[name="start_minute"]').value);
+        var endHour = parseInt(document.querySelector('[name="end_hour"]').value);
+        var endMin = parseInt(document.querySelector('[name="end_minute"]').value);
+        
+        if (isNaN(startHour) || isNaN(startMin) || isNaN(endHour) || isNaN(endMin)) {
+            e.preventDefault();
+            alert('لطفاً ساعت شروع و پایان را کامل وارد کنید');
+            return false;
+        }
+        
+        var startMinutes = startHour * 60 + startMin;
+        var endMinutes = endHour * 60 + endMin;
+        
+        if (startMinutes >= endMinutes) {
+            e.preventDefault();
+            alert('زمان شروع باید قبل از زمان پایان باشد');
+            return false;
+        }
+        
+        if (!document.getElementById('gregorianDate').value) {
+            e.preventDefault();
+            alert('لطفاً یک تاریخ انتخاب کنید');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

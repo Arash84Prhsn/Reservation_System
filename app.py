@@ -4,12 +4,11 @@ from backend.models import *
 from database.connection import get_db_connection
 from database.connection import init_db, init_roles
 from database.seed import seed_admin_and_manager_users
-from database.seed import seed_seats, seed_users, seed_reservations_for_current_week
-from database.seed import delete_all_reservations
+from database.seed import seed_seats, seed_users, seed_reservations_for_current_week, seed_events_for_current_week
+from database.seed import delete_all_reservations, delete_all_events
 from backend.routes import blueprints
 from backend.services.scheduledTasks import init_scheduler
 from backend.admin import init_admin
-from backend.admin.views import UserModelView, ReservationModelView, EventModelView, SeatModelView
 
 # initialize the app
 app = Flask(__name__, template_folder="backend/templates")
@@ -30,18 +29,6 @@ def serve_css(filename):
 
 admin = init_admin(app=app)
 
-from flask_admin.menu import MenuLink
-
-# After creating admin (and before running the app)
-admin.add_link(MenuLink(
-    name='Logout',
-    url='/admin/logout',
-    category='',
-    icon_type='fa',
-    icon_value='fa-sign-out-alt',
-    class_name='logout-btn'
-))
-
 # Set the secret key for the app here
 app.secret_key = "c995897f9499dc39986fad92f8e02a28cfb01b4d4aae2a0e53b0cabccd4ba49b"
 
@@ -58,16 +45,9 @@ seed_seats()
 # Seed the Mock data. TODO: REMOVE FOR PRODUCTION
 seed_users() 
 delete_all_reservations() 
-seed_reservations_for_current_week() 
-
-# Connect the admin page to the models
-db_session = get_db_connection()
-
-# Add views for the tables
-admin.add_view(UserModelView(User, db_session, endpoint='admin_user_view', name='Users'))
-admin.add_view(SeatModelView(Seat, db_session, endpoint='admin_seat_view', name='Seats'))
-admin.add_view(ReservationModelView(Reservation, db_session, endpoint='admin_reservation_view', name='Reservations'))
-admin.add_view(EventModelView(Event, db_session, endpoint='admin_event_view', name='Events'))
+seed_reservations_for_current_week()
+delete_all_events()
+seed_events_for_current_week()
 
 # Finally init the scheduled tasks
 init_scheduler(app=app)

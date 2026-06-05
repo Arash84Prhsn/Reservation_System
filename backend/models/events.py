@@ -22,7 +22,7 @@ class Event(DeclarativeBase):
     # Tabel constraints
     __table_args__ = (
         CheckConstraint('start_time < end_time', name='check_start_before_end'),
-        CheckConstraint("time(start_time) >= '08:00' AND time(end_time) <= '14:00'", name='check_time_window')
+        CheckConstraint("time(start_time) >= '08:00' AND time(end_time) <= '14:01'", name='check_time_window')
     )
 
     def to_dict(self):

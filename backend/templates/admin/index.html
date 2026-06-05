@@ -37,16 +37,40 @@
         <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
-                    <h3>{{ total_active_reservations if total_active_reservations else 0 }}</h3>
-                    <p>Active Reservations</p>
+                    <h3>{{ total_events if total_events else 0 }}</h3>
+                    <p>Total Events and Meetings</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
-                    <h3>{{ total_events if total_events else 0 }}</h3>
-                    <p>Total Events</p>
+                    <h3>{{ total_dotin_users if total_dotin_users else 0 }}</h3>
+                    <p>Total Dotin Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ total_reservable_seats if total_reservable_seats else 0 }}</h3>
+                    <p>Total Reservable Seats</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ total_active_reservations if total_active_reservations else 0 }}</h3>
+                    <p>Total Active Reservations</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>{{ total_active_events if total_active_events else 0 }}</h3>
+                    <p>Total Active Events and Meetings</p>
                 </div>
             </div>
         </div>
