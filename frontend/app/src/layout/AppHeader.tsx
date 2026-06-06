@@ -1,10 +1,7 @@
 "use client";
 import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
-import NotificationDropdown from "@/features/header/components/NotificationDropdown";
 import UserDropdown from "@/features/header/components/UserDropdown";
 import { useSidebar } from "@/context/SidebarContext";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 
 const AppHeader: React.FC = () => {
@@ -12,15 +9,6 @@ const AppHeader: React.FC = () => {
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar, isMobile } =
     useSidebar();
-
-  const pathname = usePathname();
-
-  const navLinks = [
-    { name: "رزرو", href: "/" },
-    { name: "جدول", href: "/calendar" },
-    { name: "پروفایل", href: "/profile" },
-    { name: "راهنما", href: "/help" },
-  ];
 
   const handleToggle = () => {
     if (window.innerWidth >= 1024) {

@@ -1,10 +1,5 @@
 // import { Outfit } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "sonner";
-
-import { SidebarProvider } from "@/context/SidebarContext";
-import { ThemeProvider } from "@/context/ThemeContext";
-import { AuthProvider } from "@/context/AuthContext";
 import { Providers } from "./providers";
 
 // const outfit = Outfit({

@@ -12,9 +12,7 @@ import {
 } from "@/lib/api/services/reservation.service";
 import { useMakeReservation } from "../../hooks/use-make-reservation";
 import { useWeeklyScheduleTimeslots } from "../../hooks/use-weekly-shedule-timeslots";
-import UseOpenDatesForUser from "../../hooks/use-oepn-dates-for-user";
 
-import { Modal } from "@/components/ui/modal";
 import { useFinalReservationSubmission } from "../../hooks/use-final-reservation-submission";
 import { useModal } from "@/hooks/useModal";
 import useOpenDatesForUser from "../../hooks/use-oepn-dates-for-user";
@@ -55,9 +53,7 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
     useFinalReservationSubmission();
 
   // open dates for user
-  const { openDates, loading: openDatesLoading } = useOpenDatesForUser(
-    seat.type as SeatType,
-  );
+  const { openDates } = useOpenDatesForUser(seat.type as SeatType);
 
   // static options for reservation type select
   const pcReservationOptions: { value: ReservationType; label: string }[] = [
@@ -137,7 +133,7 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
   }
 
   async function handleOpenFinalModal() {
-    const res = await handleSubmitReservation();
+    await handleSubmitReservation();
     if (!finalSubmissionInput) {
       // You can replace this with toast.error if you prefer.
       // console.warn("Reservation form is incomplete.");
@@ -162,10 +158,10 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
     // onDeselect?.();
   }
 
-  function handleClosePanel() {
-    resetReservationForm();
-    // onDeselect?.();
-  }
+  // function handleClosePanel() {
+  //   resetReservationForm();
+  //   // onDeselect?.();
+  // }
 
   return (
     <>

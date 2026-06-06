@@ -119,7 +119,6 @@ const DesktopReserveList = ({
   pending,
   deletingReservationId,
   loading,
-  error,
   handleCancelReservation,
 }: ReserveListUIProps) => {
   return (
@@ -210,7 +209,6 @@ const MobileReserveList = ({
   pending,
   deletingReservationId,
   loading,
-  error,
   handleCancelReservation,
 }: ReserveListUIProps) => {
   const [open, setOpen] = useState<string | null>(null);

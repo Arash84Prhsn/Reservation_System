@@ -116,7 +116,6 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     reservationType,
     startTime,
     endTime,
-    pending,
 
     setReservationDate,
     setReservationType,
