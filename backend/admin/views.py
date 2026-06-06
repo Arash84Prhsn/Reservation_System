@@ -7,8 +7,9 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy import func
 from backend.services.seat_services import SeatServices
 from backend.services.reservation_services import ReservationServices
-from datetime import timedelta, date
 from backend.models.enums import DOTIN_ASSOCIATIONS
+from datetime import timedelta, date
+import jdatetime
 
 class CustomAdminIndexView(AdminIndexView):
     """Custom admin homepage with authentication"""
@@ -281,3 +282,83 @@ class CreateEventRedirectView(BaseView):
     @expose('/')
     def index(self):
         return redirect(url_for('admin_event_view.create_view'))
+
+
+class SeatScheduleView(BaseView):
+    """Custom view to display seat schedules"""
+    
+    def is_accessible(self):
+        """Only allow admins to access this view"""
+        return session.get("is_admin", False)
+    
+    def inaccessible_callback(self, name, **kwargs):
+        """Redirect to login page if not authenticated"""
+        return redirect(url_for('admin_auth.login', next=request.url))
+    
+    @expose('/')
+    def index(self, *args, **kwargs):
+        """Main page showing all seats as cards"""
+        conn = get_db_connection()
+        seats = conn.query(Seat).all()
+        conn.close()
+        return self.render('admin/seat_schedule.html', seats=seats)
+    
+    @expose('/schedule/<int:seat_id>')
+    def seat_schedule(self, seat_id):
+        """Detail page showing weekly schedule for a specific seat"""
+
+        conn = get_db_connection()
+        seat = conn.query(Seat).filter_by(id=seat_id).first()
+        conn.close()
+
+        if not seat:
+            return redirect(url_for('seatschedule.index'))
+
+        # Week navigation
+        try:
+            offset = int(request.args.get("offset", 0))
+        except (ValueError, TypeError):
+            offset = 0
+
+        today = date.today()
+
+        current_week_start = ReservationServices.get_week_start_date(today)
+
+        # Move backward/forward by week
+        week_start = current_week_start + timedelta(days=(offset * 7))
+
+        week_dates = []
+
+        persian_days = {
+            5: 'شنبه',
+            6: 'یکشنبه',
+            0: 'دوشنبه',
+            1: 'سه‌شنبه',
+            2: 'چهارشنبه'
+        }
+
+        for i in range(5):
+            current_date = week_start + timedelta(days=i)
+
+            persian = jdatetime.date.fromgregorian(date=current_date)
+
+            week_dates.append({
+                "date": current_date,
+                "persian_date": f"{persian.year}/{persian.month:02d}/{persian.day:02d}",
+                "day_name": persian_days.get(current_date.weekday(), "")
+            })
+
+        schedule = ReservationServices.get_weekly_schedule_timeslots_in_dates(
+            week_start,
+            seat.seat_type,
+            seat.seat_number,
+            session.get("user_id")
+        )
+
+        return self.render(
+            "admin/seat_schedule_detail.html",
+            seat=seat,
+            week_dates=week_dates,
+            schedule=schedule,
+            offset=offset
+        )

@@ -1,0 +1,113 @@
+{% extends 'admin/master.html' %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .seats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 20px;
+    }
+    
+    .seat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border: 2px solid transparent;
+    }
+    
+    .seat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        border-color: #ff6900;
+    }
+    
+    .seat-card.seat-manager {
+        background: #f5f5f5;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+    
+    .seat-card .seat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .seat-card .seat-type {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 5px;
+    }
+    
+    h2 {
+        color: #006839;
+        margin-bottom: 20px;
+    }
+
+    .seats-grid a {
+        text-decoration: none;
+        color: inherit;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <!-- <h2 style="text-align: center;">📊 برنامه هفتگی صندلی‌ها</h2> -->
+    <p style="text-align: right; font-size: large;">برای مشاهده برنامه هفتگی هر صندلی، روی آن کلیک کنید</p>
+
+    <div class="seats-grid">
+        {% for seat in seats %}
+
+            {% if seat.is_reservable %}
+            <a href="{{ url_for('seatschedule.seat_schedule', seat_id=seat.id) }}"
+               style="text-decoration:none; color:inherit;">
+
+                <div class="seat-card">
+                    <div class="seat-number">{{ seat.seat_number }}</div>
+
+                    <div class="seat-type">
+                        {% if seat.seat_type == 'dotin' %}
+                        🖥️ داتین
+                        {% elif seat.seat_type == 'optimization' %}
+                        ⚡ بهینه‌سازی
+                        {% elif seat.seat_type == 'laptop' %}
+                        💻 لپ‌تاپ
+                        {% else %}
+                        👤 مدیریت
+                        {% endif %}
+                    </div>
+                </div>
+
+            </a>
+
+            {% else %}
+
+            <div class="seat-card seat-manager">
+                <div class="seat-number">{{ seat.seat_number }}</div>
+
+                <div class="seat-type">
+                    {% if seat.seat_type == 'dotin' %}
+                    🖥️ داتین
+                    {% elif seat.seat_type == 'optimization' %}
+                    ⚡ بهینه‌سازی
+                    {% elif seat.seat_type == 'laptop' %}
+                    💻 لپ‌تاپ
+                    {% else %}
+                    👤 مدیریت
+                    {% endif %}
+                </div>
+            </div>
+
+            {% endif %}
+
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
