@@ -1,11 +1,8 @@
 "use client";
-import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ColorLegend from "@/features/home/components/ColorLegend";
 import { useSidebar } from "@/context/SidebarContext";
 import SeatMap from "@/features/home/components/seat-map";
-import { useRouter } from "next/navigation";
-import BottomNavBar from "@/layout/BottomNavBar";
 import { SeatType } from "@/lib/api/services/reservation.service";
 import SeatList from "@/features/home/components/SeatList";
 import HomeCalendar from "@/features/home/components/HomeCalendar";
@@ -31,7 +28,7 @@ export default function Ecommerce() {
         <div>
           <SeatMap />
           <ColorLegend />
-          <BottomNavBar />
+          {/* <BottomNavBar /> */}
         </div>
       ) : (
         // Desktop:
