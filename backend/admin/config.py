@@ -5,7 +5,7 @@ from backend.admin.views import CustomAdminIndexView
 from flask_admin.menu import MenuLink
 from database.connection import get_db_connection
 from backend.admin.views import UserModelView, ReservationModelView, EventModelView, SeatModelView
-from backend.admin.views import CreateEventRedirectView, SeatScheduleView
+from backend.admin.views import CreateEventRedirectView, SeatScheduleView, CancelEventsView
 from backend.models import User, Reservation, Seat, Event
 
 admin = None
@@ -51,13 +51,22 @@ def init_admin(app):
     # Add the redirect view to the menu (appears in the left navbar)
     admin.add_view(CreateEventRedirectView(
         name='➕ Create Event',
-        category=None,
+        category="Event Actions",
         endpoint='create_event'
     ))
+
+    admin.add_view(
+        CancelEventsView(
+            name='🚫 Cancel Events',
+            endpoint='cancelevents',
+            category="Event Actions"
+        )
+    )
 
     admin.add_view(SeatScheduleView(
     name='📅 Seat Schedules',
     endpoint='seatschedule'
     ))
+
     
     return admin

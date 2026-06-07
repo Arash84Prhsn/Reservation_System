@@ -172,13 +172,17 @@
 
                     <td class="slot-{{ day_slot.status }}">
                         {% if day_slot.status == 'reserved_by_user' %}
-                            ✅ رزرو شده
+                            ✅ رزرو من
                         {% elif day_slot.status == 'reserved_by_others' %}
-                            ❌ پر
+                            رزرو شده توسط
+                            <br>
+                            <b>
+                            {{ day_slot.username }}
+                            </b>
                         {% elif day_slot.status == 'event' %}
-                            📌 رویداد
+                            📌 جلسه
                         {% else %}
-                            ○ آزاد
+                             آزاد
                         {% endif %}
                     </td>
 

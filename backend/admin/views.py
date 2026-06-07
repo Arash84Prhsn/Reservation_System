@@ -5,7 +5,7 @@ from database import get_db_connection
 from backend.models import User, Seat, Reservation, Event
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
-from backend.services.seat_services import SeatServices
+from backend.services.user_services import UserServices
 from backend.services.reservation_services import ReservationServices
 from backend.models.enums import DOTIN_ASSOCIATIONS
 from datetime import timedelta, date
@@ -355,6 +355,25 @@ class SeatScheduleView(BaseView):
             session.get("user_id")
         )
 
+        user_cache = {}
+
+        for d in schedule["schedule"]:
+            for timeslot in d["slots"]:
+
+                user_id = timeslot.get("reserved_by")
+
+                if user_id is not None:
+
+                    if user_id not in user_cache:
+                        user = UserServices.get_user_byID(user_id)
+                        user_cache[user_id] = user.username if user else "Unknown"
+
+                    timeslot["username"] = user_cache[user_id]
+
+                else:
+                    timeslot["username"] = None
+                
+
         return self.render(
             "admin/seat_schedule_detail.html",
             seat=seat,
@@ -362,3 +381,77 @@ class SeatScheduleView(BaseView):
             schedule=schedule,
             offset=offset
         )
+    
+
+class CancelEventsView(BaseView):
+    """Admin page for cancelling future events"""
+
+    def is_accessible(self):
+        return session.get("is_admin", False)
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('admin_auth.login', next=request.url))
+
+    @expose('/')
+    def index(self):
+
+        conn = get_db_connection()
+
+        events = (
+            conn.query(Event)
+            .options(joinedload(Event.user))
+            .filter(Event.status == "active")
+            .order_by(Event.date, Event.start_time)
+            .all()
+        )
+
+        cancellable_events = []
+
+        for event in events:
+
+            if event.is_cancellable():
+
+                persian_date = jdatetime.date.fromgregorian(
+                    date=event.date
+                )
+
+                event.persian_date = (
+                    f"{persian_date.year}/"
+                    f"{persian_date.month:02d}/"
+                    f"{persian_date.day:02d}"
+                )
+
+                cancellable_events.append(event)
+
+        conn.close()
+
+        return self.render(
+            "admin/cancel_events.html",
+            events=cancellable_events
+        )
+
+    @expose('/cancel/<int:event_id>', methods=['POST'])
+    def cancel_event(self, event_id):
+
+        conn = get_db_connection()
+
+        event = conn.query(Event).filter_by(id=event_id).first()
+
+        if not event:
+            conn.close()
+            flash("رویداد پیدا نشد", "error")
+            return redirect(url_for('cancelevents.index'))
+
+        if not event.is_cancellable():
+            conn.close()
+            flash("این رویداد قابل لغو نیست", "error")
+            return redirect(url_for('cancelevents.index'))
+
+        event.cancel()
+
+        conn.commit()
+        conn.close()
+
+        flash("رویداد با موفقیت لغو شد", "success")
+
+        return redirect(url_for('cancelevents.index'))
