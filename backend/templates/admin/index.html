@@ -75,38 +75,70 @@
             </div>
         </div>
     </div>
-    
+
     <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Quick Actions</h4>
-                </div>
-                <div class="card-body">
-                    <a href="{{ url_for('admin_user_view.index_view') }}" class="btn btn-primary">Manage Users</a>
-                    <a href="{{ url_for('admin_seat_view.index_view') }}" class="btn btn-light">Check out seats</a>
-                    <a href="{{ url_for('admin_reservation_view.index_view') }}" class="btn btn-primary">View Reservations</a>
-                    <a href="{{ url_for('admin_event_view.index_view') }}" class="btn btn-light">View Events and Meetings</a>
-                </div>
+
+    <div class="col-md-6">
+        <div class="card">
+
+            <div class="card-header">
+                <h4 style="text-align: center;">دسترسی سریع</h4>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Recent Activity</h4>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled">
-                        {% for res in recent_reservations %}
-                        <li>Reservation #{{ res.id }} by {{ res.user.username if res.user else 'Unknown' }} on {{ res.reservation_date }}</li>
-                        {% else %}
-                        <li>No recent reservations</li>
-                        {% endfor %}
-                    </ul>
-                </div>
+
+            <div class="card-body quick-actions">
+
+                <a href="{{ url_for('admin_user_view.index_view') }}" class="btn btn-primary">
+                    👥 مدیریت کاربرها
+                </a>
+
+                <a href="{{ url_for('admin_event_view.create_view') }}" class="btn btn-light">
+                    ➕ ایجاد جلسه و رویداد جدید
+                </a>
+
+                <a href="{{ url_for('cancelevents.index') }}" class="btn btn-primary">
+                    ❌ لغو جلسه و رویداد
+                </a>
+
+                <a href="{{ url_for('admin_seat_view.index_view') }}" class="btn btn-light">
+                     مشاهده تمامی صندلی ها
+                </a>
+
+                <a href="{{ url_for('admin_reservation_view.index_view') }}" class="btn btn-primary">
+                     مشاهده تمامی رزروها
+                </a>
+
+                <a href="{{ url_for('admin_event_view.index_view') }}" class="btn btn-light">
+                     مشاهده تمامی جلسات و رویدادها
+                </a>
+
             </div>
+
         </div>
     </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 style="text-align: center;">رزروهای اخیر</h4>
+            </div>
+
+            <div class="card-body" style="font-size: large;">
+                <ul class="list-unstyled">
+                    {% for res in recent_reservations %}
+                    <li>
+                        Reservation #{{ res.id }}
+                        by <b>{{ res.user.username if res.user else 'Unknown' }}</b>
+                        on {{ res.reservation_date }}
+                    </li>
+                    {% else %}
+                    <li>No recent reservations</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
 </div>
 {% endblock %}
 
@@ -148,6 +180,19 @@
     .btn-success {
         background: #28a745;
         color: white;
+    }
+    .quick-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .quick-actions .btn {
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+        font-size: 15px;
+        font-weight: 600;
     }
 </style>
 {% endblock %}

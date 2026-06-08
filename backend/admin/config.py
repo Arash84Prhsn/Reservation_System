@@ -3,7 +3,7 @@ from flask_admin import Admin
 from flask_admin.theme import Bootstrap4Theme
 from backend.admin.views import CustomAdminIndexView
 from flask_admin.menu import MenuLink
-from database.connection import get_db_connection
+from database.connection import get_db_connection, get_db_scoped_session
 from backend.admin.views import UserModelView, ReservationModelView, EventModelView, SeatModelView
 from backend.admin.views import CreateEventRedirectView, SeatScheduleView, CancelEventsView
 from backend.models import User, Reservation, Seat, Event
@@ -40,7 +40,7 @@ def init_admin(app):
     ))
 
     # Connect the admin page to the models
-    db_session = get_db_connection()
+    db_session = get_db_scoped_session()
 
     # Add views for the tables
     admin.add_view(UserModelView(User, db_session, endpoint='admin_user_view', name='Users'))
