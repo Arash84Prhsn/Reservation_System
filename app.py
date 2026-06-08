@@ -44,6 +44,10 @@ def enforce_idle_timeout():
 
     try:
         last_time = datetime.fromisoformat(last_activity)
+
+        if last_time.tzinfo is None:
+            last_time = last_time.replace(tzinfo=timezone.utc)
+
     except Exception:
         session["last_activity"] = now.isoformat()
         return
