@@ -1,7 +1,6 @@
 from flask import Flask, send_from_directory
 from flask_cors import CORS
 from backend.models import *
-from database.connection import get_db_connection
 from database.connection import init_db, init_roles
 from database.seed import seed_admin_and_manager_users
 from database.seed import seed_seats, seed_users, seed_reservations_for_current_week, seed_events_for_current_week
