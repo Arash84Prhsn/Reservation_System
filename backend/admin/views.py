@@ -516,9 +516,6 @@ class CancelEventsView(BaseView):
             "admin/cancel_events.html",
             events=cancellable_events
         )
-    
-    def is_accessible(self):
-        return can_access_admin()
 
     @expose('/cancel/<int:event_id>', methods=['POST'])
     def cancel_event(self, event_id):
@@ -548,3 +545,18 @@ class CancelEventsView(BaseView):
     
     def is_accessible(self):
         return can_access_admin()
+    
+class AnalyticsView(BaseView):
+
+    def is_accessible(self):
+        return can_access_admin()
+    
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('admin_auth.login', next=request.url))
+    
+    @expose("/")
+    def index(self):
+        
+        conn = get_db_connection()
+
+        

@@ -21,8 +21,9 @@ CORS(app,
      allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
      expose_headers=["Content-Type", "Set-Cookie"]
 )
-
-# Session Settings:
+# ===================================
+#        <Session Settings>
+# ===================================
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=12)
 app.config["SESSION_PERMANENT"] = True
 
@@ -37,7 +38,7 @@ def enforce_idle_timeout():
 
     now = datetime.now(timezone.utc)
 
-    # If no timestamp exists → set it
+    # If no timestamp exists, set it
     if not last_activity:
         session["last_activity"] = now.isoformat()
         return
