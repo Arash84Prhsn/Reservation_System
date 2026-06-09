@@ -10,6 +10,7 @@ import {
   HorizontaLDots,
   UserCircleIcon,
 } from "../icons/index";
+import { BsQuestionCircle } from "react-icons/bs";
 
 type NavItem = {
   name: string;
@@ -29,6 +30,11 @@ const navItems: NavItem[] = [
     icon: <UserCircleIcon />,
     name: "پروفایل",
     path: "/profile",
+  },
+  {
+    icon: <BsQuestionCircle className="w-5 h-5"/>,
+    name: "راهنما",
+    path: "/help",
   },
 ];
 

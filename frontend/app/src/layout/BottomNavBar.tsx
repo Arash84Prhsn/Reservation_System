@@ -3,6 +3,7 @@
 import { CalendarIcon, HomeIcon, UserIcon } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import React from "react";
+import { BsQuestionCircle } from "react-icons/bs";
 
 const navItems = [
   {
@@ -19,6 +20,11 @@ const navItems = [
     label: "پروفایل",
     path: "/profile",
     icon: UserIcon,
+  },
+  {
+    label: "راهنما",
+    path: "/help",
+    icon: BsQuestionCircle,
   },
 ];
 

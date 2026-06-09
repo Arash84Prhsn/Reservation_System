@@ -28,7 +28,6 @@ export default function Ecommerce() {
         <div>
           <SeatMap />
           <ColorLegend />
-          {/* <BottomNavBar /> */}
         </div>
       ) : (
         // Desktop:
