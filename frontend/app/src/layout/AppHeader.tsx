@@ -1,5 +1,4 @@
 "use client";
-import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
 import UserDropdown from "@/features/header/components/UserDropdown";
 import { useSidebar } from "@/context/SidebarContext";
 import React, { useState, useEffect, useRef } from "react";
@@ -39,7 +38,7 @@ const AppHeader: React.FC = () => {
   }, []);
 
   return (
-    <header className="sticky top-0 z-99999 flex w-full border-gray-200 bg-white lg:border-b dark:border-gray-800 dark:bg-gray-900">
+    <header className="sticky top-0 z-99999 flex w-full border-gray-200 bg-res-green-800 lg:border-b dark:border-gray-800 dark:bg-gray-900">
       <div className="flex grow flex-col items-center justify-between lg:flex-row-reverse lg:px-6">
         <div className="flex w-full items-center justify-between gap-2 border-b border-gray-200 px-3 py-3 sm:gap-4 lg:flex-row-reverse lg:justify-start lg:border-b-0 lg:px-0 lg:py-4 dark:border-gray-800">
           {/* mobile nav links  */}
@@ -62,7 +61,7 @@ const AppHeader: React.FC = () => {
           )} */}
           {!isMobile && (
             <button
-              className="z-99999 h-10 w-10 items-center justify-center rounded-lg border-gray-200 text-gray-500 lg:flex lg:h-11 lg:w-11 lg:border dark:border-gray-800 dark:text-gray-400"
+              className="z-99999 h-10 w-10 bg-res-green-100 items-center justify-center rounded-lg border-gray-200 text-gray-500 lg:flex lg:h-11 lg:w-11 lg:border dark:border-gray-800 dark:text-gray-400"
               onClick={handleToggle}
               aria-label="Toggle Sidebar"
             >
@@ -167,7 +166,7 @@ const AppHeader: React.FC = () => {
             <>
               <div className="2xsm:gap-3 flex items-center gap-2">
                 {/* <!-- Dark Mode Toggler --> */}
-                <ThemeToggleButton />
+                {/* <ThemeToggleButton /> */}
                 {/* <!-- Dark Mode Toggler --> */}
 
                 {/* <NotificationDropdown /> */}
