@@ -53,7 +53,7 @@ const chairGroups: SeatGroup[] = [
 const SeatList = ({ seat, onChairSelect }: SeatListParams) => {
   return (
     <div className="flex h-full w-50 flex-col rounded-2xl border-2 border-gray-300 bg-white p-4">
-      <p className="text-center text-2xl">صندلی / زمان</p>
+      <p className="text-center text-2xl ">صندلی / زمان</p>
       <p className="text-center text-lg">نوع صندلی</p>
 
       {chairGroups.map((group) => {

@@ -32,7 +32,7 @@ const navItems: NavItem[] = [
     path: "/profile",
   },
   {
-    icon: <BsQuestionCircle className="w-5 h-5"/>,
+    icon: <BsQuestionCircle className="w-5 h-5" />,
     name: "راهنما",
     path: "/help",
   },
@@ -265,38 +265,41 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed top-0 right-0 z-50 mt-16 flex h-screen flex-col border-l border-gray-200 bg-white px-5 text-gray-900 transition-all duration-300 ease-in-out lg:mt-0 dark:border-gray-800 dark:bg-gray-900 ${
-        isExpanded || isMobileOpen
-          ? "w-[290px]"
-          : isHovered
-            ? "w-[290px]"
-            : "w-[90px]"
-      } ${isMobileOpen ? "translate-x-0" : "translate-x-full"} lg:translate-x-0`}
+      className={`fixed top-0 right-0 z-50 mt-16 flex h-screen flex-col border-l
+         border-gray-200 bg-[#024023] px-5 text-gray-900 
+          transition-all duration-300 ease-in-out lg:mt-0 dark:border-gray-800 dark:bg-gray-900 ${
+            isExpanded || isMobileOpen
+              ? "w-[290px]"
+              : isHovered
+                ? "w-[290px]"
+                : "w-[90px]"
+          } ${isMobileOpen ? "translate-x-0" : "translate-x-full"} lg:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className={`flex py-8 ${
+        className={`flex py-8  ${
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
-        <Link href="/">
+        <Link href="/" className="mx-auto">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <Image
                 className="dark:hidden"
-                src="/images/logo/logo.svg"
+                src="/DOTIN/Logo/lab.png"
                 alt="Logo"
                 width={150}
                 height={40}
               />
-              <Image
+
+              {/* <Image
                 className="hidden dark:block"
                 src="/images/logo/logo-dark.svg"
                 alt="Logo"
                 width={150}
                 height={40}
-              />
+              /> */}
             </>
           ) : (
             <Image
@@ -320,7 +323,8 @@ const AppSidebar: React.FC = () => {
                 }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
+                  // you can delete it or change it to show some if you need
+                  <p className="fa w-full text-xl"></p>
                 ) : (
                   <HorizontaLDots />
                 )}
