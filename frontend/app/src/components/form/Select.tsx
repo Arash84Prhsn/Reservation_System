@@ -87,7 +87,7 @@ const Select: React.FC<SelectProps> = ({
                 onClick={() => handleSelect(option.value)}
                 className={`cursor-pointer px-4 py-2.5 text-sm transition ${
                   selected === option.value
-                    ? "bg-brand-500/10 text-brand-600 dark:text-brand-400"
+                    ? "bg-res-green-success/15 text-gray-700 dark:text-brand-400"
                     : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
                 }`}
               >

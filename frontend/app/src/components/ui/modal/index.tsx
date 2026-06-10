@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 import React, { useRef, useEffect } from "react";
 
 interface ModalProps {
@@ -64,7 +65,7 @@ export const Modal: React.FC<ModalProps> = ({
       )}
       <div
         ref={modalRef}
-        className={`${contentClasses}  ${className}`}
+        className={cn(contentClasses, className)}
         onClick={(e) => e.stopPropagation()}
       >
         {showCloseButton && (

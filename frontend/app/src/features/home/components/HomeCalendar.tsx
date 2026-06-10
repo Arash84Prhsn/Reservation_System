@@ -493,7 +493,7 @@ const ReservationModalContent = ({
                 تاریخ انتخابی
               </label>
 
-              <div className="h-11 w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-600">
+              <div className="h-11 w-full rounded-lg border border-gray-200 bg-res-green-100 px-4 py-2.5 text-sm text-gray-700">
                 {selectedDate?.format("YYYY/MM/DD") ?? "-"}
               </div>
             </div>
@@ -523,7 +523,7 @@ const ReservationModalContent = ({
                 زمان شروع
               </label>
 
-              <div className="h-11 w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-600">
+              <div className="h-11 w-full rounded-lg border border-gray-200 bg-res-green-100 px-4 py-2.5 text-sm text-gray-700">
                 {startTime?.format("HH:mm") ?? "-"}
               </div>
             </div>
@@ -542,7 +542,7 @@ const ReservationModalContent = ({
                 calendar={persian}
                 locale={persian_fa}
                 containerStyle={{ width: "100%" }}
-                inputClass="fa h-11 w-full rounded-lg border border-gray-300 px-4 text-sm disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
+                inputClass=" h-11 w-full rounded-lg border border-gray-300 px-4 text-sm disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
                 plugins={[
                   <TimePicker
                     key="end-time"
@@ -570,7 +570,7 @@ const ReservationModalContent = ({
             <button
               onClick={onSubmit}
               type="button"
-              className="bg-brand-500 hover:bg-brand-600 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
+              className="bg-res-green-success hover:bg-res-green-success/90 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
             >
               {submitLabel}
             </button>
