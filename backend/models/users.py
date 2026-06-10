@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, CheckConstraint, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from backend.models import DeclarativeBase
+from backend.models.enums import DOTIN_ASSOCIATIONS
 from datetime import datetime
 
 class User(DeclarativeBase):
@@ -32,11 +33,7 @@ class User(DeclarativeBase):
 
         :returns: `True` if the association is in the `Dotin` associates list and `False` otherwise.
         """
-        dotin_associations = ["Dotin employee",
-                              "DataScience competitions",
-                              "Dotin associate"]
-        
-        return self.association in dotin_associations
+        return self.association in DOTIN_ASSOCIATIONS
     
     def to_dict(self):
         """Convert user to dictionary"""
