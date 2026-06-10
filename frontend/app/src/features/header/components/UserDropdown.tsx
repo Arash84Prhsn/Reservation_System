@@ -3,6 +3,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { Dropdown } from "../../../components/ui/dropdown/Dropdown";
 import { DropdownItem } from "../../../components/ui/dropdown/DropdownItem";
+import Image from "next/image";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,14 +22,9 @@ export default function UserDropdown() {
         onClick={toggleDropdown}
         className="flex items-center text-gray-700 dark:text-gray-400 dropdown-toggle"
       >
-        {/* <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-          <Image
-            width={44}
-            height={44}
-            src="/images/user/owner.jpg"
-            alt="User"
-          />
-        </span> */}
+        <span className="mr-3 overflow-hidden h-6 w-6">
+          <Image width={24} height={24} src="/images/user.png" alt="User" />
+        </span>
 
         <span className="block mr-1 font-medium text-theme-sm">Musharof</span>
 
