@@ -685,8 +685,14 @@ span.flatpickr-weekday,
   border: none;
   color: black;
 }
-.fc.fc-media-screen {
+.custom-calendar .fc.fc-media-screen {
   @apply min-h-[calc(100vh-130px)];
+}
+
+.custom-calendar .fc-header-toolbar.fc-toolbar.fc-toolbar-ltr {
+  background-color: #EBFFEE;
+  margin: 0;
+  padding: 24px;
 }
 
 

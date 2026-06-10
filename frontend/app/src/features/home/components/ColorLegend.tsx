@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { FileQuestionMark } from "lucide-react";
+import { BsQuestionCircle } from "react-icons/bs";
 // import { useSidebar } from "@/context/SidebarContext";
 
 const LEGEND_ITEMS = [
@@ -21,13 +21,13 @@ export default function ColorLegend() {
         <button
           type="button"
           onClick={() => setIsMobileLegendOpen(!isMobileLegendOpen)}
-          className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-gray-400/50 text-white shadow-lg backdrop-blur-md transition-all duration-200 hover:scale-110 active:scale-95"
+          className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-res-green-900/80 text-white shadow-lg backdrop-blur-md transition-all duration-200 hover:scale-110 active:scale-95"
         >
-          <FileQuestionMark size={24} />
+          <BsQuestionCircle size={50} />
         </button>
 
         <div
-          className={`ml-3 w-56 rounded-2xl border border-white/10 bg-gray-900/90 p-4 text-white shadow-2xl backdrop-blur-md transition-all duration-300 ${isMobileLegendOpen ? "pointer-events-auto scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"} `}
+          className={`ml-3 w-56 rounded-2xl border border-white/10 bg-res-green-800/95 p-4 text-white shadow-2xl backdrop-blur-md transition-all duration-300 ${isMobileLegendOpen ? "pointer-events-auto scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"} `}
         >
           <h3 className="mb-3 text-sm font-semibold text-gray-200">
             راهنمای رنگ

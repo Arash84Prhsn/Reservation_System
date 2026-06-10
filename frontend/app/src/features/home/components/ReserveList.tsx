@@ -123,11 +123,13 @@ const DesktopReserveList = ({
 }: ReserveListUIProps) => {
   return (
     <div className="fa flex  w-50 flex-col rounded-2xl border-2 border-gray-300 bg-res-orange p-4">
-      <p className="text-center text-2xl">رزرو های من</p>
+      <div className="bg-res-green-success rounded-2xl  p-1">
+        <p className="text-center text-2xl text-white ">رزرو های من</p>
+      </div>
 
       <div className="mt-7 flex flex-col gap-4">
         {loading && (
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-white">
             در حال بارگذاری...
           </p>
         )}
@@ -139,7 +141,7 @@ const DesktopReserveList = ({
         )} */}
 
         {!loading && groupedReservations.length === 0 && (
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-white">
             رزروی ثبت نشده است
           </p>
         )}
