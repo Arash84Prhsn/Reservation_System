@@ -27,4 +27,4 @@ class Seat(DeclarativeBase):
         return self.is_reservable and self.seat_type != 'manager'
 
     def __repr__(self):
-        return f"<Seat(seat_id={self.id}, seat_number={self.seat_number}, type='{self.seat_type}')>"
+        return f"{self.seat_type} {self.seat_number}"

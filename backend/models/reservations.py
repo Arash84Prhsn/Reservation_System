@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, Date, Time, ForeignKey, CheckConstraint
 from sqlalchemy.orm import relationship
 from backend.models import DeclarativeBase
+from backend.models.enums import SYSTEM_ONLY_RESERVATION_TYPES
 from datetime import datetime
 
 class Reservation(DeclarativeBase):
@@ -28,10 +29,7 @@ class Reservation(DeclarativeBase):
     )
     
     def is_computer_only(self):
-        computer_only_types = ["only running programs",
-                                "dorsan desk"]
-        
-        return self.reservation_type in computer_only_types
+        return self.reservation_type in SYSTEM_ONLY_RESERVATION_TYPES
 
     def to_dict(self):
         """Convert reservation to dictionary"""

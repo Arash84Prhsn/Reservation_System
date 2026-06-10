@@ -5,17 +5,29 @@ from database import get_db_connection
 from backend.models import User, Seat, Reservation, Event
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
-from backend.services.seat_services import SeatServices
+from backend.services.user_services import UserServices
 from backend.services.reservation_services import ReservationServices
-from datetime import timedelta, date
 from backend.models.enums import DOTIN_ASSOCIATIONS
+from datetime import timedelta, date
+import jdatetime
+
+# Acess functions:
+def is_admin():
+    return session.get("role_id") == 1
+
+def is_event_manager():
+    return session.get("role_id") == 2
+
+def can_access_admin():
+    return session.get("role_id") in [1, 2]
+
 
 class CustomAdminIndexView(AdminIndexView):
     """Custom admin homepage with authentication"""
     
     def is_accessible(self):
         """Check if user is logged in as admin"""
-        return session.get("is_admin", False)
+        return can_access_admin()
     
     def inaccessible_callback(self, name, **kwargs):
         """Redirect to login page if not authenticated"""
@@ -38,7 +50,7 @@ class CustomAdminIndexView(AdminIndexView):
         # Eagerly load both 'user' and 'user.role' to avoid detached instance error
         recent_reservations = conn.query(Reservation).options(
             joinedload(Reservation.user).joinedload(User.role)
-        ).order_by(Reservation.created_at.desc()).limit(10).all()
+        ).order_by(Reservation.created_at.desc()).limit(15).all()
         
         conn.close()
         
@@ -69,10 +81,22 @@ class CustomModelView(ModelView):
     page_size = 25
     
     def is_accessible(self):
-        return session.get("is_admin", False)
+        return can_access_admin()
     
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for('admin_auth.login', next=request.url))
+    
+    @property
+    def can_create(self):
+        return session.get("role_id") == 1
+
+    @property
+    def can_edit(self):
+        return session.get("role_id") == 1
+
+    @property
+    def can_delete(self):
+        return session.get("role_id") == 1
 
 
 class UserModelView(CustomModelView):
@@ -97,6 +121,22 @@ class UserModelView(CustomModelView):
     
     def get_count_query(self):
         return self.session.query(func.count('*')).select_from(self.model)
+    
+    def is_accessible(self):
+        return can_access_admin()
+
+    @property
+    def can_create(self):
+        return session.get("role_id") == 1
+
+    @property
+    def can_edit(self):
+        return session.get("role_id") == 1
+
+    @property
+    def can_delete(self):
+        return session.get("role_id") == 1
+    
 
 
 class ReservationModelView(CustomModelView):
@@ -124,6 +164,21 @@ class ReservationModelView(CustomModelView):
     
     def get_count_query(self):
         return self.session.query(func.count('*')).select_from(self.model)
+    
+    def is_accessible(self):
+        return can_access_admin()
+    
+    @property
+    def can_create(self):
+        return session.get("role_id") == 1
+
+    @property
+    def can_edit(self):
+        return session.get("role_id") == 1
+
+    @property
+    def can_delete(self):
+        return session.get("role_id") == 1
 
 
 class SeatModelView(CustomModelView):
@@ -142,6 +197,21 @@ class SeatModelView(CustomModelView):
     column_formatters = {
         'is_reservable': lambda v, c, m, p: 'Yes' if m.is_reservable else 'No'
     }
+
+    def is_accessible(self):
+        return can_access_admin()
+    
+    @property
+    def can_create(self):
+        return session.get("role_id") == 1
+
+    @property
+    def can_edit(self):
+        return session.get("role_id") == 1
+
+    @property
+    def can_delete(self):
+        return session.get("role_id") == 1
 
 
 class EventModelView(CustomModelView):
@@ -178,6 +248,21 @@ class EventModelView(CustomModelView):
     def get_count_query(self):
         return self.session.query(func.count('*')).select_from(self.model)
     
+    def is_accessible(self):
+        return can_access_admin()
+    
+    @property
+    def can_create(self):
+        return session.get("role_id") == 1
+
+    @property
+    def can_edit(self):
+        return session.get("role_id") == 1
+
+    @property
+    def can_delete(self):
+        return session.get("role_id") == 1
+    
     # ============ CUSTOM CREATE VIEW ============
     
     @expose('/new/', methods=('GET', 'POST'))
@@ -191,7 +276,7 @@ class EventModelView(CustomModelView):
         import re
         
         # Redirect if not logged in as admin
-        if not session.get("is_admin", False):
+        if not can_access_admin():
             return redirect(url_for('admin_auth.login', next=request.url))
         
         if request.method == 'POST':
@@ -281,3 +366,197 @@ class CreateEventRedirectView(BaseView):
     @expose('/')
     def index(self):
         return redirect(url_for('admin_event_view.create_view'))
+    
+    def is_accessible(self):
+        return can_access_admin()
+
+
+class SeatScheduleView(BaseView):
+    """Custom view to display seat schedules"""
+    
+    def is_accessible(self):
+        """Only allow admins to access this view"""
+        return can_access_admin()
+    
+    def inaccessible_callback(self, name, **kwargs):
+        """Redirect to login page if not authenticated"""
+        return redirect(url_for('admin_auth.login', next=request.url))
+    
+    @expose('/')
+    def index(self, *args, **kwargs):
+        """Main page showing all seats as cards"""
+        conn = get_db_connection()
+        seats = conn.query(Seat).all()
+        conn.close()
+        return self.render('admin/seat_schedule.html', seats=seats)
+    
+    @expose('/schedule/<int:seat_id>')
+    def seat_schedule(self, seat_id):
+        """Detail page showing weekly schedule for a specific seat"""
+
+        conn = get_db_connection()
+        seat = conn.query(Seat).filter_by(id=seat_id).first()
+        conn.close()
+
+        if not seat:
+            return redirect(url_for('seatschedule.index'))
+
+        # Week navigation
+        try:
+            offset = int(request.args.get("offset", 0))
+        except (ValueError, TypeError):
+            offset = 0
+
+        today = date.today()
+
+        current_week_start = ReservationServices.get_week_start_date(today)
+
+        # Move backward/forward by week
+        week_start = current_week_start + timedelta(days=(offset * 7))
+
+        week_dates = []
+
+        persian_days = {
+            5: 'شنبه',
+            6: 'یکشنبه',
+            0: 'دوشنبه',
+            1: 'سه‌شنبه',
+            2: 'چهارشنبه'
+        }
+
+        for i in range(5):
+            current_date = week_start + timedelta(days=i)
+
+            persian = jdatetime.date.fromgregorian(date=current_date)
+
+            week_dates.append({
+                "date": current_date,
+                "persian_date": f"{persian.year}/{persian.month:02d}/{persian.day:02d}",
+                "day_name": persian_days.get(current_date.weekday(), "")
+            })
+
+        schedule = ReservationServices.get_weekly_schedule_timeslots_in_dates(
+            week_start,
+            seat.seat_type,
+            seat.seat_number,
+            session.get("user_id")
+        )
+
+        user_cache = {}
+
+        for d in schedule["schedule"]:
+            for timeslot in d["slots"]:
+
+                user_id = timeslot.get("reserved_by")
+
+                if user_id is not None:
+
+                    if user_id not in user_cache:
+                        user = UserServices.get_user_byID(user_id)
+                        user_cache[user_id] = user.username if user else "Unknown"
+
+                    timeslot["username"] = user_cache[user_id]
+
+                else:
+                    timeslot["username"] = None
+                
+
+        return self.render(
+            "admin/seat_schedule_detail.html",
+            seat=seat,
+            week_dates=week_dates,
+            schedule=schedule,
+            offset=offset
+        )
+    
+
+class CancelEventsView(BaseView):
+    """Admin page for cancelling future events"""
+
+    def is_accessible(self):
+        return can_access_admin()
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('admin_auth.login', next=request.url))
+
+    @expose('/')
+    def index(self):
+
+        conn = get_db_connection()
+
+        events = (
+            conn.query(Event)
+            .options(joinedload(Event.user))
+            .filter(Event.status == "active")
+            .order_by(Event.date, Event.start_time)
+            .all()
+        )
+
+        cancellable_events = []
+
+        for event in events:
+
+            if event.is_cancellable():
+
+                persian_date = jdatetime.date.fromgregorian(
+                    date=event.date
+                )
+
+                event.persian_date = (
+                    f"{persian_date.year}/"
+                    f"{persian_date.month:02d}/"
+                    f"{persian_date.day:02d}"
+                )
+
+                cancellable_events.append(event)
+
+        conn.close()
+
+        return self.render(
+            "admin/cancel_events.html",
+            events=cancellable_events
+        )
+
+    @expose('/cancel/<int:event_id>', methods=['POST'])
+    def cancel_event(self, event_id):
+
+        conn = get_db_connection()
+
+        event = conn.query(Event).filter_by(id=event_id).first()
+
+        if not event:
+            conn.close()
+            flash("رویداد پیدا نشد", "error")
+            return redirect(url_for('cancelevents.index'))
+
+        if not event.is_cancellable():
+            conn.close()
+            flash("این رویداد قابل لغو نیست", "error")
+            return redirect(url_for('cancelevents.index'))
+
+        event.cancel()
+
+        conn.commit()
+        conn.close()
+
+        flash("رویداد با موفقیت لغو شد", "success")
+
+        return redirect(url_for('cancelevents.index'))
+    
+    def is_accessible(self):
+        return can_access_admin()
+    
+class AnalyticsView(BaseView):
+
+    def is_accessible(self):
+        return can_access_admin()
+    
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('admin_auth.login', next=request.url))
+    
+    @expose("/")
+    def index(self):
+        
+        conn = get_db_connection()
+
+        

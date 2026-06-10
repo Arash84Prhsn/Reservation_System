@@ -33,6 +33,7 @@ class User(DeclarativeBase):
 
         :returns: `True` if the association is in the `Dotin` associates list and `False` otherwise.
         """
+        
         return self.association in DOTIN_ASSOCIATIONS
     
     def to_dict(self):
@@ -74,8 +75,4 @@ class User(DeclarativeBase):
     
     
     def __repr__(self):
-        return f"""user_id={self.id}\n
-        username='{self.username}'
-        association='{self.association}'
-        is_dotin='{self.isDotinAssociate()}'
-        """
+        return f"{self.username}"
