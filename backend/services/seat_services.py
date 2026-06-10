@@ -98,7 +98,7 @@ class SeatServices:
             stmnt = select(Event.start_time, Event.end_time).where(Event.date == date_of_day,
                                                                    Event.status == "active")
             
-            events_of_day = conn.execute(stmnt).all()
+            events_of_day = conn.execute(stmnt).mappings().all()
 
             for row in events_of_day:
                 start_time = row["start_time"].isoformat()
