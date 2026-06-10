@@ -68,7 +68,7 @@ def serve_css(filename):
 
 admin = init_admin(app=app)
 
-# Set the secret key for the app here
+# Set the secret key for the app here, TODO: REMOVE FROM CODE FOR PRODUCTION!!!
 app.secret_key = "c995897f9499dc39986fad92f8e02a28cfb01b4d4aae2a0e53b0cabccd4ba49b"
 
 # register all the blueprints specified in the backend/routes/__init__.py
