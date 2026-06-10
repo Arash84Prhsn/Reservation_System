@@ -5,7 +5,8 @@ import { useSidebar } from "@/context/SidebarContext";
 import AppHeader from "@/layout/AppHeader";
 import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
-import BottomNavBar from "@/layout/BottomNavBar";
+import MobileBottomNavBar from "@/layout/MobileBottomNavBar";
+import MobileTopBar from "@/layout/MobileTopBar";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 
@@ -43,16 +44,16 @@ export default function AdminLayout({
       <div
         className={`flex-1 transition-all duration-300 ease-in-out ${mainContentMargin} ${isMobile && "mb-16"}`}
       >
-        {/* Desktoop Header */}
-        {!isMobile && <AppHeader />}
+        {/* Header */}
+        {isMobile ? <MobileTopBar /> : <AppHeader />}
 
         {/* Page Content */}
 
-        <div className={`mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6`}>
+        <div className={`mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6 ${isMobile && "mt-12"} `}>
           {children}
         </div>
       </div>
-      {isMobile && <BottomNavBar />}
+      {isMobile && <MobileBottomNavBar />}
     </div>
   );
 }
