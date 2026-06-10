@@ -353,9 +353,13 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
   }
 
   return (
-    <div className="w-full rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-      <div className="custom-calendar">
+    <div
+      className="w-full  rounded-2xl border border-gray-200
+         dark:border-gray-800 dark:bg-white/[0.03] "
+    >
+      <div className="custom-calendar ">
         <FullCalendar
+          viewClassNames="min-h-0! h-full"
           // calendar custom UI
           eventBackgroundColor="transparent"
           eventBorderColor="transparent"

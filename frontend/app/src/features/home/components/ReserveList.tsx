@@ -122,7 +122,7 @@ const DesktopReserveList = ({
   handleCancelReservation,
 }: ReserveListUIProps) => {
   return (
-    <div className="fa flex h-full w-50 flex-col rounded-2xl border-2 border-gray-300 bg-white p-4">
+    <div className="fa flex  w-50 flex-col rounded-2xl border-2 border-gray-300 bg-res-orange p-4">
       <p className="text-center text-2xl">رزرو های من</p>
 
       <div className="mt-7 flex flex-col gap-4">

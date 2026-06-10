@@ -32,7 +32,7 @@ export default function Ecommerce() {
       ) : (
         // Desktop:
 
-        <div className="flex justify-end gap-5">
+        <div className="flex justify-end gap-5  h-[calc(100vh-130px)]">
           <ReserveList />
 
           {/* if chair is not selected, don't show calendar */}

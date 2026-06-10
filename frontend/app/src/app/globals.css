@@ -686,8 +686,10 @@ span.flatpickr-weekday,
   color: black;
 }
 .fc.fc-media-screen {
-  @apply min-h-screen;
+  @apply min-h-[calc(100vh-130px)];
 }
+
+
 
 .input-date-icon::-webkit-inner-spin-button,
 .input-date-icon::-webkit-calendar-picker-indicator {
