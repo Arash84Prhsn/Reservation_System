@@ -196,7 +196,7 @@ const DesktopReserveList = ({
             hoverPosition="right"
             hoverContentWrapperClassName="w-64"
             hoverContentClassName="bg-blue-100 border-blue-300"
-            hoverTriggerClassName="text-nowrap"
+            hoverTriggerClassName="text-nowrap bg-white"
           />
         ))}
       </div>
