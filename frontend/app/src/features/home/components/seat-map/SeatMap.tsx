@@ -32,12 +32,9 @@ export default function SeatMap({ config, data }: SeatMapProps) {
     : null;
 
   return (
-    <div
-      className="mx-auto w-full max-w-sm rounded-2xl bg-amber-600/50 p-4"
-      dir="rtl"
-    >
-      <div className="relative w-full" style={{ paddingBottom: "100%" }}>
-        <div className="absolute inset-0">
+    <div className="mx-auto w-full max-w-sm rounded-2xl  p-4" dir="rtl">
+      <div className="relative w-full -mt-12" style={{ paddingBottom: "100%" }}>
+        <div className="absolute inset-0 ">
           <Table />
           {seats.map((seat) => (
             <SeatComponent

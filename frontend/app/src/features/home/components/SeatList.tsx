@@ -50,7 +50,7 @@ const chairGroups: SeatGroup[] = [
     title: "صندلی Laptop",
     type: "laptop",
     prefix: "L",
-    colorClass: "bg-res-gray",
+    colorClass: "bg-res-gray-dark",
     count: 3,
   },
 ];

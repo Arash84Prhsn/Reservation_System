@@ -25,10 +25,10 @@ export default function Ecommerce() {
       {/* mobile: */}
 
       {isMobile ? (
-        <div>
+        <>
           <SeatMap />
           <ColorLegend />
-        </div>
+        </>
       ) : (
         // Desktop:
 

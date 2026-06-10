@@ -232,15 +232,7 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
             />
           </div>
 
-          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
-            <button
-              onClick={resetReservationForm}
-              type="button"
-              className="w-full rounded-lg bg-gray-600 px-4 py-3 text-sm font-medium transition hover:bg-gray-500"
-            >
-              بستن
-            </button>
-
+          <div className="flex gap-3 pt-2 sm:flex-row">
             <button
               onClick={handleOpenFinalModal}
               type="button"
@@ -248,6 +240,13 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
               className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {pending ? "در حال ثبت..." : "ثبت رزرو"}
+            </button>
+            <button
+              onClick={resetReservationForm}
+              type="button"
+              className=" w-[30%] rounded-lg bg-gray-600 px-4 py-3 text-sm font-medium transition hover:bg-gray-500"
+            >
+              بستن
             </button>
           </div>
         </div>

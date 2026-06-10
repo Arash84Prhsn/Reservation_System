@@ -10,9 +10,9 @@ export function Table() {
         width: `${(TABLE_W / BASE_W) * 100}%`,
         height: `${(TABLE_H / BASE_H) * 100}%`,
       }}
-      className="flex items-center justify-center rounded-xl bg-slate-700 shadow-lg"
+      className="flex items-center justify-center rounded-3xl bg-res-gray-light border border-black shadow-lg"
     >
-      <span className="text-sm font-bold text-white">میز</span>
+      {/* <span className="text-sm font-bold text-white">میز</span> */}
     </div>
   );
 }
