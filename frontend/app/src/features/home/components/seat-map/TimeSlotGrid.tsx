@@ -72,7 +72,7 @@ export function TimeSlotGrid({
         "bg-blue-700/60 border-blue-500 text-white":
           slot.status === "reserved_by_user",
         "bg-blue-600 text-white border-blue-400": isSelected, // انتخاب شده توسط کاربر
-        "bg-gray-800 border-gray-600 text-gray-200 hover:border-gray-400":
+        "bg-white border-gray-600 text-gray-800 hover:border-gray-400":
           slot.status === "free" && !isSelected,
       },
     );

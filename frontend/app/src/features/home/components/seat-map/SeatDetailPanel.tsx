@@ -165,15 +165,15 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
 
   return (
     <>
-      <div className="mt-4 rounded-xl bg-gray-800 p-4 text-white shadow-lg">
-        <div className="mb-4 text-sm leading-6">
+      <div className="mt-4 rounded-4xl bg-res-green-100 border border-black p-4 text-white shadow-lg">
+        <div className="mb-4 text-sm leading-6 text-gray-700">
           صندلی <strong>{fullLabel}</strong>
         </div>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 ">
           <div className="flex gap-2">
             <div className="w-full">
-              <label className="mb-1.5 block text-sm font-medium text-gray-300">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 تاریخ رزرو
               </label>
 
@@ -193,7 +193,7 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
             </div>
 
             <div className="w-full">
-              <label className="mb-1.5 block text-sm font-medium text-gray-300">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 نوع رزرو
               </label>
 
@@ -214,7 +214,7 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-300">
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">
               انتخاب زمان
             </label>
 
@@ -237,7 +237,7 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
               onClick={handleOpenFinalModal}
               type="button"
               disabled={pending}
-              className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-lg bg-res-green-success px-4 py-3 text-sm font-medium transition hover:bg-res-green-success/80 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {pending ? "در حال ثبت..." : "ثبت رزرو"}
             </button>
