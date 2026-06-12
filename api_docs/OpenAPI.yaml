@@ -104,7 +104,7 @@ components:
           type: string
           minLength: 8
           example: SecurePass123
-          description: "At least 8 chars, 1 uppercase, 1 lowercase, 1 number"
+          description: "At least 8 chars, at most 20 chars, 1 uppercase, 1 lowercase, 1 number, English only (`@` and `_` are allowed as well)"
         email:
           type: string
           format: email
