@@ -4,8 +4,11 @@ import { ApiResponse } from "./auth.servise";
 import { HttpError } from "../core/errors";
 
 // type: reservation
-
 export type ReservationSystemOnly = "only running programs" | "dorsan desk";
+export const SYSTEM_ONLY_TYPES: ReservationSystemOnly[] = [
+  "only running programs",
+  "dorsan desk",
+];
 export type ReservationSeatAndSystem = "internship" | "project";
 
 export type ReservationType = ReservationSeatAndSystem | ReservationSystemOnly;

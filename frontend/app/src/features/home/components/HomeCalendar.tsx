@@ -31,8 +31,10 @@ import { useAuth } from "@/context/AuthContext";
 import { mapScheduleIntervalsToCalendarEvents } from "./mapScheduleIntervalsToCalendarEvents";
 import {
   FinalReservationSubmissionInput,
+  ReservationSystemOnly,
   ReservationType,
   SeatType,
+  SYSTEM_ONLY_TYPES,
 } from "@/lib/api/services/reservation.service";
 import { useMakeReservation } from "../hooks/use-make-reservation";
 import { FinalReservationModal } from "./seat-map/FinalReservationModal";
@@ -70,12 +72,16 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
   const [verifiedReservationInput, setVerifiedReservationInput] =
     useState<FinalReservationSubmissionInput | null>(null);
 
+  //state for system only reservations
+  const [isSystemOverride, setIsSystemOverride] = useState(false);
+
   const calendarRef = useRef<FullCalendar>(null);
 
   /**
    * Used to prevent TimePicker from keeping an invalid selected value.
    */
   const previousValidEndRef = useRef<DateObject | null>(null);
+  const previousValidStartRef = useRef<DateObject | null>(null);
 
   // make-reservation modal
   const {
@@ -189,6 +195,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     setSelectedEvent(null);
     previousValidEndRef.current = null;
     resetReservationForm();
+    setIsSystemOverride(false);
 
     /**
      * resetReservationForm may clear seat data, so set it again.
@@ -226,6 +233,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     setEndTime(formatTimeForApi(end));
 
     previousValidEndRef.current = end;
+    previousValidStartRef.current = start;
 
     openMakeReservationModal();
   };
@@ -235,14 +243,30 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     const event = clickInfo.event;
     const start = event.start ? toPersianDateObject(event.start) : null;
     const end = event.end ? toPersianDateObject(event.end) : null;
-    setMode("view");
-    setSelectedEvent(event as unknown as CalendarEvent);
-    setReservationType(
-      (event.extendedProps?.reservationType as ReservationType) ?? null,
-    );
+    const reservationType = clickInfo.event.extendedProps?.reservationType;
+    const isSystemOnly = isSystemOnlyHelper(reservationType);
+    const reservedByID = clickInfo.event.extendedProps?.reservedBy as
+      | number
+      | undefined;
+    const isMine = user?.id != null && reservedByID === user?.id;
+
+    if (isSystemOnly && !isMine) {
+      resetModalFields();
+      setMode("create");
+      setSelectedEvent(null);
+      setIsSystemOverride(true);
+    } else {
+      setMode("view");
+      setSelectedEvent(event as unknown as CalendarEvent);
+      setReservationType(
+        (event.extendedProps?.reservationType as ReservationType) ?? null,
+      );
+    }
+
     if (start) {
       setReservationDate(formatDateForApi(start));
       setStartTime(formatTimeForApi(start));
+      previousValidStartRef.current = start;
     }
     if (end) {
       setEndTime(formatTimeForApi(end));
@@ -250,6 +274,8 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     }
     openMakeReservationModal();
   };
+
+  // TODO: make these to time change handlres into one.
 
   const handleEndTimeChange = (time: DateObject | null) => {
     if (!time || !selectedDateObject) return;
@@ -278,6 +304,35 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
 
     setEndTime(formatTimeForApi(fixedEndTime));
     previousValidEndRef.current = fixedEndTime;
+  };
+
+  const handleStartTimeChange = (time: DateObject | null) => {
+    if (!time || !selectedDateObject) return;
+
+    const fixedStartTime = mergeDateAndTime(selectedDateObject, time);
+
+    if (!isWithinWorkingHours(fixedStartTime)) {
+      alert("ساعت فقط بین ۸ تا ۱۴ قابل انتخاب است");
+
+      if (previousValidStartRef.current) {
+        setStartTime(formatTimeForApi(previousValidStartRef.current));
+      }
+
+      return;
+    }
+
+    if (endTimeObject && !isEndAfterStart(fixedStartTime, endTimeObject)) {
+      alert("زمان پایان باید بعد از زمان شروع باشد");
+
+      if (previousValidStartRef.current) {
+        setStartTime(formatTimeForApi(previousValidStartRef.current));
+      }
+
+      return;
+    }
+
+    setStartTime(formatTimeForApi(fixedStartTime));
+    previousValidStartRef.current = fixedStartTime;
   };
 
   const handleAddReservation = async () => {
@@ -352,6 +407,29 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     // onDeselect?.();
   }
 
+  const selectAllow = (selectInfo: { start: Date; end: Date }) => {
+    const overlappingEvents =
+      calendarRef.current
+        ?.getApi()
+        .getEvents()
+        .filter((event) => {
+          const eventStart = event.start!;
+          const eventEnd = event.end!;
+          return eventStart < selectInfo.end && eventEnd > selectInfo.start;
+        }) || [];
+
+    // If no overlap -> always allow
+    if (overlappingEvents.length === 0) return true;
+
+    // If every overlapping event is system‑only -> allow
+    const allSystemOnly = overlappingEvents.every((event) => {
+      const type = event.extendedProps?.reservationType as ReservationType;
+      return type === "dorsan desk" || type === "only running programs";
+    });
+
+    return allSystemOnly;
+  };
+
   return (
     <div
       className="w-full  rounded-2xl border border-gray-200
@@ -399,6 +477,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
           }}
           initialDate={getInitialPersianWeekDate()}
           // ref & handlres
+          selectAllow={selectAllow}
           eventContent={renderEventContent(user?.id)}
           ref={calendarRef}
           events={events}
@@ -417,9 +496,11 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
         reservationType={reservationType}
         reservationOptions={reservationOptions}
         isReadOnly={isReadOnly}
+        isSystemOverride={isSystemOverride}
         onClose={handleCloseModal}
         onReservationTypeChange={setReservationType}
         onEndTimeChange={handleEndTimeChange}
+        onStartTimeChange={handleStartTimeChange}
         onSubmit={handleAddReservation}
       />
 
@@ -448,9 +529,11 @@ type ReservationModalContentProps = {
   reservationType: ReservationType | null;
   reservationOptions: ReservationOption[];
   isReadOnly: boolean;
+  isSystemOverride: boolean;
   onClose: () => void;
   onReservationTypeChange: (value: ReservationType | null) => void;
   onEndTimeChange: (value: DateObject | null) => void;
+  onStartTimeChange: (value: DateObject | null) => void;
   onSubmit: () => void | Promise<void>;
 };
 
@@ -464,9 +547,11 @@ const ReservationModalContent = ({
   reservationType,
   reservationOptions,
   isReadOnly,
+  isSystemOverride,
   onClose,
   onReservationTypeChange,
   onEndTimeChange,
+  onStartTimeChange,
   onSubmit,
 }: ReservationModalContentProps) => {
   const title = mode === "view" ? "جزئیات رزرو" : "رزرو جدید";
@@ -484,6 +569,14 @@ const ReservationModalContent = ({
             {title}
           </h5>
         </div>
+
+        {isSystemOverride && (
+          <div className="fa my-2 rounded-lg border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-800">
+            ⚠️ این بازه زمانی رزرو سیستمی دارد (درسان دسک / محاسبات). صندلی
+            فیزیکی آزاد است، اما سیستم در دسترس نیست. می‌توانید صندلی را فقط
+            برای استفاده از سخت‌افزار رزرو کنید.
+          </div>
+        )}
 
         <div className="mt-8">
           <div className="flex justify-between gap-15">
@@ -522,9 +615,29 @@ const ReservationModalContent = ({
                 زمان شروع
               </label>
 
-              <div className="h-11 w-full rounded-lg border border-gray-200 bg-res-green-100 px-4 py-2.5 text-sm text-gray-700">
+              <DatePicker
+                editable={false}
+                disabled={isReadOnly}
+                value={startTime}
+                disableDayPicker
+                format="HH:mm"
+                calendar={persian}
+                locale={persian_fa}
+                containerStyle={{ width: "100%" }}
+                inputClass="h-11 w-full rounded-lg border border-gray-300 px-4 text-sm disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
+                plugins={[
+                  <TimePicker
+                    key="start-time"
+                    hideSeconds
+                    mStep={15}
+                    disabled={isReadOnly}
+                  />,
+                ]}
+                onChange={onStartTimeChange}
+              />
+              {/* <div className="h-11 w-full rounded-lg border border-gray-200 bg-res-green-100 px-4 py-2.5 text-sm text-gray-700">
                 {startTime?.format("HH:mm") ?? "-"}
-              </div>
+              </div> */}
             </div>
 
             <div className="w-full">
@@ -607,11 +720,10 @@ const renderEventContent = (userId?: number) =>
     const reservationColor = isMine
       ? "bg-res-green-success"
       : baseColorByType[type];
-    console.log("type ", type);
 
     return (
       <div
-        className={`flex h-full w-full flex-col  rounded-sm ${reservationColor} p-1 text-white`}
+        className={`flex h-full w-full flex-col  rounded-sm ${reservationColor} p-1 text-white  `}
       >
         <p className="text-xs font-semibold ">
           {eventInfo.event.extendedProps.seat}
@@ -622,10 +734,17 @@ const renderEventContent = (userId?: number) =>
     );
   };
 
-// using functions
+// helpers
 
 const WORKING_START_MINUTES = 8 * 60;
 const WORKING_END_MINUTES = 14 * 60;
+
+// Type-safe helper function
+const isSystemOnlyHelper = (
+  reservationType: EventType,
+): reservationType is ReservationSystemOnly => {
+  return SYSTEM_ONLY_TYPES.includes(reservationType as ReservationSystemOnly);
+};
 
 const toPersianDateObject = (date: Date) => {
   return new DateObject({
