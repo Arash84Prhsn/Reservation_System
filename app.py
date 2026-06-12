@@ -27,7 +27,7 @@ CORS(app,
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=12)
 app.config["SESSION_PERMANENT"] = True
 
-IDLE_TIMEOUT = timedelta(minutes=30)
+IDLE_TIMEOUT = timedelta(seconds=10)
 
 @app.before_request
 def enforce_idle_timeout():
@@ -56,7 +56,7 @@ def enforce_idle_timeout():
     # Check inactivity
     if now - last_time > IDLE_TIMEOUT:
         session.clear()
-        return redirect(url_for("admin_auth.login"))
+        return redirect("http://localhost:3000/login")
 
     # update activity timestamp
     session["last_activity"] = now.isoformat()
