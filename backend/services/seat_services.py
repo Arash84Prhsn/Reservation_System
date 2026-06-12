@@ -98,11 +98,11 @@ class SeatServices:
             stmnt = select(Event.start_time, Event.end_time).where(Event.date == date_of_day,
                                                                    Event.status == "active")
             
-            events_of_day = conn.execute(stmnt).mappings().all()
+            events_of_day = conn.execute(stmnt).all()
 
             for row in events_of_day:
-                start_time = row["start_time"].isoformat()
-                end_time = row["end_time"].isoformat()
+                start_time = row[0].isoformat()
+                end_time = row[1].isoformat()
 
                 results["events"].append({"start_time" : start_time,
                                           "end_time" : end_time})
@@ -120,10 +120,10 @@ class SeatServices:
             reservations_of_day = conn.execute(stmnt).mappings().all()
 
             for row in reservations_of_day:
-                id = row["id"]
-                start_time = row["start_time"].isoformat()
-                reservation_type = row["reservation_type"]
-                end_time = row["end_time"].isoformat()
+                start_time = row[0].isoformat()
+                end_time = row[1].isoformat()
+                id = row[2]
+                reservation_type = row[3]
 
                 results["reservations"].append({"start_time" : start_time,
                                                 "end_time" : end_time,
