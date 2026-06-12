@@ -4,11 +4,11 @@ import { ApiResponse } from "./auth.servise";
 import { HttpError } from "../core/errors";
 
 // type: reservation
-export type ReservationType =
-  | "only running programs"
-  | "internship"
-  | "project"
-  | "dorsan desk";
+
+export type ReservationSystemOnly = "only running programs" | "dorsan desk";
+export type ReservationSeatAndSystem = "internship" | "project";
+
+export type ReservationType = ReservationSeatAndSystem | ReservationSystemOnly;
 
 export type SeatType = "dotin" | "optimization" | "laptop" | "manager";
 

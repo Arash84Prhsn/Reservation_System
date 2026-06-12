@@ -582,7 +582,7 @@ const ReservationModalContent = ({
 
 // custom event content
 
-type EventType = "reservation" | "event";
+type EventType = ReservationType | "event";
 
 const renderEventContent = (userId?: number) =>
   function EventContent(eventInfo: EventContentArg) {
@@ -590,25 +590,32 @@ const renderEventContent = (userId?: number) =>
       | number
       | undefined;
 
-    const type = (eventInfo.event.extendedProps?.type ?? "event") as EventType;
-
-    const isMine =
-      type === "reservation" && userId != null && reservedByID === userId;
-
     const baseColorByType: Record<EventType, string> = {
-      reservation: "bg-res-orange",
+      project: "bg-res-orange",
+      internship: "bg-res-orange",
+      "dorsan desk": "bg-res-gray-dark/30 ",
+      "only running programs": "bg-res-gray-dark/30 ",
       event: "bg-res-red",
     };
 
-    const reservationColor = isMine ? "bg-res-green-success" : baseColorByType[type];
+    const type = (eventInfo.event.extendedProps?.reservationType ??
+      "event") as EventType;
+
+    const isMine =
+      type !== "event" && userId != null && reservedByID === userId;
+
+    const reservationColor = isMine
+      ? "bg-res-green-success"
+      : baseColorByType[type];
+    console.log("type ", type);
 
     return (
       <div
-        className={`flex h-full w-full flex-col rounded-sm ${reservationColor} p-1 text-white`}
+        className={`flex h-full w-full flex-col  rounded-sm ${reservationColor} p-1 text-white`}
       >
-        <div className="text-xs font-semibold">
+        <p className="text-xs font-semibold ">
           {eventInfo.event.extendedProps.seat}
-        </div>
+        </p>
         <div className="text-xs font-semibold">{eventInfo.timeText}</div>
         <div className="truncate text-xs">{eventInfo.event.title}</div>
       </div>

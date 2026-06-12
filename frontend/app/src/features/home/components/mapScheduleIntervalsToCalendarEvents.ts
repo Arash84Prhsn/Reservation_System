@@ -23,7 +23,7 @@ export function mapScheduleIntervalsToCalendarEvents(
 
     const systemEvents: CalendarEvent[] = day.events.map((event, index) => ({
       id: `event-${day.date}-${index}`,
-      title: "Unavailable",
+      title: "Event",
       start: `${day.date}T${event.start_time}`,
       end: `${day.date}T${event.end_time}`,
       allDay: false,
