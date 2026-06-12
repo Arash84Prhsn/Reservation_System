@@ -596,11 +596,11 @@ const renderEventContent = (userId?: number) =>
       type === "reservation" && userId != null && reservedByID === userId;
 
     const baseColorByType: Record<EventType, string> = {
-      reservation: "bg-purple-400",
-      event: "bg-gray-400",
+      reservation: "bg-res-orange",
+      event: "bg-res-red",
     };
 
-    const reservationColor = isMine ? "bg-blue-400" : baseColorByType[type];
+    const reservationColor = isMine ? "bg-res-green-success" : baseColorByType[type];
 
     return (
       <div

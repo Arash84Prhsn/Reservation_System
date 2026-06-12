@@ -22,16 +22,13 @@ export default function Ecommerce() {
 
   return (
     <div>
-      {/* mobile: */}
-
       {isMobile ? (
         <>
           <SeatMap />
           <ColorLegend />
         </>
       ) : (
-        // Desktop:
-
+        
         <div className="flex justify-end gap-5  h-[calc(100vh-130px)]">
           <ReserveList />
 
