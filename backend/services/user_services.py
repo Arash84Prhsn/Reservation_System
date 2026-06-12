@@ -70,7 +70,7 @@ class UserServices:
 
         pattern = r'^[a-zA-Z0-9_@]{8,20}$'
 
-        if not re.match(pattern=pattern):
+        if not re.match(pattern=pattern, string=password):
             return False, "رمز عبور فثط می‌تواند شامل حروف انگیسی، `@` و `_` باشد"
 
         if len(password) < 8:
