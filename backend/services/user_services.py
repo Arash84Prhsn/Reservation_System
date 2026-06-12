@@ -68,6 +68,11 @@ class UserServices:
         returns `(False, 'msg')` where `'msg'` is the corresponding error message.
         """
 
+        pattern = r'^[a-zA-Z0-9_@]{8,20}$'
+
+        if not re.match(pattern=pattern, string=password):
+            return False, "رمز عبور فثط می‌تواند شامل حروف انگیسی، `@` و `_` باشد"
+
         if len(password) < 8:
             return False, 'رمز عبور باید حداقل ۸ کاراکتر باشد'
         if not any(c.isupper() for c in password):
@@ -207,20 +212,20 @@ class UserServices:
             if username:
                 stmt = select(1).where(User.username == username).limit(1)
                 if conn.execute(stmt).scalar() is not None:
-                    return False, "Username already exists"
+                    return False, "نام کاربری توسط شخص دیگری استفاده شده است"
             
             # Check email second
             if email:
                 email = email.lower().strip()
                 stmt = select(1).where(User.email == email).limit(1)
                 if conn.execute(stmt).scalar() is not None:
-                    return False, "Email already exists"
+                    return False, "ایمیل توسط شخص دیگری استفاده شده است"
             
             # Check phone last
             if phone:
                 stmt = select(1).where(User.phone == phone).limit(1)
                 if conn.execute(stmt).scalar() is not None:
-                    return False, "Phone number already exists"
+                    return False, "شماره تلفن توسط شخص دیگری استفاده شده است"
             
             return True, "All fields are available"
     @staticmethod

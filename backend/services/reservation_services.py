@@ -607,7 +607,7 @@ class ReservationServices:
 
             if result:
                 return {"success" : False,
-                        "message" : "There is an event booked for that time",
+                        "message" : "در تایم مورد نظر جلسه‌ای است و رزرو مجاز نیست",
                         "warning" : {"needed" : False}}
             
             # Second check for reservation conflicts
@@ -628,13 +628,13 @@ class ReservationServices:
             # If no conflicts were found then simply return True
             if not conflicts:
                 return {"success" : True,
-                        "message" : "This reservation is valid and can be submitted",
+                        "message" : "این رزرو را می‌توانید نهایی کنید",
                         "warning" : {"needed" : False}}
             
-            # If the rerservation is system only and some conflict existen then return False!
+            # If the rerservation is system only and some conflict exists then return False!
             if is_system_only:
                 return {"success" : False,
-                        "message" : "The reservation is in conflict with other reservations",
+                        "message" : "رزرو با رزرو های دیگری در تداخل است",
                         "warning" : {"needed" : False}}
             
             # Now check to see if any of the coflicts was from non system only reservations:
@@ -645,7 +645,7 @@ class ReservationServices:
 
             if non_system_conflicts:
                 return {"success" : False,
-                        "message" : "The reservation is in conflict with other reservations",
+                        "message" : "رزرو با رزرو های دیگری در تداخل است",
                         "warning" : {"needed" : False}}
 
             # Now we know that the only reservations in conflict are system only!
@@ -665,9 +665,9 @@ class ReservationServices:
                                             "end_time" : end_time.isoformat()})
             
             return {"success" : True,
-                    "message" : "Your reservations has been validated with a warning",
+                    "message" : "این رزرو را با توجه به هشدار اجازه دارید که ثبت کنید",
                     "warning" : {"conflict_intervals" : conflict_intervals,
-                                 "warning_message" : "The computer will be unavailabe during these times",
+                                 "warning_message" : "سیستم در این بازه‌ های زمانی در دسترس نیست و فقط از صندلی و میز می‌توانید استفاده کنید",
                                  "needed" : True}}
 
 
@@ -698,28 +698,6 @@ class ReservationServices:
             conn.commit()
             conn.refresh(new_reservation)
             return new_reservation
-
-
-    @staticmethod
-    def is_there_seat_conflict(seat_type, seat_number, reservation_date, start_time, end_time):
-        """
-        Check if a seat is already booked for the given time slot. Returns True if conflict exists
-        and False otherwise
-        """
-
-        with get_db_connection() as conn:
-            # Find the conflict
-            stmnt = select(exists().where(
-                Seat.seat_type == seat_type,
-                Seat.seat_number == seat_number,
-                Reservation.seat_id == Seat.id,
-                Reservation.reservation_date == reservation_date,
-                Reservation.status == "active",
-                Reservation.start_time < end_time,
-                Reservation.end_time > start_time
-            ))
-            
-            return conn.execute(stmnt).scalar()
 
 
     # ====================================<RESERVATION QUERIES>=====================================
