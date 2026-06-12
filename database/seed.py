@@ -2,6 +2,7 @@ from database.connection import get_db_connection
 from backend.models.seats import Seat
 from backend.models.users import User
 from backend.models.roles import Role
+from backend.models.events import Event
 from backend.services.user_services import UserServices
 from sqlalchemy import text
 
@@ -326,15 +327,28 @@ def seed_reservations_for_current_week():
             end_time = time(14, 0, 0)
         
         # Check if reservation already exists for this seat at this time
-        existing = conn.query(Reservation).filter(
+        existing_reservation = conn.query(Reservation).filter(
             Reservation.seat_id == seat_id,
             Reservation.reservation_date == reservation_date,
             Reservation.start_time == start_time,
             Reservation.status == 'active'
         ).first()
+
+        # Check if an event is already booked for that time
+        existing_event = conn.query(Event).filter(
+            Event.date == reservation_date,
+            Event.start_time < end_time,
+            Event.end_time > start_time,
+            Event.status == "active"
+        ).first()
         
-        if existing:
+        if existing_reservation:
             print(f"Reservation already exists for {username} on {reservation_date} at {start_time_str}, skipping...")
+            skipped_count += 1
+            continue
+        
+        if existing_event:
+            print(f"event already exists on {reservation_date} at {start_time_str}, skipping...")
             skipped_count += 1
             continue
         
