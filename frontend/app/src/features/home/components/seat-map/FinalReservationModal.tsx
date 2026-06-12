@@ -24,21 +24,21 @@ export function FinalReservationModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      className="max-w-[560px] overflow-visible p-6 lg:p-8"
+      className="max-w-[660px] bg-res-green-100 overflow-visible p-6 lg:p-8"
     >
-      <div className="fa relative flex flex-col overflow-visible px-1 text-right">
+      <div className=" relative flex flex-col overflow-visible px-1 text-right md:text-left">
         <div>
           <h5 className="mb-2 text-xl font-semibold text-gray-800 dark:text-white/90">
             تایید نهایی رزرو
           </h5>
 
-          <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
+          {/* <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
             لطفاً اطلاعات رزرو را بررسی کنید. پس از تایید، رزرو شما ثبت نهایی
             خواهد شد.
-          </p>
+          </p> */}
         </div>
 
-        <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-white/[0.03]">
+        <div className="fa mt-6 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-white/[0.03]">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <InfoItem label="تاریخ رزرو" value={data.reservation_date} />
 
@@ -74,7 +74,7 @@ export function FinalReservationModal({
             type="button"
             onClick={onConfirm}
             disabled={pending}
-            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-res-green-success px-5 py-2.5 text-sm font-medium text-white transition hover:bg-res-green-success/80 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {pending ? "در حال ثبت..." : "تایید و ثبت رزرو"}
           </button>
