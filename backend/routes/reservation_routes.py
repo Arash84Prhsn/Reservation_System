@@ -361,13 +361,15 @@ def final_reservation_submission():
                         "message" : "Reservation is in conflict"}), 400
 
     try:
-        ReservationServices.create_reservation(reservation_date,
-                                            reservation_type,
-                                            start_time,
-                                            end_time,
-                                            user_id,
-                                            seat_id)
-        
+        ReservationServices.create_reservation(
+            reservation_date,
+            reservation_type,
+            start_time,
+            end_time,
+            user_id,
+            seat_id
+        )
+
         return jsonify({"success" : True,
                         "message" : "رزرو شما با موفقیت ایجاد شد",
                         "warning" : status["warning"]["needed"]}), 201

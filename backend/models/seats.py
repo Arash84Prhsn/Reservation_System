@@ -7,7 +7,7 @@ class Seat(DeclarativeBase):
     
     id = Column(Integer, primary_key=True, autoincrement=True) # the Primary key id column
     seat_type = Column(String, nullable=False)  # 'manager', 'optimization', 'dotin', 'laptop'
-    seat_number = Column(Integer, nullable=False) # The seat number for a type (e.g. Dotin 2)
+    seat_number = Column(Integer, nullable=False) # The seat number for a type (e.g. dotin 2)
     is_reservable = Column(Boolean, default=True) 
     
     # Relationships
