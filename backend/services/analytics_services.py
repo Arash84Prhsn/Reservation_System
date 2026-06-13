@@ -1,8 +1,9 @@
 from database import get_db_connection
 from backend.models import User, Reservation, Event, Seat
 from backend.models.enums import DOTIN_ASSOCIATIONS
-from datetime import date, timedelta
+from datetime import datetime, date, timedelta
 from sqlalchemy import func
+from collections import defaultdict
 
 
 class AnalyticsServices:
@@ -49,7 +50,7 @@ class AnalyticsServices:
                 .join(Reservation)
                 .group_by(User.id)
                 .order_by(func.count(Reservation.id).desc())
-                .limit(10)
+                .limit(13)
                 .all()
             )
 
@@ -85,21 +86,6 @@ class AnalyticsServices:
             ]
 
             return {
-
-                # "reservations": {
-                #     "total": total_reservations,
-                #     "active": active_reservations,
-                #     "cancelled": cancelled_reservations,
-                #     "over": over_reservations
-                # },
-
-                # "events": {
-                #     "total": total_events,
-                #     "active": active_events,
-                #     "cancelled": cancelled_events,
-                #     "over": over_events
-                # },
-
                 "reservation_types": reservation_type_stats,
                 "top_users": top_users,
                 "user_associations": association_stats,
@@ -181,6 +167,77 @@ class AnalyticsServices:
                 }
                 for row in data
             ]
+        
+
+    @staticmethod
+    def get_busiest_hours():
+
+        hour_counts = defaultdict(int)
+
+        with get_db_connection() as conn:
+
+            reservations = conn.query(Reservation).all()
+
+            for r in reservations:
+
+                if not r.start_time or not r.end_time:
+                    continue
+
+                start_hour = r.start_time.hour
+                end_hour = r.end_time.hour
+
+                # IMPORTANT:
+                # include all hours touched by reservation
+                for hour in range(start_hour, end_hour + 1):
+                    hour_counts[hour] += 1
+
+        # we only want 8 → 13
+        hours = list(range(8, 14))
+        values = [hour_counts[h] for h in hours]
+
+        return {
+            "hours": hours,
+            "counts": values
+        }
+    
+    @staticmethod
+    def get_weekly_reservation_trend():
+        with get_db_connection() as conn:
+
+            today = datetime.utcnow().date()
+
+            # find start of current week (Monday-based)
+            current_week_start = today - timedelta(days=today.weekday())
+
+            labels = []
+            values = []
+
+            for i in range(-4, 1):  # 4 past weeks + current
+                week_start = current_week_start + timedelta(weeks=i)
+                week_end = week_start + timedelta(days=7)
+
+                count = (
+                    conn.query(Reservation)
+                    .filter(
+                        Reservation.created_at >= week_start,
+                        Reservation.created_at < week_end
+                    )
+                    .count()
+                )
+
+                if i == 0:
+                    labels.append("This week")
+                elif i == -1:
+                    labels.append("Last week")
+                else:
+                    labels.append(f"{i} weeks")
+
+                values.append(count)
+
+            return {
+                "labels": labels,
+                "values": values
+            }
 
     @staticmethod
     def get_week_stats(week_start):

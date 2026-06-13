@@ -574,10 +574,14 @@ class GeneralAnalyticsView(BaseView):
 
         seat_usage = stats["seat_usage"]
 
+        busiest_hours = AnalyticsServices.get_busiest_hours()
+
+        weekly_trend = AnalyticsServices.get_weekly_reservation_trend()
+
         return self.render(
             "admin/analytics_general.html",
             stats=stats,
-            
+
             reservation_type_labels=reservation_type_labels,
             reservation_type_values=reservation_type_values,
 
@@ -590,7 +594,13 @@ class GeneralAnalyticsView(BaseView):
             seat_type_labels=seat_type_labels,
             seat_type_values=seat_type_values,
 
-            seat_usage=seat_usage            
+            seat_usage=seat_usage,
+
+            busiest_hours_hours=busiest_hours["hours"],
+            busiest_hours_values=busiest_hours["counts"],
+
+            weekly_labels=weekly_trend["labels"],
+            weekly_values=weekly_trend["values"]
         )
 
 

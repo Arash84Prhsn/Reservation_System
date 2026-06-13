@@ -85,12 +85,37 @@
 
     </div>
 
-    <div class="row g-3">
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-6">
+            <div class="chart-card">
+                <div class="section-title" style="text-align: right;">مشغول ترین ساعات</div>
+                    <div class="chart-container">
+                        <canvas id="busyHoursChart"></canvas>
+                    </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="chart-card">
+                <div class="section-title" style="text-align:right;">
+                    روند رزروها در ۵ هفته اخیر
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="weeklyTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-3 mb-4">
 
         <div class="col-md-6">
             <div class="table-card">
 
-                <div class="section-title" style="text-align: right;">کاربران برتر بر اساس تعداد رزرو</div>
+                <div class="section-title" style="text-align: right;">فعالترین کاربران بر اساس تعداد رزرو</div>
 
                 <table class="table table-sm table-hover">
                     <thead>
@@ -116,11 +141,10 @@
 
         <div class="col-md-6">
             <div class="table-card">
-                <div class="section-title">Seat Usage</div>
+                <div class="section-title" style="text-align: right;">میزان استفاده از صندلی‌های مختلف</div>
                     <div class="chart-container">
                         <canvas id="seatTypeChart"></canvas>
                     </div>
-                    <!-- <br> -->
                     <div class="chart-container">
                         <canvas id="seatUsageChart"></canvas>
                     </div>
@@ -138,106 +162,135 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<script type="application/json" id="analytics-data">
+{
+    "reservationTypeLabels": {{ reservation_type_labels | tojson }},
+    "reservationTypeValues": {{ reservation_type_values | tojson }},
+    "associationLabels": {{ association_labels | tojson }},
+    "associationValues": {{ association_values | tojson }},
+    "seatTypeLabels": {{ seat_type_labels | tojson }},
+    "seatTypeValues": {{ seat_type_values | tojson }},
+    "seatUsageLabels": {{ seat_usage | map(attribute='name') | list | tojson }},
+    "seatUsageValues": {{ seat_usage | map(attribute='count') | list | tojson }},
+    "busyHoursLabels": {{ busiest_hours_hours | list | tojson }},
+    "busyHoursValues": {{ busiest_hours_values | list | tojson }},
+    "weeklyLabels": {{ weekly_labels | tojson }},
+    "weeklyValues": {{ weekly_values | tojson }}
+}
+</script>
+
 <script>
+const raw = JSON.parse(document.getElementById("analytics-data").textContent);
+
+// helper
+const C = (id, config) => new Chart(document.getElementById(id), config);
+
+// reservation type
 new Chart(document.getElementById('reservationTypeChart'), {
     type: 'doughnut',
     data: {
-        labels: {{ reservation_type_labels | tojson }},
+        labels: raw.reservationTypeLabels,
         datasets: [{
-            data: {{ reservation_type_values | tojson }}
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false
-    }
-});
-
-new Chart(document.getElementById('associationChart'), {
-    type: 'bar',
-    data: {
-        labels: {{ association_labels | tojson }},
-        datasets: [{
-            label: 'Users',
-            data: {{ association_values | tojson }},
-            backgroundColor: [
-                '#4e73df',
-                '#1cc88a',
-                '#36b9cc',
-                '#f6c23e',
-                '#e74a3b',
-                '#858796',
-                '#20c9a6'
-            ],
-            borderWidth: 1
+            data: raw.reservationTypeValues
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-            legend: { display: false }
+            legend: { display: false },
+
+            datalabels: {
+                color: '#fff',
+                font: {
+                    weight: 'bold',
+                    size: 12
+                },
+                formatter: (value, ctx) => {
+                    const dataset = ctx.chart.data.datasets[0].data;
+                    const total = dataset.reduce((a, b) => a + b, 0);
+                    const percent = (value / total * 100).toFixed(1);
+                    return percent + '%';
+                }
+            }
         }
     }
 });
 
-new Chart(document.getElementById('seatTypeChart'), {
+// association
+C('associationChart', {
     type: 'bar',
     data: {
-        labels: {{ seat_type_labels | tojson }},
+        labels: raw.associationLabels,
         datasets: [{
-            label: 'Reservations',
-            data: {{ seat_type_values | tojson }},
-            backgroundColor: [
-                '#4e73df',
-                '#1cc88a',
-                '#36b9cc',
-                '#f6c23e',
-                '#e74a3b',
-                '#858796',
-                '#20c9a6'
-            ],
-            borderWidth: 1
+            data: raw.associationValues,
+            backgroundColor: ['#4e73df','#1cc88a','#36b9cc','#f6c23e','#e74a3b']
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false }
-        }
+        plugins: { legend: { display: false } }
     }
 });
 
-new Chart(document.getElementById('seatUsageChart'), {
+// seat type
+C('seatTypeChart', {
     type: 'bar',
     data: {
-        labels: {{ seat_usage | map(attribute='name') | list | tojson }},
+        labels: raw.seatTypeLabels,
         datasets: [{
-            label: 'Reservations',
-            data: {{ seat_usage | map(attribute='count') | list | tojson }},
-            backgroundColor: [
-                '#4e73df',
-                '#1cc88a',
-                '#36b9cc',
-                '#f6c23e',
-                '#e74a3b',
-                '#858796',
-                '#20c9a6'
-            ],
-            borderWidth: 1
-        }],
+            data: raw.seatTypeValues,
+            backgroundColor: ['#4e73df','#1cc88a','#36b9cc','#f6c23e','#e74a3b']
+        }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{display: false}} }
+});
+
+// seat usage
+C('seatUsageChart', {
+    type: 'bar',
+    data: {
+        labels: raw.seatUsageLabels,
+        datasets: [{
+            data: raw.seatUsageValues,
+            backgroundColor: ['#4e73df','#1cc88a','#36b9cc','#f6c23e','#e74a3b']
+        }]
     },
     options: {
+        indexAxis: 'y',
         responsive: true,
         maintainAspectRatio: false,
-        indexAxis: 'y', 
-        plugins: {
-            legend: { display: false }
-        }
+        plugins:{legend:{display: false}}
     }
 });
 
+// busy hours
+C('busyHoursChart', {
+    type: 'bar',
+    data: {
+        labels: raw.busyHoursLabels,
+        datasets: [{
+            data: raw.busyHoursValues,
+            backgroundColor: ['#4e73df','#1cc88a','#36b9cc','#f6c23e','#e74a3b']
+        }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{display: false}} }
+});
+
+// weekly
+C('weeklyTrendChart', {
+    type: 'line',
+    data: {
+        labels: raw.weeklyLabels,
+        datasets: [{
+            data: raw.weeklyValues,
+            tension: 0.3,
+            fill: true
+        }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{display: false}}}
+});
 </script>
 
 {% endblock %}
