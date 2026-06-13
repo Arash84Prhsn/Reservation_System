@@ -566,6 +566,8 @@ class GeneralAnalyticsView(BaseView):
         association_labels = list(stats["user_associations"].keys())
         association_values = list(stats["user_associations"].values())
 
+        top_users = stats['top_users']
+
         seat_type_usage = AnalyticsServices.get_seat_usage_by_type()
         seat_type_labels = [s["type"] for s in seat_type_usage]
         seat_type_values = [s["count"] for s in seat_type_usage]
@@ -575,18 +577,14 @@ class GeneralAnalyticsView(BaseView):
         return self.render(
             "admin/analytics_general.html",
             stats=stats,
-
-            total_users=stats["users"]["total"],
-            total_reservations=stats["reservations"]["total"],
-            total_events=stats["events"]["total"],
-
-            top_users=stats["top_users"],
-
+            
             reservation_type_labels=reservation_type_labels,
             reservation_type_values=reservation_type_values,
 
             association_labels=association_labels,
             association_values=association_values,
+
+            top_users=top_users,
 
             seat_type_usage=seat_type_usage,
             seat_type_labels=seat_type_labels,

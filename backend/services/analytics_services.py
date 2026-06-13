@@ -131,25 +131,20 @@ class AnalyticsServices:
             ]
 
             return {
-                "users": {
-                    "total": total_users,
-                    "dotin": total_dotin_users,
-                    "non_dotin": total_users - total_dotin_users
-                },
 
-                "reservations": {
-                    "total": total_reservations,
-                    "active": active_reservations,
-                    "cancelled": cancelled_reservations,
-                    "over": over_reservations
-                },
+                # "reservations": {
+                #     "total": total_reservations,
+                #     "active": active_reservations,
+                #     "cancelled": cancelled_reservations,
+                #     "over": over_reservations
+                # },
 
-                "events": {
-                    "total": total_events,
-                    "active": active_events,
-                    "cancelled": cancelled_events,
-                    "over": over_events
-                },
+                # "events": {
+                #     "total": total_events,
+                #     "active": active_events,
+                #     "cancelled": cancelled_events,
+                #     "over": over_events
+                # },
 
                 "reservation_types": reservation_type_stats,
                 "top_users": top_users,
