@@ -107,9 +107,14 @@ class SeatServices:
                 results["events"].append({"start_time" : start_time,
                                           "end_time" : end_time})
             
-            stmnt = select(Reservation.start_time, Reservation.end_time,
-                           User.id, Reservation.reservation_type).join(
-                             User, Reservation.user_id == User.id  
+            stmnt = select(Reservation.start_time,
+                           Reservation.end_time,
+                           User.id,
+                           Reservation.reservation_type,
+                           Reservation.id
+                           ).join(
+                               User,
+                               Reservation.user_id == User.id  
                            ).where(
                                Reservation.user_id == User.id,
                                Reservation.seat_id == seat_id,
@@ -124,10 +129,12 @@ class SeatServices:
                 end_time = row[1].isoformat()
                 id = row[2]
                 reservation_type = row[3]
+                reservation_id = row[4]
 
                 results["reservations"].append({"start_time" : start_time,
                                                 "end_time" : end_time,
                                                 "reserved_by" : id,
+                                                "reservation_id": reservation_id,
                                                 "reservation_type" : reservation_type})
 
             return results

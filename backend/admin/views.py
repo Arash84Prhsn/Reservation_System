@@ -7,6 +7,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy import func
 from backend.services.user_services import UserServices
 from backend.services.reservation_services import ReservationServices
+from backend.services.analytics_services import AnalyticsServices
 from backend.models.enums import DOTIN_ASSOCIATIONS
 from datetime import timedelta, date
 import jdatetime
@@ -194,9 +195,9 @@ class SeatModelView(CustomModelView):
     }
     
     # Make boolean values show as Yes/No instead of True/False
-    column_formatters = {
-        'is_reservable': lambda v, c, m, p: 'Yes' if m.is_reservable else 'No'
-    }
+    # column_formatters = {
+    #     'is_reservable': lambda v, c, m, p: 'Yes' if m.is_reservable else 'No'
+    # }
 
     def is_accessible(self):
         return can_access_admin()
@@ -546,7 +547,64 @@ class CancelEventsView(BaseView):
     def is_accessible(self):
         return can_access_admin()
     
-class AnalyticsView(BaseView):
+class GeneralAnalyticsView(BaseView):
+
+    def is_accessible(self):
+        return can_access_admin()
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('admin_auth.login', next=request.url))
+
+    @expose('/')
+    def index(self, cls=None, **kwargs):
+
+        stats = AnalyticsServices.get_general_stats()
+
+        reservation_type_labels = list(stats["reservation_types"].keys())
+        reservation_type_values = list(stats["reservation_types"].values())
+
+        association_labels = list(stats["user_associations"].keys())
+        association_values = list(stats["user_associations"].values())
+
+        top_users = stats['top_users']
+
+        seat_type_usage = AnalyticsServices.get_seat_usage_by_type()
+        seat_type_labels = [s["type"] for s in seat_type_usage]
+        seat_type_values = [s["count"] for s in seat_type_usage]
+
+        seat_usage = stats["seat_usage"]
+
+        busiest_hours = AnalyticsServices.get_busiest_hours()
+
+        weekly_trend = AnalyticsServices.get_weekly_reservation_trend()
+
+        return self.render(
+            "admin/analytics_general.html",
+            stats=stats,
+
+            reservation_type_labels=reservation_type_labels,
+            reservation_type_values=reservation_type_values,
+
+            association_labels=association_labels,
+            association_values=association_values,
+
+            top_users=top_users,
+
+            seat_type_usage=seat_type_usage,
+            seat_type_labels=seat_type_labels,
+            seat_type_values=seat_type_values,
+
+            seat_usage=seat_usage,
+
+            busiest_hours_hours=busiest_hours["hours"],
+            busiest_hours_values=busiest_hours["counts"],
+
+            weekly_labels=weekly_trend["labels"],
+            weekly_values=weekly_trend["values"]
+        )
+
+
+class WeeklyAnalyticsView(BaseView):
 
     def is_accessible(self):
         return can_access_admin()

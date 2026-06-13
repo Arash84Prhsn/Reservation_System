@@ -5,7 +5,8 @@ from backend.admin.views import CustomAdminIndexView
 from flask_admin.menu import MenuLink
 from database.connection import get_db_connection, get_db_scoped_session
 from backend.admin.views import UserModelView, ReservationModelView, EventModelView, SeatModelView
-from backend.admin.views import CreateEventRedirectView, SeatScheduleView, CancelEventsView, AnalyticsView
+from backend.admin.views import CreateEventRedirectView, SeatScheduleView, CancelEventsView
+from backend.admin.views import GeneralAnalyticsView, WeeklyAnalyticsView
 from backend.models import User, Reservation, Seat, Event
 
 admin = None
@@ -71,11 +72,17 @@ def init_admin(app):
     )
 
     admin.add_view(
-        AnalyticsView(
-            name="Analytics",
-            endpoint="analytics"
+        GeneralAnalyticsView(
+            name="General Analytics",
+            category="Analytics"
         )
     )
 
-    
+    admin.add_view(
+        WeeklyAnalyticsView(
+            name="Weekly Analytics",
+            category="Analytics"
+        )
+    )
+
     return admin

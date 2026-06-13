@@ -217,23 +217,25 @@ class ReservationServices:
         with get_db_connection() as conn:
             
             stmnt = select(
-                Reservation.start_time, Reservation.end_time,
-                Reservation.reservation_type, Reservation.reservation_date,
+                Reservation.start_time,
+                Reservation.end_time,
+                Reservation.reservation_type,
+                Reservation.reservation_date,
                 Reservation.id
             ).where(
                 Reservation.user_id == user_id,
                 Reservation.status == "active"
             )
 
-            rows = conn.execute(stmnt).mappings().all()
+            rows = conn.execute(stmnt).all()
             results = []
             
             for row in rows:
-                id = row["id"]
-                start_time: time = row['start_time']
-                end_time: time = row['end_time']
-                reservation_date: date = row['reservation_date']
-                reservation_type: str = row['reservation_type']
+                start_time: time = row[0]
+                end_time: time = row[1]
+                reservation_type: str = row[2]
+                reservation_date: date = row[3]
+                id = row[4]
                 day_of_week: str = ReservationServices.get_day_of_week_from_date(reservation_date)
                 start_time = start_time.isoformat()
                 end_time = end_time.isoformat()
@@ -426,7 +428,8 @@ class ReservationServices:
                 Reservation.start_time,
                 Reservation.end_time,
                 Reservation.reservation_type,
-                User.id.label('reserved_by')
+                User.id.label('reserved_by'),
+                Reservation.id.label('reservation_id')
             ).where(
                 Reservation.user_id == User.id,
                 Reservation.seat_id == seat_id,
@@ -459,7 +462,8 @@ class ReservationServices:
                 'start': res.start_time.hour * 60 + res.start_time.minute,
                 'end': res.end_time.hour * 60 + res.end_time.minute,
                 'type': res.reservation_type,
-                'user_id': res.reserved_by
+                'user_id': res.reserved_by,
+                'reservation_id': res.reservation_id
             })
         
         # Group events by date
@@ -502,7 +506,8 @@ class ReservationServices:
                         'end_time': slot['end_time'],
                         'status': 'event',
                         'reservation_type': None,
-                        'reserved_by': event_match['user_id']
+                        'reserved_by': event_match['user_id'],
+                        'reservation_id': None
                     })
                     continue
                 
@@ -526,7 +531,8 @@ class ReservationServices:
                         'end_time': slot['end_time'],
                         'status': status,
                         'reservation_type': reservation_match['type'],
-                        'reserved_by': reservation_match['user_id']
+                        'reserved_by': reservation_match['user_id'],
+                        'reservation_id': reservation_match['reservation_id']
                     })
                 else:
                     day_schedule.append({
@@ -535,7 +541,8 @@ class ReservationServices:
                         'end_time': slot['end_time'],
                         'status': 'free',
                         'reservation_type': None,
-                        'reserved_by': None
+                        'reserved_by': None,
+                        'reservation_id': None
                     })
             
             result['schedule'].append({
