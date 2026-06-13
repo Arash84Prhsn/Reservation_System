@@ -166,8 +166,8 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
   return (
     <>
       <div className="mt-4 rounded-4xl bg-res-green-100 border border-black p-4 text-white shadow-lg">
-        <div className="mb-4 text-sm leading-6 text-gray-700">
-          صندلی <strong>{fullLabel}</strong>
+        <div className="mb-4 text-sm leading-6 text-gray-700 text-center">
+          صندلی انتخاب شده: <strong> {fullLabel}</strong>
         </div>
 
         <div className="flex flex-col gap-4 ">

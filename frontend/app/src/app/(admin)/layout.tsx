@@ -36,7 +36,7 @@ export default function AdminLayout({
       : "lg:mr-[90px]";
 
   return (
-    <div className="min-h-screen xl:flex">
+    <div className="md:min-h-screen xl:flex">
       {/* Sidebar and Backdrop */}
       <AppSidebar />
       <Backdrop />
@@ -49,7 +49,9 @@ export default function AdminLayout({
 
         {/* Page Content */}
 
-        <div className={`mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6 ${isMobile && "mt-12"} `}>
+        <div
+          className={`mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6 ${isMobile && "mt-12"} `}
+        >
           {children}
         </div>
       </div>
