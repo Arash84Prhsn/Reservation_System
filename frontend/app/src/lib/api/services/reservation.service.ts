@@ -94,6 +94,7 @@ export interface ReservationItem {
   end_time: string;
   reservation_type: ReservationType;
   reserved_by: number;
+  reservation_id: number;
 }
 
 export interface EventItem {

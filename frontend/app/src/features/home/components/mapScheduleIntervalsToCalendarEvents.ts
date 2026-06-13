@@ -17,6 +17,7 @@ export function mapScheduleIntervalsToCalendarEvents(
           reservedBy: reservation.reserved_by,
           reservationType: reservation.reservation_type,
           type: "reservation",
+          reservationId: reservation.reservation_id,
         },
       }),
     );

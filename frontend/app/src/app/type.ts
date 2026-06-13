@@ -8,5 +8,6 @@ export interface CalendarEvent extends EventInput {
     type?: "reservation" | "event";
     reservedBy?: number;
     reservationType?: string;
+    reservationId?: number;
   };
 }

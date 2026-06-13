@@ -44,6 +44,7 @@ import { toast } from "sonner";
 import { useWeeklyScheduleIntervals } from "../hooks/use-weekly-schedule-intervals";
 import { useQueryClient } from "@tanstack/react-query";
 import { reservationKeys } from "../queryKeys";
+import { useCancelReservationById } from "../hooks/use-cancel-reservation-by-id";
 
 type CalendarMode = "create" | "view";
 
@@ -166,6 +167,10 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     () => mapScheduleIntervalsToCalendarEvents(scheduleIntervals),
     [scheduleIntervals],
   );
+
+  // cancel reservation api
+  const { cancelReservation, pending: cancelPending } =
+    useCancelReservationById();
 
   // static options for reservation type select
   const reservationOptions = useMemo(() => {
@@ -390,6 +395,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     // onDeselect?.();
   }
 
+  // make system-only reservation events editable
   const selectAllow = (selectInfo: { start: Date; end: Date }) => {
     const overlappingEvents =
       calendarRef.current
@@ -411,6 +417,20 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     });
 
     return allSystemOnly;
+  };
+
+  const handleCancelReservation = async () => {
+    const confirmed = window.confirm("آیا از حذف این رزرو مطمئن هستید؟");
+    if (!confirmed) return;
+
+    const reservationId = selectedEvent?.extendedProps?.reservationId;
+
+    try {
+      if (reservationId) await cancelReservation(reservationId);
+      closeMakeReservationModal();
+    } catch {
+      toast.error("حذف رزرو انجام نشد");
+    }
   };
 
   return (
@@ -485,6 +505,8 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
         onEndTimeChange={handleEndTimeChange}
         onStartTimeChange={handleStartTimeChange}
         onSubmit={handleAddReservation}
+        isCanceling={cancelPending}
+        onCancel={handleCancelReservation}
       />
 
       <FinalReservationModal
@@ -519,6 +541,8 @@ type ReservationModalContentProps = {
   onEndTimeChange: (value: DateObject | null) => void;
   onStartTimeChange: (value: DateObject | null) => void;
   onSubmit: () => void | Promise<void>;
+  onCancel?: () => void | Promise<void>;
+  isCanceling?: boolean;
 };
 
 const ReservationModalContent = ({
@@ -537,9 +561,18 @@ const ReservationModalContent = ({
   onEndTimeChange,
   onStartTimeChange,
   onSubmit,
+  onCancel,
+  isCanceling,
 }: ReservationModalContentProps) => {
   const title = mode === "view" ? "جزئیات رزرو" : "رزرو جدید";
   const submitLabel = selectedEvent ? "ویرایش رزرو" : "ثبت رزرو";
+
+  const { user } = useAuth();
+
+  const reservedByID = selectedEvent?.extendedProps?.reservedBy as
+    | number
+    | undefined;
+  const isMine = user?.id != null && reservedByID === user?.id;
 
   return (
     <Modal
@@ -661,6 +694,17 @@ const ReservationModalContent = ({
           >
             بستن
           </button>
+
+          {mode === "view" && onCancel && isMine && (
+            <button
+              onClick={onCancel}
+              type="button"
+              disabled={isCanceling}
+              className="rounded-lg bg-red-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-600 disabled:opacity-60"
+            >
+              {isCanceling ? "در حال حذف..." : "حذف رزرو"}
+            </button>
+          )}
 
           {!isReadOnly && (
             <button
