@@ -506,7 +506,8 @@ class ReservationServices:
                         'end_time': slot['end_time'],
                         'status': 'event',
                         'reservation_type': None,
-                        'reserved_by': event_match['user_id']
+                        'reserved_by': event_match['user_id'],
+                        'reservation_id': None
                     })
                     continue
                 
@@ -540,7 +541,8 @@ class ReservationServices:
                         'end_time': slot['end_time'],
                         'status': 'free',
                         'reservation_type': None,
-                        'reserved_by': None
+                        'reserved_by': None,
+                        'reservation_id': None
                     })
             
             result['schedule'].append({
