@@ -439,6 +439,7 @@ components:
           description: "User ID of who reserved/created the event"
         reservation_id:
           type: integer
+          nullable: true
           example: 2
           description: "The ID of the reservation itself"
 
