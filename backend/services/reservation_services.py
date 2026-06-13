@@ -428,7 +428,8 @@ class ReservationServices:
                 Reservation.start_time,
                 Reservation.end_time,
                 Reservation.reservation_type,
-                User.id.label('reserved_by')
+                User.id.label('reserved_by'),
+                Reservation.id.label('reservation_id')
             ).where(
                 Reservation.user_id == User.id,
                 Reservation.seat_id == seat_id,
@@ -461,7 +462,8 @@ class ReservationServices:
                 'start': res.start_time.hour * 60 + res.start_time.minute,
                 'end': res.end_time.hour * 60 + res.end_time.minute,
                 'type': res.reservation_type,
-                'user_id': res.reserved_by
+                'user_id': res.reserved_by,
+                'reservation_id': res.reservation_id
             })
         
         # Group events by date
@@ -528,7 +530,8 @@ class ReservationServices:
                         'end_time': slot['end_time'],
                         'status': status,
                         'reservation_type': reservation_match['type'],
-                        'reserved_by': reservation_match['user_id']
+                        'reserved_by': reservation_match['user_id'],
+                        'reservation_id': reservation_match['reservation_id']
                     })
                 else:
                     day_schedule.append({
