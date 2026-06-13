@@ -9,6 +9,7 @@ import {
   FinalReservationSubmissionInput,
   ReservationType,
   SeatType,
+  Warning,
 } from "@/lib/api/services/reservation.service";
 import { useMakeReservation } from "../../hooks/use-make-reservation";
 import { useWeeklyScheduleTimeslots } from "../../hooks/use-weekly-shedule-timeslots";
@@ -18,6 +19,8 @@ import { useModal } from "@/hooks/useModal";
 import useOpenDatesForUser from "../../hooks/use-oepn-dates-for-user";
 import { FinalReservationModal } from "./FinalReservationModal";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { reservationKeys } from "../../queryKeys";
 
 type SeatDetailPanelProps = {
   seat: MobileSeat;
@@ -26,8 +29,15 @@ type SeatDetailPanelProps = {
 };
 
 export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
-  const [verifiedReservationInput, setVerifiedReservationInput] =
+  const [verifiedReservationInfo, setVerifiedReservationInfo] =
     useState<FinalReservationSubmissionInput | null>(null);
+
+  // ADD THIS LINE ↓
+  const [verifiedReservationWarning, setVerifiedReservationWarning] =
+    useState<Warning | null>(null);
+
+  const queryClient = useQueryClient(); // ← ADD THIS
+
   const { isOpen, openModal, closeModal } = useModal();
   // make reservation
   const {
@@ -112,7 +122,8 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
     const result = await makeReservation();
 
     if (!result.ok) return;
-    setVerifiedReservationInput(result.input);
+    setVerifiedReservationInfo(result.reservation_info);
+    setVerifiedReservationWarning(result.warning);
     openModal();
   }
 
@@ -145,23 +156,23 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
   }
 
   async function handleConfirmFinalSubmission() {
-    if (!verifiedReservationInput) return;
+    if (!verifiedReservationInfo) return;
 
-    const res = await submitFinalReservation(verifiedReservationInput);
-
+    const res = await submitFinalReservation(verifiedReservationInfo);
     if (!res) return;
 
     closeModal();
-    setVerifiedReservationInput(null);
+    setVerifiedReservationInfo(null);
+    setVerifiedReservationWarning(null); // ADD THIS
+
+    // ADD THIS QUERY INVALIDATION ↓
+    await queryClient.invalidateQueries({
+      queryKey: reservationKeys.active(),
+    });
 
     resetReservationForm();
     // onDeselect?.();
   }
-
-  // function handleClosePanel() {
-  //   resetReservationForm();
-  //   // onDeselect?.();
-  // }
 
   return (
     <>
@@ -255,11 +266,12 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
         isOpen={isOpen}
         onClose={() => {
           closeModal();
-          setVerifiedReservationInput(null);
+          setVerifiedReservationInfo(null);
         }}
         onConfirm={handleConfirmFinalSubmission}
         pending={finalSubmissionPending}
-        data={verifiedReservationInput}
+        reservationInfo={verifiedReservationInfo}
+        reservationWarning={verifiedReservationWarning}
       />
     </>
   );
@@ -297,6 +309,7 @@ function TimeSlotGridContainer(props: {
       id: `${selectedDay.date}-${slot.timeslot_number}`,
       time: slot.start_time,
       status: slot.status,
+      systemOnly: slot.is_system_only ?? false,   
     }));
   }, [schedule, props.date]);
 
