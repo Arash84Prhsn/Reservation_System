@@ -122,7 +122,7 @@ class SeatServices:
                                Reservation.reservation_date == date_of_day
                            )
             
-            reservations_of_day = conn.execute(stmnt).mappings().all()
+            reservations_of_day = conn.execute(stmnt).all()
 
             for row in reservations_of_day:
                 start_time = row[0].isoformat()
