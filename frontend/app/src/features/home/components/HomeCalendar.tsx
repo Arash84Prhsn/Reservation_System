@@ -35,6 +35,7 @@ import {
   ReservationType,
   SeatType,
   SYSTEM_ONLY_TYPES,
+  Warning,
 } from "@/lib/api/services/reservation.service";
 import { useMakeReservation } from "../hooks/use-make-reservation";
 import { FinalReservationModal } from "./seat-map/FinalReservationModal";
@@ -69,10 +70,13 @@ const LAPTOP_RESERVATION_OPTIONS: ReservationOption[] = [
 ];
 
 const HomeCalendar = ({ seat }: HomeCalendarProps) => {
-  const [verifiedReservationInput, setVerifiedReservationInput] =
+  const [verifiedReservationInfo, setVerifiedReservationInfo] =
     useState<FinalReservationSubmissionInput | null>(null);
 
-  //state for system only reservations
+  const [verifiedReservationWanring, setVerifiedReservationWanring] =
+    useState<Warning | null>(null);
+
+  //state for system-only reservations
   const [isSystemOverride, setIsSystemOverride] = useState(false);
 
   const calendarRef = useRef<FullCalendar>(null);
@@ -80,8 +84,8 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
   /**
    * Used to prevent TimePicker from keeping an invalid selected value.
    */
-  const previousValidEndRef = useRef<DateObject | null>(null);
-  const previousValidStartRef = useRef<DateObject | null>(null);
+  // const previousValidEndRef = useRef<DateObject | null>(null);
+  // const previousValidStartRef = useRef<DateObject | null>(null);
 
   // make-reservation modal
   const {
@@ -193,7 +197,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
   const resetModalFields = () => {
     setMode("create");
     setSelectedEvent(null);
-    previousValidEndRef.current = null;
+    // previousValidEndRef.current = null;
     resetReservationForm();
     setIsSystemOverride(false);
 
@@ -232,8 +236,8 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     setStartTime(formatTimeForApi(start));
     setEndTime(formatTimeForApi(end));
 
-    previousValidEndRef.current = end;
-    previousValidStartRef.current = start;
+    // previousValidEndRef.current = end;
+    // previousValidStartRef.current = start;
 
     openMakeReservationModal();
   };
@@ -266,11 +270,11 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     if (start) {
       setReservationDate(formatDateForApi(start));
       setStartTime(formatTimeForApi(start));
-      previousValidStartRef.current = start;
+      // previousValidStartRef.current = start;
     }
     if (end) {
       setEndTime(formatTimeForApi(end));
-      previousValidEndRef.current = end;
+      // previousValidEndRef.current = end;
     }
     openMakeReservationModal();
   };
@@ -283,27 +287,16 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     const fixedEndTime = mergeDateAndTime(selectedDateObject, time);
 
     if (!isWithinWorkingHours(fixedEndTime)) {
-      alert("ساعت فقط بین ۸ تا ۱۴ قابل انتخاب است");
-
-      if (previousValidEndRef.current) {
-        setEndTime(formatTimeForApi(previousValidEndRef.current));
-      }
-
+      toast.warning("ساعت فقط بین ۸ تا ۱۴ قابل انتخاب است");
       return;
     }
 
     if (startTimeObject && !isEndAfterStart(startTimeObject, fixedEndTime)) {
-      alert("زمان پایان باید بعد از زمان شروع باشد");
-
-      if (previousValidEndRef.current) {
-        setEndTime(formatTimeForApi(previousValidEndRef.current));
-      }
-
+      toast.warning("زمان پایان باید بعد از زمان شروع باشد");
       return;
     }
 
     setEndTime(formatTimeForApi(fixedEndTime));
-    previousValidEndRef.current = fixedEndTime;
   };
 
   const handleStartTimeChange = (time: DateObject | null) => {
@@ -312,32 +305,21 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     const fixedStartTime = mergeDateAndTime(selectedDateObject, time);
 
     if (!isWithinWorkingHours(fixedStartTime)) {
-      alert("ساعت فقط بین ۸ تا ۱۴ قابل انتخاب است");
-
-      if (previousValidStartRef.current) {
-        setStartTime(formatTimeForApi(previousValidStartRef.current));
-      }
-
+      toast.warning("ساعت فقط بین ۸ تا ۱۴ قابل انتخاب است");
       return;
     }
 
     if (endTimeObject && !isEndAfterStart(fixedStartTime, endTimeObject)) {
-      alert("زمان پایان باید بعد از زمان شروع باشد");
-
-      if (previousValidStartRef.current) {
-        setStartTime(formatTimeForApi(previousValidStartRef.current));
-      }
-
+      toast.warning("زمان پایان باید بعد از زمان شروع باشد");
       return;
     }
 
     setStartTime(formatTimeForApi(fixedStartTime));
-    previousValidStartRef.current = fixedStartTime;
   };
 
   const handleAddReservation = async () => {
     if (!seat) {
-      alert("صندلی انتخاب نشده است");
+      toast.warning("صندلی انتخاب نشده است");
       return;
     }
 
@@ -352,7 +334,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     }
 
     if (!isEndAfterStart(startTimeObject, endTimeObject)) {
-      toast.error("زمان پایان باید بعد از زمان شروع باشد");
+      toast.warning("زمان پایان باید بعد از زمان شروع باشد");
       return;
     }
 
@@ -360,7 +342,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
       !isWithinWorkingHours(startTimeObject) ||
       !isWithinWorkingHours(endTimeObject)
     ) {
-      toast.error("ساعت کاری فقط بین ۸ تا ۱۴ است");
+      toast.warning("ساعت کاری فقط بین ۸ تا ۱۴ است");
       return;
     }
 
@@ -371,7 +353,8 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
 
     if (!result.ok) return;
 
-    setVerifiedReservationInput(result.input);
+    setVerifiedReservationInfo(result.reservation_info);
+    setVerifiedReservationWanring(result.warning);
     closeMakeReservationModal();
     openFinalReservationModal();
     resetModalFields();
@@ -390,14 +373,14 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
   };
 
   async function handleConfirmFinalSubmission() {
-    if (!verifiedReservationInput) return;
+    if (!verifiedReservationInfo) return;
 
-    const res = await submitFinalReservation(verifiedReservationInput);
+    const res = await submitFinalReservation(verifiedReservationInfo);
 
     if (!res) return;
 
     closeFinalReservationModal();
-    setVerifiedReservationInput(null);
+    setVerifiedReservationInfo(null);
     refetchScheduleIntervals();
     await queryClient.invalidateQueries({
       queryKey: reservationKeys.active(),
@@ -508,11 +491,12 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
         isOpen={isFinalReservationModalOpen}
         onClose={() => {
           closeFinalReservationModal();
-          setVerifiedReservationInput(null);
+          setVerifiedReservationInfo(null);
         }}
         onConfirm={handleConfirmFinalSubmission}
         pending={finalSubmissionPending}
-        data={verifiedReservationInput}
+        reservationInfo={verifiedReservationInfo}
+        reservationWarning={verifiedReservationWanring}
       />
     </div>
   );
@@ -746,7 +730,7 @@ const isSystemOnlyHelper = (
   return SYSTEM_ONLY_TYPES.includes(reservationType as ReservationSystemOnly);
 };
 
-const toPersianDateObject = (date: Date) => {
+export const toPersianDateObject = (date: Date) => {
   return new DateObject({
     date,
     calendar: persian,
@@ -754,7 +738,7 @@ const toPersianDateObject = (date: Date) => {
   });
 };
 
-const dateStringToPersianDateObject = (date: string) => {
+export const dateStringToPersianDateObject = (date: string) => {
   return new DateObject({
     date,
     calendar: gregorian,
@@ -824,4 +808,5 @@ function getInitialPersianWeekDate(): Date {
 
   return today;
 }
+
 export default HomeCalendar;

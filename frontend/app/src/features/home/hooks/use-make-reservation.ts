@@ -3,6 +3,8 @@ import {
   ReservationType,
   SeatType,
   FinalReservationSubmissionInput,
+  ReservationInfo,
+  Warning,
 } from "@/lib/api/services/reservation.service";
 import { useState } from "react";
 import { DateObject } from "react-multi-date-picker";
@@ -11,8 +13,8 @@ import { toast } from "sonner";
 type MakeReservationResult =
   | {
       ok: true;
-      data: unknown;
-      input: FinalReservationSubmissionInput;
+      reservation_info: ReservationInfo;
+      warning: Warning;
     }
   | {
       ok: false;
@@ -90,14 +92,15 @@ export function useMakeReservation() {
     setPending(true);
 
     try {
-      const { message, data } = await make_reservation(input);
+      const { message, reservation_info, warning } =
+        await make_reservation(input);
 
       toast.success(message || "اطلاعات رزرو تایید شد");
 
       return {
         ok: true,
-        data,
-        input,
+        reservation_info,
+        warning,
       };
     } catch (err) {
       const message =

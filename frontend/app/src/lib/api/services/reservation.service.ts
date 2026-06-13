@@ -1,6 +1,5 @@
 import { toast } from "sonner";
 import { apiFetch } from "../core/http";
-import { ApiResponse } from "./auth.servise";
 import { HttpError } from "../core/errors";
 
 // type: reservation
@@ -31,8 +30,10 @@ export interface Warning {
 }
 
 export interface ReservationResponse {
-  warning: Warning;
+  message: string;
   reservation_info: ReservationInfo;
+  success: boolean;
+  warning: Warning;
 }
 
 // type: schedule timeslots for a week (mobile)
@@ -75,14 +76,8 @@ export interface OpenDatesForUserResponse {
 }
 
 // type: final reservation submission
-export interface FinalReservationSubmissionInput {
-  reservation_date: string;
-  reservation_type: ReservationType;
-  start_time: string;
-  end_time: string;
-  seat_type: SeatType;
-  seat_number: number;
-}
+export type FinalReservationSubmissionInput = ReservationInfo;
+
 export interface FinalReservationSubmissionResponse {
   success: boolean;
   message: string;
@@ -151,7 +146,7 @@ export interface CancelReservationByIdResponse {
 //API functions
 // make reservation API
 export async function make_reservation(input: ReservationInfo) {
-  const res = await apiFetch<ApiResponse<ReservationResponse>>(
+  const res = await apiFetch<ReservationResponse>(
     "/reservation/make_reservation",
     {
       method: "POST",
