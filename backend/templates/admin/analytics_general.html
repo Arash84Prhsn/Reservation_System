@@ -96,6 +96,7 @@
                     <thead>
                         <tr>
                             <th>Username</th>
+                            <th>Association</th>
                             <th class="text-end">Reservation count</th>
                         </tr>
                     </thead>
@@ -103,7 +104,8 @@
                         {% for user in top_users %}
                         <tr>
                             <td>{{ user.username }}</td>
-                            <td class="text-end">{{ user.reservation_count }}</td>
+                            <td>{{ user.association }}</td>
+                            <td class="text-end" style="text-align: center;">{{ user.reservation_count }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

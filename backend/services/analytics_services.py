@@ -12,54 +12,6 @@ class AnalyticsServices:
 
         with get_db_connection() as conn:
 
-            total_users = conn.query(User).count()
-
-            total_dotin_users = (
-                conn.query(User)
-                .filter(User.association.in_(DOTIN_ASSOCIATIONS))
-                .count()
-            )
-
-            total_reservations = conn.query(Reservation).count()
-
-            active_reservations = (
-                conn.query(Reservation)
-                .filter(Reservation.status == "active")
-                .count()
-            )
-
-            cancelled_reservations = (
-                conn.query(Reservation)
-                .filter(Reservation.status == "cancelled")
-                .count()
-            )
-
-            over_reservations = (
-                conn.query(Reservation)
-                .filter(Reservation.status == "over")
-                .count()
-            )
-
-            total_events = conn.query(Event).count()
-
-            active_events = (
-                conn.query(Event)
-                .filter(Event.status == "active")
-                .count()
-            )
-
-            cancelled_events = (
-                conn.query(Event)
-                .filter(Event.status == "cancelled")
-                .count()
-            )
-
-            over_events = (
-                conn.query(Event)
-                .filter(Event.status == "over")
-                .count()
-            )
-
             reservation_types = (
                 conn.query(
                     Reservation.reservation_type,
@@ -91,6 +43,7 @@ class AnalyticsServices:
             top_users = (
                 conn.query(
                     User.username,
+                    User.association,
                     func.count(Reservation.id).label("reservation_count")
                 )
                 .join(Reservation)
@@ -103,6 +56,7 @@ class AnalyticsServices:
             top_users = [
                 {
                     "username": row.username,
+                    "association": row.association,
                     "reservation_count": row.reservation_count
                 }
                 for row in top_users
