@@ -44,10 +44,10 @@ def init_admin(app):
     db_session = get_db_scoped_session()
 
     # Add views for the tables
-    admin.add_view(UserModelView(User, db_session, endpoint='admin_user_view', name='Users'))
-    admin.add_view(SeatModelView(Seat, db_session, endpoint='admin_seat_view', name='Seats'))
-    admin.add_view(ReservationModelView(Reservation, db_session, endpoint='admin_reservation_view', name='Reservations'))
-    admin.add_view(EventModelView(Event, db_session, endpoint='admin_event_view', name='Events'))
+    admin.add_view(UserModelView(User, db_session, endpoint='admin_user_view', name='Users', category="Tables"))
+    admin.add_view(SeatModelView(Seat, db_session, endpoint='admin_seat_view', name='Seats', category="Tables"))
+    admin.add_view(ReservationModelView(Reservation, db_session, endpoint='admin_reservation_view', name='Reservations', category="Tables"))
+    admin.add_view(EventModelView(Event, db_session, endpoint='admin_event_view', name='Events', category="Tables"))
 
     # Add the redirect view to the menu (appears in the left navbar)
     admin.add_view(CreateEventRedirectView(
@@ -65,13 +65,6 @@ def init_admin(app):
     )
 
     admin.add_view(
-        SeatScheduleView(
-            name='Seat Schedules',
-            endpoint='seatschedule'
-        )
-    )
-
-    admin.add_view(
         GeneralAnalyticsView(
             name="General Analytics",
             category="Analytics"
@@ -82,6 +75,13 @@ def init_admin(app):
         WeeklyAnalyticsView(
             name="Weekly Analytics",
             category="Analytics"
+        )
+    )
+
+    admin.add_view(
+        SeatScheduleView(
+            name='Seat Schedules',
+            endpoint='seatschedule'
         )
     )
 
