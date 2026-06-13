@@ -65,15 +65,12 @@ export function TimeSlotGrid({
     return clsx(
       "flex h-12 cursor-pointer items-center justify-center rounded-md border text-xs transition-all",
       {
-        "bg-gray-700 border-gray-600 text-gray-400 cursor-not-allowed":
-          slot.status === "event",
-        "bg-purple-900 border-purple-700 text-purple-200 cursor-not-allowed":
+        "bg-res-red text-white cursor-not-allowed": slot.status === "event",
+        "bg-res-orange text-white cursor-not-allowed":
           slot.status === "reserved_by_others",
-        "bg-blue-700/60 border-blue-500 text-white":
-          slot.status === "reserved_by_user",
-        "bg-blue-600 text-white border-blue-400": isSelected, // انتخاب شده توسط کاربر
-        "bg-white border-gray-600 text-gray-800 hover:border-gray-400":
-          slot.status === "free" && !isSelected,
+        "bg-res-green-success  text-white": slot.status === "reserved_by_user",
+        "bg-blue-400 text-white ": isSelected, // انتخاب شده توسط کاربر
+        "bg-white text-gray-800 ": slot.status === "free" && !isSelected,
       },
     );
   };
