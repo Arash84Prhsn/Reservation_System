@@ -429,7 +429,7 @@ components:
           example: "08:15"
         status:
           type: string
-          enum: [free, reserved_by_user, reserved_by_others, event]
+          enum: [free, reserved_by_user, reserved_by_others, reserved_by_user_with_system_reservation, reserved_by_others_with_system_reservation, event]
         reservation_type:
           type: string
           nullable: true
