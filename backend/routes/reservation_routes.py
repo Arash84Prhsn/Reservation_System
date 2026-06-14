@@ -415,7 +415,7 @@ def cancel_reservation_with_all_info():
         return jsonify({"success" : False,
                         "messaage" : "رزرو مورد نظر موجود نمی باشد"})
     
-    success, msg = ReservationServices.cancel_reservation(reservation_id)
+    success, msg = ReservationServices.cancel_reservation(reservation_id, user_id)
 
     if not success:
         return jsonify({"success" : False,
@@ -433,12 +433,13 @@ def cancel_reservation_by_id():
     data: dict = request.get_json()
 
     reservation_id = data.get("reservation_id")
+    user_id = session.get("user_id")
 
     if not reservation_id:
         return jsonify({"success" : False,
                         "messaage" : "رزرو مورد نظر موجود نمی باشد"})
 
-    success, msg = ReservationServices.cancel_reservation(reservation_id)
+    success, msg = ReservationServices.cancel_reservation(reservation_id, user_id)
     if not success:
         return jsonify({"success" : False,
                        "message" : msg}), 400
