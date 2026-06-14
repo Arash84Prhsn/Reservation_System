@@ -840,7 +840,7 @@ class ReservationServices:
     # ===================================<RESERVATION CANCELLING>===================================
 
     @staticmethod
-    def cancel_reservation(reservation_id):
+    def cancel_reservation(reservation_id, user_id):
         """
         Cancells an active reservation
         
@@ -849,6 +849,9 @@ class ReservationServices:
         """
 
         reservation: Reservation = ReservationServices.get_reservation_by_id(reservation_id)
+
+        if user_id != reservation.user_id:
+            return False, "شما دسترسی به لغو رزرو دیگران را ندارید"
         
         if not reservation:
             return False, "رزرو مورد نظر موجود نمی باشد"
