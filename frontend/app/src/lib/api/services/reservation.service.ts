@@ -40,7 +40,9 @@ export interface ReservationResponse {
 export type ScheduleSlotStatus =
   | "free"
   | "reserved_by_user"
+  | "reserved_by_user_with_system_reservation"
   | "reserved_by_others"
+  | "reserved_by_others_with_system_reservation"
   | "event"; // event is lab meeting (technicaly "disabled").
 
 export interface ScheduleSlot {

@@ -45,6 +45,7 @@ import { useWeeklyScheduleIntervals } from "../hooks/use-weekly-schedule-interva
 import { useQueryClient } from "@tanstack/react-query";
 import { reservationKeys } from "../queryKeys";
 import { useCancelReservationById } from "../hooks/use-cancel-reservation-by-id";
+import { cn } from "@/lib/utils";
 
 type CalendarMode = "create" | "view";
 
@@ -734,8 +735,8 @@ const renderEventContent = (userId?: number) =>
     const baseColorByType: Record<EventType, string> = {
       project: "bg-res-orange",
       internship: "bg-res-orange",
-      "dorsan desk": "bg-res-gray-dark/30 ",
-      "only running programs": "bg-res-gray-dark/30 ",
+      "dorsan desk": "bg-gray-300/70 !text-gray-700",
+      "only running programs": "bg-gray-300/70 !text-gray-700",
       event: "bg-res-red",
     };
 
@@ -751,7 +752,10 @@ const renderEventContent = (userId?: number) =>
 
     return (
       <div
-        className={`flex h-full w-full flex-col  rounded-sm ${reservationColor} p-1 text-white  `}
+        className={cn(
+          reservationColor,
+          `flex h-full w-full flex-col  rounded-sm  p-1 text-white `,
+        )}
       >
         <p className="text-xs font-semibold ">
           {eventInfo.event.extendedProps.seat}

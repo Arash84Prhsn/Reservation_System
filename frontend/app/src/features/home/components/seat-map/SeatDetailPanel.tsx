@@ -36,6 +36,8 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
   const [verifiedReservationWarning, setVerifiedReservationWarning] =
     useState<Warning | null>(null);
 
+  const [hasSystemOnlyInRange, setHasSystemOnlyInRange] = useState(false); // 👈 new
+
   const queryClient = useQueryClient(); // ← ADD THIS
 
   const { isOpen, openModal, closeModal } = useModal();
@@ -181,6 +183,16 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
           صندلی انتخاب شده: <strong> {fullLabel}</strong>
         </div>
 
+        <div className="mt-4">
+          {hasSystemOnlyInRange && (
+            <div className="fa my-2 rounded-lg border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-800">
+              ⚠️ این بازه زمانی رزرو سیستمی دارد (درسان دسک / محاسبات). صندلی
+              فیزیکی آزاد است، اما سیستم در دسترس نیست. می‌توانید صندلی را فقط
+              برای استفاده از سخت‌افزار رزرو کنید.
+            </div>
+          )}
+        </div>
+
         <div className="flex flex-col gap-4 ">
           <div className="flex gap-2">
             <div className="w-full">
@@ -240,6 +252,7 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
               onRangeSelect={(start, end) => {
                 console.log(`انتخاب بازه: ${start} تا ${end}`);
               }}
+              onSystemOnlyWarning={setHasSystemOnlyInRange}
             />
           </div>
 
@@ -288,6 +301,7 @@ function TimeSlotGridContainer(props: {
   setStartTime: (t: string) => void;
   setEndTime: (t: string) => void;
   onRangeSelect?: (start: string, end: string) => void;
+  onSystemOnlyWarning?: (hasSystemOnly: boolean) => void;
 }) {
   const { schedule, loading, error } = useWeeklyScheduleTimeslots(
     {
@@ -309,11 +323,44 @@ function TimeSlotGridContainer(props: {
       id: `${selectedDay.date}-${slot.timeslot_number}`,
       time: slot.start_time,
       status: slot.status,
-      systemOnly: slot.is_system_only ?? false,   
+      systemOnly:
+        slot.reservation_type === "dorsan desk" ||
+        slot.reservation_type === "only running programs",
     }));
   }, [schedule, props.date]);
 
   console.log("slots: ", slots);
+
+  // Compute system‑only presence inside the selected range
+  useEffect(() => {
+    if (!props.startTime || !props.endTime || !schedule.length) return;
+
+    const selectedDay = schedule.find((day) => day.date === props.date);
+    if (!selectedDay) return;
+
+    const startIdx = selectedDay.slots.findIndex(
+      (s) => s.start_time === props.startTime,
+    );
+    const endIdx = selectedDay.slots.findIndex(
+      (s) => s.start_time === props.endTime,
+    );
+    if (startIdx === -1 || endIdx === -1) return;
+
+    const rangeSlots = selectedDay.slots.slice(startIdx, endIdx + 1);
+    const hasSystemOnly = rangeSlots.some(
+      (slot) =>
+        slot.reservation_type === "dorsan desk" ||
+        slot.reservation_type === "only running programs",
+    );
+    props.onSystemOnlyWarning?.(hasSystemOnly);
+  }, [
+    props.startTime,
+    props.endTime,
+    props.date,
+    schedule,
+    props.onSystemOnlyWarning,
+    props,
+  ]);
 
   if (!props.date) {
     return (
