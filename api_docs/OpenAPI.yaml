@@ -703,6 +703,10 @@ components:
           type: string
         end_time:
           type: string
+        seat_type:
+          type: string
+        seat_number:
+          type: integer
 
     UserActiveReservationsResponse:
       type: object

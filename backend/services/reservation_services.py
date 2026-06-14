@@ -221,8 +221,11 @@ class ReservationServices:
                 Reservation.end_time,
                 Reservation.reservation_type,
                 Reservation.reservation_date,
-                Reservation.id
+                Reservation.id,
+                Seat.seat_type,
+                Seat.seat_number
             ).where(
+                Reservation.seat_id == Seat.id,
                 Reservation.user_id == user_id,
                 Reservation.status == "active"
             )
@@ -236,6 +239,8 @@ class ReservationServices:
                 reservation_type: str = row[2]
                 reservation_date: date = row[3]
                 id = row[4]
+                seat_type = row[5]
+                seat_number = row[6]
                 day_of_week: str = ReservationServices.get_day_of_week_from_date(reservation_date)
                 start_time = start_time.isoformat()
                 end_time = end_time.isoformat()
@@ -246,7 +251,9 @@ class ReservationServices:
                      'day_of_week' : day_of_week,
                      'reservation_type' : reservation_type,
                      'start_time' : start_time,
-                     'end_time' : end_time}
+                     'end_time' : end_time,
+                     'seat_type' : seat_type,
+                     'seat_number' : seat_number}
                 
                 results.append(d)
             
