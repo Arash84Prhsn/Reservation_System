@@ -142,15 +142,15 @@ export default function ReservationGuide() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <div dir="rtl" className="mx-auto max-w-4xl space-y-3">
+    <div dir="rtl" className="mx-auto max-w-4xl space-y-3 p-2 ">
       {guideSections.map((section, index) => (
         <div
           key={section.title}
-          className="overflow-hidden rounded-xl border bg-white"
+          className="overflow-hidden rounded-xl border bg-white shadow-xl"
         >
           <button
             onClick={() => setOpen(open === index ? null : index)}
-            className="flex w-full items-center justify-between p-4 text-right"
+            className="flex w-full items-center justify-between p-4 text-right text-gray-800 bg-res-orange/80"
           >
             <span className="font-medium">{section.title}</span>
 
@@ -162,7 +162,7 @@ export default function ReservationGuide() {
           </button>
 
           {open === index && (
-            <div className="border-t p-4">{section.content}</div>
+            <div className="border-t p-4 text-gray-800 text-lg">{section.content}</div>
           )}
         </div>
       ))}

@@ -11,7 +11,7 @@ export function useUpdateUsername() {
       toast.success(response.message || "نام کاربری با موفقیت بروزرسانی شد");
       await queryClient.invalidateQueries({ queryKey: userKeys.profile() });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || "بروزرسانی نام کاربری ناموفق بود");
     },
   });

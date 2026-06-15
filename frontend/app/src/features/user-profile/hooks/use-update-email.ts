@@ -14,7 +14,7 @@ export function useUpdateEmail() {
       toast.success(response.message || "ایمیل با موفقیت بروزرسانی شد");
       await queryClient.invalidateQueries({ queryKey: userKeys.profile() });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || "بروزرسانی ایمیل ناموفق بود");
     },
   });

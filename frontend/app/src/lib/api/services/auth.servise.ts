@@ -2,6 +2,11 @@ import { toast } from "sonner";
 import { HttpError } from "../core/errors";
 import { apiFetch } from "../core/http";
 
+export interface LogoutResponse {
+  message: string;
+  success: string;
+}
+
 // type: register, login, user_profile
 export enum AssociationStatus {
   None = "None",
@@ -88,6 +93,20 @@ export async function login(input: LoginInput) {
   if (!res.success) {
     toast.error(res.message || "ورود ناموفق بود");
     throw new HttpError(res.message || "Login failed", 400, res);
+  }
+
+  return res;
+}
+
+export async function logout() {
+  const res = await apiFetch<LogoutResponse>("/auth/logout", {
+    method: "POST",
+  });
+
+  // if api status is 2xx but success is false throw err.
+  if (!res.success) {
+    toast.error(res.message || "خروج ناموفق بود");
+    throw new HttpError(res.message || "logout failed", 400, res);
   }
 
   return res;
