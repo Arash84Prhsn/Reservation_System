@@ -104,7 +104,7 @@ class UserModelView(CustomModelView):
     """User-specific view with custom searchable fields"""
     
     column_searchable_list = ['username', 'email', 'phone']
-    column_exclude_list = ["password_hash"]
+    column_exclude_list = ["password_hash", "needsGuide"]
     column_filters = ['association', 'role_id', 'created_at', 'last_login']
     column_labels = {
         'username': 'Username',
