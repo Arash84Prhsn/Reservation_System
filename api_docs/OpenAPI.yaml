@@ -291,6 +291,37 @@ components:
           type: string
           nullable: true
 
+    NeedsGuideResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        needsGuide:
+          type: boolean
+          example: true
+          description: "Whether the user needs a guide (first-time user flag)"
+
+    UpdateGuideStatusRequest:
+      type: object
+      required:
+        - newGuideStatus
+      properties:
+        newGuideStatus:
+          type: boolean
+          example: false
+          description: "New guide status (true = needs guide, false = doesn't need guide)"
+
+    UpdateGuideStatusResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        newGuideStatus:
+          type: boolean
+          example: false
+
     # ============ SEAT SCHEMAS ============
     SeatCounts:
       type: object
@@ -1045,6 +1076,70 @@ paths:
           description: Not logged in
         '409':
           description: Phone number already exists
+
+  /user/needsGuide:
+    get:
+      summary: Get user's guide status
+      description: |
+        Returns whether the current user needs a guide (first-time user flag).
+        This is used to determine if the frontend should show an onboarding/tutorial flow.
+      operationId: getNeedsGuide
+      tags:
+        - User
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Guide status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NeedsGuideResponse'
+        '401':
+          description: User not logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /user/updateGuideStatus:
+    put:
+      summary: Update user's guide status
+      description: |
+        Updates whether the current user needs a guide.
+        Typically set to `false` after the user completes the onboarding/tutorial.
+      operationId: updateGuideStatus
+      tags:
+        - User
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGuideStatusRequest'
+            example:
+              newGuideStatus: false
+      responses:
+        '200':
+          description: Guide status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateGuideStatusResponse'
+        '400':
+          description: Missing newGuideStatus field
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: User not logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   # ==================== SEAT ENDPOINTS ====================
   /seats/get_seat_types_and_counts:
