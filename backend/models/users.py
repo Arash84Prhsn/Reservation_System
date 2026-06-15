@@ -16,7 +16,7 @@ class User(DeclarativeBase):
     role_id = Column(Integer, ForeignKey('roles.id'), nullable=False, default=3) # 3 is the user role
     created_at = Column(DateTime, default=datetime.now)
     last_login = Column(DateTime, nullable=True)
-    needsGuide = Column(Boolean, nullabe=False, default=True)
+    needsGuide = Column(Boolean, nullable=False, default=True)
     
     # Relationships
     reservations = relationship("Reservation", back_populates="user", cascade="all, delete-orphan")
