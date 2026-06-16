@@ -694,6 +694,29 @@ span.flatpickr-weekday,
   padding: 24px;
 }
 
+/* Make custom navigation buttons white */
+.custom-calendar .fc-myPrev-button,
+.custom-calendar .fc-myNext-button,
+.custom-calendar .fc-today-button {
+  background-color: #ffffff ;
+  border-color: #d1d5db ; /* optional light border */
+  color: #000000 ;
+}
+
+/* hover effect */
+.custom-calendar .fc-myPrev-button:hover,
+.custom-calendar .fc-myNext-button:hover,
+.custom-calendar .fc-today-button:hover:not(:disabled) {
+  background-color: #f3f4f6 ;
+  color: black;
+}
+
+/* Disabled state (when Today is already active) */
+.custom-calendar .fc-today-button:disabled {
+  background-color: #e5e7eb ;
+  color: #9ca3af ;
+  cursor: not-allowed;
+}
 
 
 .input-date-icon::-webkit-inner-spin-button,

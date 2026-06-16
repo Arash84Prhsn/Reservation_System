@@ -59,7 +59,7 @@ const SeatList = ({ seat, onChairSelect }: SeatListParams) => {
   return (
     // full calendar styles affect this comp. so if it resets the css styels (all: "revert") everything will be default.
     <div style={{ all: "revert" }}>
-      <div className="flex w-50 flex-col rounded-2xl border-2 bg-res-green-100 border-gray-300 p-4">
+      <div className="h-[calc(100vh-130px)] flex w-50 flex-col rounded-2xl border-2 bg-res-green-100 border-gray-300 p-4">
         {/* <p className="text-center text-2xl ">صندلی / زمان</p> */}
         <p className="text-center text-xl">نوع صندلی</p>
 

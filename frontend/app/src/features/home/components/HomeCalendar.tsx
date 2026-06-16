@@ -471,12 +471,17 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
             myNext: {
               text: "◀", // یا ""
               hint: "بعدی",
+
               click: () => calendarRef.current?.getApi().next(),
             },
             myPrev: {
               text: "▶", // یا ""
               hint: "قبلی",
               click: () => calendarRef.current?.getApi().prev(),
+            },
+            today: {
+              text: "هفته جاری",
+              click: () => calendarRef.current?.getApi().today(),
             },
           }}
           initialDate={getInitialPersianWeekDate()}
@@ -847,7 +852,7 @@ function getInitialPersianWeekDate(): Date {
   const today = new Date();
   const dow = today.getDay(); // 0 (Sun) - 6 (Sat)
 
-  if (dow >= 4) {
+  if (dow >= 4 && dow <= 5) {
     const nextWeekSaturday = new Date(today);
     const daysUntilSaturday = (6 - dow + 7) % 7 || 7;
     nextWeekSaturday.setDate(today.getDate() + daysUntilSaturday);
