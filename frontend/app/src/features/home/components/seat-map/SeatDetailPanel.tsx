@@ -28,7 +28,7 @@ type SeatDetailPanelProps = {
   onDeselect: () => void;
 };
 
-export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
+export function SeatDetailPanel({ seat, onDeselect }: SeatDetailPanelProps) {
   const [verifiedReservationInfo, setVerifiedReservationInfo] =
     useState<FinalReservationSubmissionInput | null>(null);
 
@@ -176,6 +176,11 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
     // onDeselect?.();
   }
 
+  const handleCloseSeatDetailPanel = () => {
+    resetReservationForm();
+    onDeselect?.();
+  };
+
   return (
     <>
       <div className="mt-4 rounded-4xl bg-res-green-100 border border-black p-4 text-white shadow-lg">
@@ -266,7 +271,7 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
               {pending ? "در حال ثبت..." : "ثبت رزرو"}
             </button>
             <button
-              onClick={resetReservationForm}
+              onClick={handleCloseSeatDetailPanel}
               type="button"
               className=" w-[30%] rounded-lg bg-gray-600 px-4 py-3 text-sm font-medium transition hover:bg-gray-500"
             >

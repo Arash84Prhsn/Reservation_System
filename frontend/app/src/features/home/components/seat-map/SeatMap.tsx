@@ -31,6 +31,12 @@ export default function SeatMap({ config, data }: SeatMapProps) {
     ? seats.find((s) => s.id === selectedId)
     : null;
 
+  const seatIsNotSelectedMessage = (
+    <div className="mt-4 rounded-4xl h-115 flex justify-center items-center bg-res-green-100 border border-black p-4 shadow-lg">
+      <p className="text-2xl  text-gray-700">ابتدا صندلی خود را انتخاب کنید</p>
+    </div>
+  );
+
   return (
     <div className="mx-auto w-full max-w-sm rounded-2xl  p-4" dir="rtl">
       <div className="relative w-full -mt-12" style={{ paddingBottom: "100%" }}>
@@ -49,13 +55,15 @@ export default function SeatMap({ config, data }: SeatMapProps) {
         </div>
       </div>
 
-      {selectedSeat && (
+      {selectedSeat ? (
         <SeatDetailPanel
           seat={selectedSeat}
           status={selectedSeat.status}
           onDeselect={deselect}
           // chair={chair}
         />
+      ) : (
+        seatIsNotSelectedMessage
       )}
     </div>
   );
