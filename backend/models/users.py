@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, CheckConstraint, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from backend.models import DeclarativeBase
+from backend.models.enums import DOTIN_ASSOCIATIONS
 from datetime import datetime
 
 class User(DeclarativeBase):
@@ -15,6 +16,7 @@ class User(DeclarativeBase):
     role_id = Column(Integer, ForeignKey('roles.id'), nullable=False, default=3) # 3 is the user role
     created_at = Column(DateTime, default=datetime.now)
     last_login = Column(DateTime, nullable=True)
+    needsGuide = Column(Boolean, nullable=False, default=True)
     
     # Relationships
     reservations = relationship("Reservation", back_populates="user", cascade="all, delete-orphan")
@@ -32,11 +34,8 @@ class User(DeclarativeBase):
 
         :returns: `True` if the association is in the `Dotin` associates list and `False` otherwise.
         """
-        dotin_associations = ["Dotin employee",
-                              "DataScience competitions",
-                              "Dotin associate"]
         
-        return self.association in dotin_associations
+        return self.association in DOTIN_ASSOCIATIONS
     
     def to_dict(self):
         """Convert user to dictionary"""
@@ -77,8 +76,4 @@ class User(DeclarativeBase):
     
     
     def __repr__(self):
-        return f"""user_id={self.id}\n
-        username='{self.username}'
-        association='{self.association}'
-        is_dotin='{self.isDotinAssociate()}'
-        """
+        return f"{self.username}"

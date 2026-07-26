@@ -23,4 +23,4 @@ class Role(DeclarativeBase):
         }
     
     def __repr__(self):
-        return f"<Role(id={self.id}, name='{self.name}')>"
+        return f"Role{self.id}: {self.name}"

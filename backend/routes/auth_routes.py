@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session;
 from backend.services.user_services import UserServices
+from datetime import datetime, timezone
 
 
 # Create the blueprint that will be registered in app.py
@@ -83,6 +84,8 @@ def register():
         )
 
         # Set session
+        session.permanent = True
+        session["last_activity"] = datetime.now(timezone.utc).isoformat()
         session['logged_in'] = True
         session['user_id'] = newUser.id
         session['username'] = newUser.username
@@ -90,6 +93,7 @@ def register():
         session['phone'] = newUser.phone
         session['association'] = newUser.association
         session['is_admin'] = False
+        session["role_id"] = 3
         
         # Update last login
         UserServices.update_last_login(newUser.id)
@@ -132,6 +136,8 @@ def login():
         return jsonify({'success': False, 'message': 'نام کاربری یا رمز عبور اشتباه است'}), 401
     
     # Set session
+    session.permanent = True
+    session["last_activity"] = datetime.now(timezone.utc).isoformat()
     session['logged_in'] = True
     session['user_id'] = user.id
     session['username'] = user.username
@@ -139,6 +145,7 @@ def login():
     session['phone'] = user.phone
     session['association'] = user.association
     session["is_admin"] = False
+    session["role_id"] = user.role_id
 
     # Check to see if the logged in user is at least an event manager
     if user.is_event_manager_role() or user.is_admin_role():

@@ -3,9 +3,10 @@ from flask_admin import Admin
 from flask_admin.theme import Bootstrap4Theme
 from backend.admin.views import CustomAdminIndexView
 from flask_admin.menu import MenuLink
-from database.connection import get_db_connection
+from database.connection import get_db_connection, get_db_scoped_session
 from backend.admin.views import UserModelView, ReservationModelView, EventModelView, SeatModelView
-from backend.admin.views import CreateEventRedirectView
+from backend.admin.views import CreateEventRedirectView, SeatScheduleView, CancelEventsView
+from backend.admin.views import GeneralAnalyticsView, WeeklyAnalyticsView
 from backend.models import User, Reservation, Seat, Event
 
 admin = None
@@ -40,19 +41,48 @@ def init_admin(app):
     ))
 
     # Connect the admin page to the models
-    db_session = get_db_connection()
+    db_session = get_db_scoped_session()
 
     # Add views for the tables
-    admin.add_view(UserModelView(User, db_session, endpoint='admin_user_view', name='Users'))
-    admin.add_view(SeatModelView(Seat, db_session, endpoint='admin_seat_view', name='Seats'))
-    admin.add_view(ReservationModelView(Reservation, db_session, endpoint='admin_reservation_view', name='Reservations'))
-    admin.add_view(EventModelView(Event, db_session, endpoint='admin_event_view', name='Events'))
+    admin.add_view(UserModelView(User, db_session, endpoint='admin_user_view', name='Users', category="Tables"))
+    admin.add_view(SeatModelView(Seat, db_session, endpoint='admin_seat_view', name='Seats', category="Tables"))
+    admin.add_view(ReservationModelView(Reservation, db_session, endpoint='admin_reservation_view', name='Reservations', category="Tables"))
+    admin.add_view(EventModelView(Event, db_session, endpoint='admin_event_view', name='Events', category="Tables"))
 
     # Add the redirect view to the menu (appears in the left navbar)
     admin.add_view(CreateEventRedirectView(
         name='➕ Create Event',
-        category=None,
+        category="Event Actions",
         endpoint='create_event'
     ))
-    
+
+    admin.add_view(
+        CancelEventsView(
+            name='🚫 Cancel Events',
+            endpoint='cancelevents',
+            category="Event Actions"
+        )
+    )
+
+    admin.add_view(
+        GeneralAnalyticsView(
+            name="General Analytics",
+            category="Analytics"
+        )
+    )
+
+    admin.add_view(
+        WeeklyAnalyticsView(
+            name="Weekly Analytics",
+            category="Analytics"
+        )
+    )
+
+    admin.add_view(
+        SeatScheduleView(
+            name='Seat Schedules',
+            endpoint='seatschedule'
+        )
+    )
+
     return admin

@@ -361,13 +361,15 @@ def final_reservation_submission():
                         "message" : "Reservation is in conflict"}), 400
 
     try:
-        ReservationServices.create_reservation(reservation_date,
-                                            reservation_type,
-                                            start_time,
-                                            end_time,
-                                            user_id,
-                                            seat_id)
-        
+        ReservationServices.create_reservation(
+            reservation_date,
+            reservation_type,
+            start_time,
+            end_time,
+            user_id,
+            seat_id
+        )
+
         return jsonify({"success" : True,
                         "message" : "رزرو شما با موفقیت ایجاد شد",
                         "warning" : status["warning"]["needed"]}), 201
@@ -413,7 +415,7 @@ def cancel_reservation_with_all_info():
         return jsonify({"success" : False,
                         "messaage" : "رزرو مورد نظر موجود نمی باشد"})
     
-    success, msg = ReservationServices.cancel_reservation(reservation_id)
+    success, msg = ReservationServices.cancel_reservation(reservation_id, user_id)
 
     if not success:
         return jsonify({"success" : False,
@@ -431,12 +433,13 @@ def cancel_reservation_by_id():
     data: dict = request.get_json()
 
     reservation_id = data.get("reservation_id")
+    user_id = session.get("user_id")
 
     if not reservation_id:
         return jsonify({"success" : False,
                         "messaage" : "رزرو مورد نظر موجود نمی باشد"})
 
-    success, msg = ReservationServices.cancel_reservation(reservation_id)
+    success, msg = ReservationServices.cancel_reservation(reservation_id, user_id)
     if not success:
         return jsonify({"success" : False,
                        "message" : msg}), 400

@@ -101,15 +101,20 @@ class SeatServices:
             events_of_day = conn.execute(stmnt).all()
 
             for row in events_of_day:
-                start_time = row["start_time"].isoformat()
-                end_time = row["end_time"].isoformat()
+                start_time = row[0].isoformat()
+                end_time = row[1].isoformat()
 
                 results["events"].append({"start_time" : start_time,
                                           "end_time" : end_time})
             
-            stmnt = select(Reservation.start_time, Reservation.end_time,
-                           User.id, Reservation.reservation_type).join(
-                             User, Reservation.user_id == User.id  
+            stmnt = select(Reservation.start_time,
+                           Reservation.end_time,
+                           User.id,
+                           Reservation.reservation_type,
+                           Reservation.id
+                           ).join(
+                               User,
+                               Reservation.user_id == User.id  
                            ).where(
                                Reservation.user_id == User.id,
                                Reservation.seat_id == seat_id,
@@ -117,17 +122,19 @@ class SeatServices:
                                Reservation.reservation_date == date_of_day
                            )
             
-            reservations_of_day = conn.execute(stmnt).mappings().all()
+            reservations_of_day = conn.execute(stmnt).all()
 
             for row in reservations_of_day:
-                id = row["id"]
-                start_time = row["start_time"].isoformat()
-                reservation_type = row["reservation_type"]
-                end_time = row["end_time"].isoformat()
+                start_time = row[0].isoformat()
+                end_time = row[1].isoformat()
+                id = row[2]
+                reservation_type = row[3]
+                reservation_id = row[4]
 
                 results["reservations"].append({"start_time" : start_time,
                                                 "end_time" : end_time,
                                                 "reserved_by" : id,
+                                                "reservation_id": reservation_id,
                                                 "reservation_type" : reservation_type})
 
             return results

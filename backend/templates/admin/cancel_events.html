@@ -1,0 +1,135 @@
+{% extends 'admin/master.html' %}
+
+{% block head %}
+{{ super() }}
+
+<style>
+
+.events-container {
+    background: white;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 12px;
+}
+
+.events-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.events-table th {
+    background: #006839;
+    color: white;
+    padding: 12px;
+}
+
+.events-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.cancel-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.cancel-btn:hover {
+    background: #c82333;
+}
+
+.page-title {
+    text-align: center;
+    color: #006839;
+    margin-bottom: 20px;
+}
+
+.no-events {
+    text-align: center;
+    padding: 30px;
+    color: #666;
+}
+
+</style>
+{% endblock %}
+
+{% block body %}
+
+<div class="events-container">
+
+    <h2 class="page-title">
+        🚫 لغو رویدادها
+    </h2>
+
+    {% if events %}
+
+    <table class="events-table">
+
+        <thead>
+            <tr>
+                <th style="text-align: center;">ID</th>
+                <th style="text-align: center;">ایجاد کننده</th>
+                <th style="text-align: center;">تاریخ</th>
+                <th style="text-align: center;">شروع</th>
+                <th style="text-align: center;">پایان</th>
+                <th style="text-align: center;">عملیات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for event in events %}
+        <tr>
+
+            <td>{{ event.id }}</td>
+
+            <td>{{ event.user.username }}</td>
+
+            <td>{{ event.persian_date }}</td>
+
+            <td>{{ event.start_time.strftime('%H:%M') }}</td>
+
+            <td>{{ event.end_time.strftime('%H:%M') }}</td>
+
+            <td>
+
+                <form
+                    method="POST"
+                    action="{{ url_for('cancelevents.cancel_event', event_id=event.id) }}"
+                    onsubmit="return confirm('آیا از لغو این رویداد مطمئن هستید؟');"
+                >
+
+                    <button type="submit" class="cancel-btn">
+                        لغو رویداد
+                    </button>
+
+                </form>
+
+            </td>
+
+        </tr>
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    {% else %}
+
+    <div class="no-events", style="font-size: large;">
+        هیچ رویداد فعالی برای لغو وجود ندارد
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
+
+{% block page_title %}
+    <!-- Empty this block to remove the default home text-->
+{% endblock %}

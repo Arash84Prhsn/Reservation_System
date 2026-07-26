@@ -144,6 +144,7 @@ cython_debug/
 # Database files
 *.sqlite
 *.sqlite3
+database/RESERVATION_DATABASE.db
 
 # Logs
 *.log

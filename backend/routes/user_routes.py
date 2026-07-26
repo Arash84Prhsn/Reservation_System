@@ -112,10 +112,12 @@ def update_email():
     if not newEmail:
         return jsonify({'success' : False,
                         'message' : "Field cannot be empty."}), 400
+    
     valid = UserServices.validate_email(newEmail)
     if not valid:
         return jsonify({'success' : False,
                         'message' : "Pleas enter a valid email structure"}), 400
+    
     # Ensure that this email does not exist in the database
     if UserServices.email_exists(newEmail):
         return jsonify({'success' : False,
@@ -213,3 +215,33 @@ def update_phone():
         'message': "Your phone number has been updated successfully",
         'newPhone': newPhone
     }), 200
+
+@user_bp.route("/needsGuide", methods=["GET"])
+def needsGuide():
+    if not UserServices.is_user_logged_in():
+        return jsonify({"success": False,
+                        "message" : "لطفا وارد حساب کاربری شوید"}), 401
+    
+    user = UserServices.get_user_byID(session.get("user_id"))
+
+    return jsonify({"success" : True,
+                    "needsGuide" : user.needsGuide}), 200
+
+@user_bp.route("/updateGuideStatus", methods=["PUT"])
+def updateGuideStatus():
+    if not UserServices.is_user_logged_in():
+        return jsonify({"success": False,
+                        "message" : "لطفا وارد حساب کاربری شوید"}), 401
+    
+    data: dict = request.get_json()
+    new_status = data.get("newGuideStatus")
+
+    user = UserServices.get_user_byID(session.get("user_id"))
+
+    with get_db_connection() as conn:
+        user = conn.merge(user)
+        user.needsGuide = new_status
+        conn.commit()
+    
+    return jsonify({"success" : True,
+                    "newGuideStatus" : new_status}), 200
