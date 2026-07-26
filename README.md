@@ -17,7 +17,6 @@ A comprehensive reservation system for managing the fintech lab seats with suppo
     - [Backend](#backend)
     - [Frontend](#frontend)
     - [Database](#database)
-  - [Project Structure](#project-structure)
 
 ---
 
@@ -109,5 +108,3 @@ The Financial Technologies Lab Reservation System is a full-stack web applicatio
 | SQLite | Lightweight relational database |
 
 ---
-
-## Project Structure
