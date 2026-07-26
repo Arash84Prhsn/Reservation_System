@@ -31,7 +31,7 @@ export default function Ecommerce() {
       {isMobile ? (
         <>
           <SeatMap />
-          <ColorLegend />
+          {/* <ColorLegend /> */}
         </>
       ) : (
         <div className="flex justify-end gap-5  h-[calc(100vh-130px)]">
@@ -43,9 +43,9 @@ export default function Ecommerce() {
           <SeatList seat={seat} onChairSelect={onChairSelect} />
 
           {/* fixed color guidence */}
-          <ColorLegend />
         </div>
       )}
+      <ColorLegend />
     </div>
   );
 }

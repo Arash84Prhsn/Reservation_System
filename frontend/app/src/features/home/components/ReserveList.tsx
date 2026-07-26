@@ -182,6 +182,9 @@ const DesktopReserveList = ({
                       <p className="text-sm text-gray-600">
                         نوع: {reservation.reservation_type}
                       </p>
+                      <p className="text-sm text-gray-600">
+                        صندلی: {reservation.seat_type} {reservation.seat_number}
+                      </p>
 
                       {index < group.reservations.length - 1 && (
                         <hr className="mt-3 border-gray-300" />

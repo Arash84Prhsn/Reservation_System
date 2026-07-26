@@ -132,6 +132,8 @@ export interface ActiveReservations {
   reservation_type: ReservationType;
   start_time: string;
   end_time: string;
+  seat_type: string;
+  seat_number: number;
 }
 export interface GetUserActiveReservationsResponse {
   success: boolean;
