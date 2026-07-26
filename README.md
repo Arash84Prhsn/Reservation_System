@@ -17,6 +17,21 @@ A comprehensive reservation system for managing the fintech lab seats with suppo
     - [Backend](#backend)
     - [Frontend](#frontend)
     - [Database](#database)
+  - [Installation](#installation)
+    - [Prerequisites](#prerequisites)
+    - [Step 1: Clone the Repository](#step-1-clone-the-repository)
+    - [Step 2: Backend Setup](#step-2-backend-setup)
+      - [Create and Activate Virtual Environment](#create-and-activate-virtual-environment)
+      - [Install Backend Dependencies](#install-backend-dependencies)
+    - [Step 3: Frontend Setup](#step-3-frontend-setup)
+    - [Requirements.txt](#requirementstxt)
+  - [Running the Application](#running-the-application)
+    - [Backend (Development Mode)](#backend-development-mode)
+    - [Frontend (Development Mode)](#frontend-development-mode)
+  - [API Documentation](#api-documentation)
+  - [Admin Panel](#admin-panel)
+    - [Accessing the Admin Panel](#accessing-the-admin-panel)
+    - [Admin Features](#admin-features-1)
 
 ---
 
@@ -108,3 +123,123 @@ The Financial Technologies Lab Reservation System is a full-stack web applicatio
 | SQLite | Lightweight relational database |
 
 ---
+
+## Installation
+
+### Prerequisites
+
+- Python 3.13 or higher
+- pip (Python package manager)
+- Node.js and npm (for frontend)
+- Git (optional, for cloning)
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/yourusername/ProjectR.git
+cd ProjectR
+```
+
+### Step 2: Backend Setup
+
+#### Create and Activate Virtual Environment
+
+```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate on Linux/Mac
+source venv/bin/activate
+
+# Activate on Windows
+venv\Scripts\activate
+```
+
+#### Install Backend Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Step 3: Frontend Setup
+
+```bash
+# Navigate to frontend directory
+cd frontend/app
+
+# Install frontend dependencies
+npm install
+
+# Return to project root
+cd ../..
+```
+
+### Requirements.txt
+
+```
+apscheduler==3.11.2
+bcrypt==4.1.0
+email_validator==2.3.0
+Flask==3.1.3
+flask_admin==2.2.0
+flask_cors==6.0.2
+jdatetime==5.2.0
+SQLAlchemy==2.0.50
+```
+
+---
+
+## Running the Application
+
+### Backend (Development Mode)
+
+```bash
+# Run the Flask development server
+python app.py
+```
+
+The backend will be available at `http://localhost:5000`
+
+### Frontend (Development Mode)
+
+```bash
+# Navigate to frontend directory
+cd frontend/app
+
+# Run the Next.js development server
+npm run dev
+```
+
+The frontend will be available at `http://localhost:3000`
+
+---
+
+## API Documentation
+
+The API is fully documented using OpenAPI 3.0. in the `api_docs/OpenAPI.yaml` file.
+
+---
+
+## Admin Panel
+
+### Accessing the Admin Panel
+
+1. Navigate to `http://localhost:5000/admin`
+2. Login with admin credentials (default: `ADMIN_ARASH` / `Arash1212`)
+
+### Admin Features
+
+| Section | Functionality |
+|---------|---------------|
+| **Dashboard** | Overview statistics (users, seats, reservations, events) |
+| **Users** | CRUD operations, search, filter, role management |
+| **Seats** | View, edit seat details, manage reservable status |
+| **Reservations** | View all reservations, filter by status/date/user |
+| **Events** | Create events with Persian date picker, manage events |
+| **Seat Schedules** | View weekly schedules for individual seats |
+| **Analytics** | Usage statistics, charts, trends |
+| **Cancel Events** | Manage event cancellations |
+
+---
+
+**Made with ❤️ by Arash Pourhasani, Amin Mohammadi, Melika Mohammad Beighi**
