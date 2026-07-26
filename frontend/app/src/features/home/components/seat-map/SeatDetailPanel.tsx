@@ -9,6 +9,7 @@ import {
   FinalReservationSubmissionInput,
   ReservationType,
   SeatType,
+  Warning,
 } from "@/lib/api/services/reservation.service";
 import { useMakeReservation } from "../../hooks/use-make-reservation";
 import { useWeeklyScheduleTimeslots } from "../../hooks/use-weekly-shedule-timeslots";
@@ -18,6 +19,8 @@ import { useModal } from "@/hooks/useModal";
 import useOpenDatesForUser from "../../hooks/use-oepn-dates-for-user";
 import { FinalReservationModal } from "./FinalReservationModal";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { reservationKeys } from "../../queryKeys";
 
 type SeatDetailPanelProps = {
   seat: MobileSeat;
@@ -25,9 +28,18 @@ type SeatDetailPanelProps = {
   onDeselect: () => void;
 };
 
-export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
-  const [verifiedReservationInput, setVerifiedReservationInput] =
+export function SeatDetailPanel({ seat, onDeselect }: SeatDetailPanelProps) {
+  const [verifiedReservationInfo, setVerifiedReservationInfo] =
     useState<FinalReservationSubmissionInput | null>(null);
+
+  // ADD THIS LINE ↓
+  const [verifiedReservationWarning, setVerifiedReservationWarning] =
+    useState<Warning | null>(null);
+
+  const [hasSystemOnlyInRange, setHasSystemOnlyInRange] = useState(false); // 👈 new
+
+  const queryClient = useQueryClient(); // ← ADD THIS
+
   const { isOpen, openModal, closeModal } = useModal();
   // make reservation
   const {
@@ -112,7 +124,8 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
     const result = await makeReservation();
 
     if (!result.ok) return;
-    setVerifiedReservationInput(result.input);
+    setVerifiedReservationInfo(result.reservation_info);
+    setVerifiedReservationWarning(result.warning);
     openModal();
   }
 
@@ -145,35 +158,50 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
   }
 
   async function handleConfirmFinalSubmission() {
-    if (!verifiedReservationInput) return;
+    if (!verifiedReservationInfo) return;
 
-    const res = await submitFinalReservation(verifiedReservationInput);
-
+    const res = await submitFinalReservation(verifiedReservationInfo);
     if (!res) return;
 
     closeModal();
-    setVerifiedReservationInput(null);
+    setVerifiedReservationInfo(null);
+    setVerifiedReservationWarning(null); // ADD THIS
+
+    // ADD THIS QUERY INVALIDATION ↓
+    await queryClient.invalidateQueries({
+      queryKey: reservationKeys.active(),
+    });
 
     resetReservationForm();
     // onDeselect?.();
   }
 
-  // function handleClosePanel() {
-  //   resetReservationForm();
-  //   // onDeselect?.();
-  // }
+  const handleCloseSeatDetailPanel = () => {
+    resetReservationForm();
+    onDeselect?.();
+  };
 
   return (
     <>
-      <div className="mt-4 rounded-xl bg-gray-800 p-4 text-white shadow-lg">
-        <div className="mb-4 text-sm leading-6">
-          صندلی <strong>{fullLabel}</strong>
+      <div className="mt-4 rounded-4xl bg-res-green-100 border border-black p-4 text-white shadow-lg">
+        <div className="mb-4 text-sm leading-6 text-gray-700 text-center">
+          صندلی انتخاب شده: <strong> {fullLabel}</strong>
         </div>
 
-        <div className="flex flex-col gap-4">
+        <div className="mt-4">
+          {hasSystemOnlyInRange && (
+            <div className="fa my-2 rounded-lg border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-800">
+              ⚠️ این بازه زمانی رزرو سیستمی دارد (درسان دسک / محاسبات). صندلی
+              فیزیکی آزاد است، اما سیستم در دسترس نیست. می‌توانید صندلی را فقط
+              برای استفاده از سخت‌افزار رزرو کنید.
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-4 ">
           <div className="flex gap-2">
             <div className="w-full">
-              <label className="mb-1.5 block text-sm font-medium text-gray-300">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 تاریخ رزرو
               </label>
 
@@ -193,7 +221,7 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
             </div>
 
             <div className="w-full">
-              <label className="mb-1.5 block text-sm font-medium text-gray-300">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 نوع رزرو
               </label>
 
@@ -214,7 +242,7 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-300">
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">
               انتخاب زمان
             </label>
 
@@ -229,25 +257,25 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
               onRangeSelect={(start, end) => {
                 console.log(`انتخاب بازه: ${start} تا ${end}`);
               }}
+              onSystemOnlyWarning={setHasSystemOnlyInRange}
             />
           </div>
 
-          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
-            <button
-              onClick={resetReservationForm}
-              type="button"
-              className="w-full rounded-lg bg-gray-600 px-4 py-3 text-sm font-medium transition hover:bg-gray-500"
-            >
-              بستن
-            </button>
-
+          <div className="flex gap-3 pt-2 sm:flex-row">
             <button
               onClick={handleOpenFinalModal}
               type="button"
               disabled={pending}
-              className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-lg bg-res-green-success px-4 py-3 text-sm font-medium transition hover:bg-res-green-success/80 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {pending ? "در حال ثبت..." : "ثبت رزرو"}
+            </button>
+            <button
+              onClick={handleCloseSeatDetailPanel}
+              type="button"
+              className=" w-[30%] rounded-lg bg-gray-600 px-4 py-3 text-sm font-medium transition hover:bg-gray-500"
+            >
+              بستن
             </button>
           </div>
         </div>
@@ -256,11 +284,12 @@ export function SeatDetailPanel({ seat }: SeatDetailPanelProps) {
         isOpen={isOpen}
         onClose={() => {
           closeModal();
-          setVerifiedReservationInput(null);
+          setVerifiedReservationInfo(null);
         }}
         onConfirm={handleConfirmFinalSubmission}
         pending={finalSubmissionPending}
-        data={verifiedReservationInput}
+        reservationInfo={verifiedReservationInfo}
+        reservationWarning={verifiedReservationWarning}
       />
     </>
   );
@@ -277,6 +306,7 @@ function TimeSlotGridContainer(props: {
   setStartTime: (t: string) => void;
   setEndTime: (t: string) => void;
   onRangeSelect?: (start: string, end: string) => void;
+  onSystemOnlyWarning?: (hasSystemOnly: boolean) => void;
 }) {
   const { schedule, loading, error } = useWeeklyScheduleTimeslots(
     {
@@ -298,10 +328,44 @@ function TimeSlotGridContainer(props: {
       id: `${selectedDay.date}-${slot.timeslot_number}`,
       time: slot.start_time,
       status: slot.status,
+      systemOnly:
+        slot.reservation_type === "dorsan desk" ||
+        slot.reservation_type === "only running programs",
     }));
   }, [schedule, props.date]);
 
   console.log("slots: ", slots);
+
+  // Compute system‑only presence inside the selected range
+  useEffect(() => {
+    if (!props.startTime || !props.endTime || !schedule.length) return;
+
+    const selectedDay = schedule.find((day) => day.date === props.date);
+    if (!selectedDay) return;
+
+    const startIdx = selectedDay.slots.findIndex(
+      (s) => s.start_time === props.startTime,
+    );
+    const endIdx = selectedDay.slots.findIndex(
+      (s) => s.start_time === props.endTime,
+    );
+    if (startIdx === -1 || endIdx === -1) return;
+
+    const rangeSlots = selectedDay.slots.slice(startIdx, endIdx + 1);
+    const hasSystemOnly = rangeSlots.some(
+      (slot) =>
+        slot.reservation_type === "dorsan desk" ||
+        slot.reservation_type === "only running programs",
+    );
+    props.onSystemOnlyWarning?.(hasSystemOnly);
+  }, [
+    props.startTime,
+    props.endTime,
+    props.date,
+    schedule,
+    props.onSystemOnlyWarning,
+    props,
+  ]);
 
   if (!props.date) {
     return (

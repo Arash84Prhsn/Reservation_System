@@ -148,7 +148,11 @@ const NewSignInForm = () => {
                     </p> */}
                   </div>
                   <div>
-                    <Button className="w-full" size="sm" disabled={pending}>
+                    <Button
+                      className="w-full bg-res-green-success hover:bg-res-green-success/80"
+                      size="sm"
+                      disabled={pending}
+                    >
                       <p className="font-bold">ورود</p>
                     </Button>
                   </div>
@@ -156,11 +160,11 @@ const NewSignInForm = () => {
               </form>
 
               <div className="fa mt-5">
-                <p className="text-center text-sm font-normal text-gray-700 sm:text-start dark:text-gray-400">
+                <p className="text-center  font-normal text-gray-700 sm:text-start dark:text-gray-400">
                   اکانت ندارید ؟ {""}
                   <Link
                     href="/signup"
-                    className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                    className="text-res-green-success hover:text-res-green-success/80 font-bold dark:text-brand-400"
                   >
                     ساخت اکانت
                   </Link>

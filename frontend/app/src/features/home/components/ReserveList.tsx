@@ -122,14 +122,14 @@ const DesktopReserveList = ({
   handleCancelReservation,
 }: ReserveListUIProps) => {
   return (
-    <div className="fa flex h-full w-50 flex-col rounded-2xl border-2 border-gray-300 bg-white p-4">
-      <p className="text-center text-2xl">رزرو های من</p>
+    <div className="fa flex  w-50 flex-col rounded-2xl border-2 border-gray-300 bg-res-orange p-4">
+      <div className="bg-res-green-success rounded-2xl  p-1">
+        <p className="text-center text-2xl text-white ">رزرو های من</p>
+      </div>
 
       <div className="mt-7 flex flex-col gap-4">
         {loading && (
-          <p className="text-center text-sm text-gray-500">
-            در حال بارگذاری...
-          </p>
+          <p className="text-center text-sm text-white">در حال بارگذاری...</p>
         )}
 
         {/* {error && (
@@ -139,9 +139,7 @@ const DesktopReserveList = ({
         )} */}
 
         {!loading && groupedReservations.length === 0 && (
-          <p className="text-center text-sm text-gray-500">
-            رزروی ثبت نشده است
-          </p>
+          <p className="text-center text-sm text-white">رزروی ثبت نشده است</p>
         )}
 
         {groupedReservations.map((group) => (
@@ -184,6 +182,9 @@ const DesktopReserveList = ({
                       <p className="text-sm text-gray-600">
                         نوع: {reservation.reservation_type}
                       </p>
+                      <p className="text-sm text-gray-600">
+                        صندلی: {reservation.seat_type} {reservation.seat_number}
+                      </p>
 
                       {index < group.reservations.length - 1 && (
                         <hr className="mt-3 border-gray-300" />
@@ -196,7 +197,7 @@ const DesktopReserveList = ({
             hoverPosition="right"
             hoverContentWrapperClassName="w-64"
             hoverContentClassName="bg-blue-100 border-blue-300"
-            hoverTriggerClassName="text-nowrap"
+            hoverTriggerClassName="text-nowrap bg-white"
           />
         ))}
       </div>
@@ -214,8 +215,10 @@ const MobileReserveList = ({
   const [open, setOpen] = useState<string | null>(null);
 
   return (
-    <div className="fa flex flex-col gap-3 rounded-2xl border-2 border-gray-300 bg-white p-4">
-      <p className="text-center text-xl">رزرو های من</p>
+    <div className="fa flex flex-col gap-3 rounded-2xl border-2 border-gray-300 bg-res-orange p-4">
+      <div className="bg-res-green-success rounded-2xl w-52 p-1 mx-auto">
+        <p className="text-center text-lg text-white ">رزرو های من</p>
+      </div>
 
       {loading && (
         <p className="text-center text-sm text-gray-500">در حال بارگذاری...</p>
@@ -306,13 +309,13 @@ export const MobileCalendar = ({
           رزروی برای نمایش وجود ندارد
         </div>
       ) : (
-        <div className="relative border-r-2 border-blue-100 pr-6 mr-2">
+        <div className="relative border-r-2 border-res-orange pr-6 mr-2">
           {groupedReservations.map((group) => (
             <div key={group.date} className="relative mb-8">
               {/* دایره تایم‌لاین سمت راست */}
-              <div className="absolute -right-[33px] top-1 h-4 w-4 rounded-full border-2 border-blue-500 bg-white" />
+              <div className="absolute -right-[33px] top-1 h-4 w-4 rounded-full border-2 border-blue-500 bg-res-green-success" />
 
-              <h3 className="mb-4 font-semibold text-blue-900">
+              <h3 className="mb-4 font-semibold text-res-green-800">
                 {group.label}
               </h3>
 
@@ -323,7 +326,7 @@ export const MobileCalendar = ({
                     className="flex flex-col rounded-xl border border-gray-100 bg-white p-3 shadow-sm transition hover:shadow-md"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] text-blue-600">
+                      <span className="rounded-full bg-res-green-100 px-2 py-0.5 text-[10px] text-res-green-success">
                         {res.reservation_type}
                       </span>
 

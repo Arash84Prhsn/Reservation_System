@@ -20,31 +20,32 @@ export default function Ecommerce() {
     setSeat(inputSeat);
   };
 
+  const seatIsNotSelectedMessage = (
+    <div className="w-full flex justify-center items-center border rounded-2xl  bg-res-green-100 h-[calc(100vh-130px)]">
+      <p className="text-4xl">ابتدا صندلی خود را انتخاب کنید</p>
+    </div>
+  );
+
   return (
     <div>
-      {/* mobile: */}
-
       {isMobile ? (
-        <div>
+        <>
           <SeatMap />
-          <ColorLegend />
-          {/* <BottomNavBar /> */}
-        </div>
+          {/* <ColorLegend /> */}
+        </>
       ) : (
-        // Desktop:
-
-        <div className="flex justify-end gap-5">
+        <div className="flex justify-end gap-5  h-[calc(100vh-130px)]">
           <ReserveList />
 
           {/* if chair is not selected, don't show calendar */}
-          {seat && <HomeCalendar seat={seat} />}
+          {seat ? <HomeCalendar seat={seat} /> : seatIsNotSelectedMessage}
 
           <SeatList seat={seat} onChairSelect={onChairSelect} />
 
           {/* fixed color guidence */}
-          <ColorLegend />
         </div>
       )}
+      <ColorLegend />
     </div>
   );
 }

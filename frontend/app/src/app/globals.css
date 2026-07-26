@@ -10,6 +10,8 @@
   --font-*: initial;
   --font-outfit: Outfit, sans-serif;
 
+
+
   --breakpoint-*: initial;
   --breakpoint-2xsm: 375px;
   --breakpoint-xsm: 425px;
@@ -41,6 +43,16 @@
   --color-transparent: transparent;
   --color-white: #ffffff;
   --color-black: #101828;
+  
+  /* reservation */
+  --color-res-green-900: #024023;
+  --color-res-green-800: #024023;
+  --color-res-green-100:  #EBFFEE;
+  --color-res-green-success:  #009951;
+  --color-res-red: #900B09;
+  --color-res-gray-dark: #84847C;
+  --color-res-gray-light: #E5DFDF;
+  --color-res-orange: #F48E0A;
 
   --color-brand-25: #f2f7ff;
   --color-brand-50: #ecf3ff;
@@ -254,11 +266,11 @@
 }
 
 @utility menu-item-active {
-  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+  @apply bg-res-green-100 text-gray-700 dark:bg-brand-500/[0.12] dark:text-brand-400;
 }
 
 @utility menu-item-inactive {
-  @apply text-gray-700 hover:bg-gray-100 group-hover:text-gray-700 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-300;
+  @apply bg-res-green-100/70 text-gray-700 hover:bg-res-green-100/90 group-hover:text-gray-700 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-300;
 }
 
 @utility menu-item-icon {
@@ -266,7 +278,7 @@
 }
 
 @utility menu-item-icon-active {
-  @apply text-brand-500 dark:text-brand-400;
+  @apply text-res-orange dark:text-brand-400;
 }
 
 @utility menu-item-icon-inactive {
@@ -672,9 +684,40 @@ span.flatpickr-weekday,
   border: none;
   color: black;
 }
-.fc.fc-media-screen {
-  @apply min-h-screen;
+.custom-calendar .fc.fc-media-screen {
+  @apply min-h-[calc(100vh-130px)];
 }
+
+.custom-calendar .fc-header-toolbar.fc-toolbar.fc-toolbar-ltr {
+  background-color: #EBFFEE;
+  margin: 0;
+  padding: 24px;
+}
+
+/* Make custom navigation buttons white */
+.custom-calendar .fc-myPrev-button,
+.custom-calendar .fc-myNext-button,
+.custom-calendar .fc-today-button {
+  background-color: #ffffff ;
+  border-color: #d1d5db ; /* optional light border */
+  color: #000000 ;
+}
+
+/* hover effect */
+.custom-calendar .fc-myPrev-button:hover,
+.custom-calendar .fc-myNext-button:hover,
+.custom-calendar .fc-today-button:hover:not(:disabled) {
+  background-color: #f3f4f6 ;
+  color: black;
+}
+
+/* Disabled state (when Today is already active) */
+.custom-calendar .fc-today-button:disabled {
+  background-color: #e5e7eb ;
+  color: #9ca3af ;
+  cursor: not-allowed;
+}
+
 
 .input-date-icon::-webkit-inner-spin-button,
 .input-date-icon::-webkit-calendar-picker-indicator {

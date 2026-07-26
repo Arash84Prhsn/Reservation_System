@@ -22,7 +22,7 @@ export function SmallButtonCard({
         className,
       )}
     >
-      <SmallBaseCard {...baseProps} />
+      <SmallBaseCard {...baseProps} className={className} />
     </button>
   );
 }

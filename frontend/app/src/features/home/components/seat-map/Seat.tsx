@@ -37,7 +37,7 @@ export const SeatComponent = memo(function SeatComponent({
     <button
       style={{ position: "absolute", ...style }}
       className={cx(
-        "flex items-center justify-center rounded-md text-xs font-bold text-white transition-all",
+        "flex items-center justify-center rounded-md  font-bold text-white transition-all",
         STATUS_COLOR[effectiveColorStatus],
       )}
       disabled={isDisabled}
@@ -46,7 +46,7 @@ export const SeatComponent = memo(function SeatComponent({
       aria-pressed={isSelected}
       title={fullLabel}
     >
-      {seat.number}
+      {seat.type[0].toUpperCase()} {seat.number}
     </button>
   );
 });

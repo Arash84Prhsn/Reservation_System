@@ -1,14 +1,16 @@
 import { toast } from "sonner";
 import { apiFetch } from "../core/http";
-import { ApiResponse } from "./auth.servise";
 import { HttpError } from "../core/errors";
 
 // type: reservation
-export type ReservationType =
-  | "only running programs"
-  | "internship"
-  | "project"
-  | "dorsan desk";
+export type ReservationSystemOnly = "only running programs" | "dorsan desk";
+export const SYSTEM_ONLY_TYPES: ReservationSystemOnly[] = [
+  "only running programs",
+  "dorsan desk",
+];
+export type ReservationSeatAndSystem = "internship" | "project";
+
+export type ReservationType = ReservationSeatAndSystem | ReservationSystemOnly;
 
 export type SeatType = "dotin" | "optimization" | "laptop" | "manager";
 
@@ -28,15 +30,19 @@ export interface Warning {
 }
 
 export interface ReservationResponse {
-  warning: Warning;
+  message: string;
   reservation_info: ReservationInfo;
+  success: boolean;
+  warning: Warning;
 }
 
 // type: schedule timeslots for a week (mobile)
 export type ScheduleSlotStatus =
   | "free"
   | "reserved_by_user"
+  | "reserved_by_user_with_system_reservation"
   | "reserved_by_others"
+  | "reserved_by_others_with_system_reservation"
   | "event"; // event is lab meeting (technicaly "disabled").
 
 export interface ScheduleSlot {
@@ -72,14 +78,8 @@ export interface OpenDatesForUserResponse {
 }
 
 // type: final reservation submission
-export interface FinalReservationSubmissionInput {
-  reservation_date: string;
-  reservation_type: ReservationType;
-  start_time: string;
-  end_time: string;
-  seat_type: SeatType;
-  seat_number: number;
-}
+export type FinalReservationSubmissionInput = ReservationInfo;
+
 export interface FinalReservationSubmissionResponse {
   success: boolean;
   message: string;
@@ -96,6 +96,7 @@ export interface ReservationItem {
   end_time: string;
   reservation_type: ReservationType;
   reserved_by: number;
+  reservation_id: number;
 }
 
 export interface EventItem {
@@ -131,6 +132,8 @@ export interface ActiveReservations {
   reservation_type: ReservationType;
   start_time: string;
   end_time: string;
+  seat_type: string;
+  seat_number: number;
 }
 export interface GetUserActiveReservationsResponse {
   success: boolean;
@@ -148,7 +151,7 @@ export interface CancelReservationByIdResponse {
 //API functions
 // make reservation API
 export async function make_reservation(input: ReservationInfo) {
-  const res = await apiFetch<ApiResponse<ReservationResponse>>(
+  const res = await apiFetch<ReservationResponse>(
     "/reservation/make_reservation",
     {
       method: "POST",

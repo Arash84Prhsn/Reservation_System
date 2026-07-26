@@ -3,12 +3,18 @@
 import { CalendarIcon, HomeIcon, UserIcon } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import React from "react";
+import { BsQuestionCircle } from "react-icons/bs";
 
 const navItems = [
   {
-    label: "خانه",
-    path: "/",
-    icon: HomeIcon,
+    label: "راهنما",
+    path: "/help",
+    icon: BsQuestionCircle,
+  },
+  {
+    label: "پروفایل",
+    path: "/profile",
+    icon: UserIcon,
   },
   {
     label: "رزروها",
@@ -16,19 +22,19 @@ const navItems = [
     icon: CalendarIcon,
   },
   {
-    label: "پروفایل",
-    path: "/profile",
-    icon: UserIcon,
+    label: "خانه",
+    path: "/",
+    icon: HomeIcon,
   },
 ];
 
-const BottomNavBar = () => {
+const MobileBottomNavBar = () => {
   const router = useRouter();
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white md:hidden">
-      <div className="flex h-16 items-center justify-around">
+    <nav className="fixed z-99 bottom-0 left-0 right-0 border-t border-gray-200 bg-res-green-900 md:hidden">
+      <div className="flex h-[54px] items-center justify-around">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.path;
@@ -38,7 +44,7 @@ const BottomNavBar = () => {
               key={item.path}
               onClick={() => router.push(item.path)}
               className={`flex flex-col items-center ${
-                isActive ? "text-blue-600" : "text-gray-500"
+                isActive ? "text-res-orange" : "text-gray-200"
               }`}
             >
               <Icon className="h-6 w-6" />
@@ -51,4 +57,4 @@ const BottomNavBar = () => {
   );
 };
 
-export default BottomNavBar;
+export default MobileBottomNavBar;

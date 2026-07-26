@@ -227,7 +227,7 @@ const NewSignUpForm = () => {
                     <button
                       onClick={(e) => onSubmit(e)}
                       disabled={pending}
-                      className="bg-brand-500 shadow-theme-xs hover:bg-brand-600 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-bold text-white transition"
+                      className="bg-res-green-success shadow-theme-xs hover:bg-res-green-success/80 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-bold text-white transition"
                     >
                       ثبت نام
                     </button>
@@ -236,11 +236,11 @@ const NewSignUpForm = () => {
               </form>
 
               <div className="fa mt-5 ">
-                <p className="text-center text-sm font-normal text-gray-700 sm:text-start dark:text-gray-400">
+                <p className="text-center  font-normal text-gray-700 sm:text-start dark:text-gray-400">
                   قبلا ثبت نام کردید ؟ {""}
                   <Link
                     href="/signin"
-                    className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                    className="text-res-green-success hover:text-res-green-success/80 font-bold dark:text-brand-400"
                   >
                     ورود
                   </Link>

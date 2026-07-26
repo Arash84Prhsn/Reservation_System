@@ -1,7 +1,7 @@
 "use client";
 
 import { GiOfficeChair } from "react-icons/gi";
-import { GrUserAdmin } from "react-icons/gr";
+// import { GrUserAdmin } from "react-icons/gr";
 
 import { cn } from "@/utilities/cn";
 import { SmallButtonCard } from "../../../components/common/small-cards/SmallButtonCard";
@@ -14,7 +14,8 @@ type SeatListParams = {
 
 type SeatGroup = {
   title: string;
-  prefix: DesktopSeat["type"] | "admin";
+  type: DesktopSeat["type"] | "admin";
+  prefix: "D" | "O" | "L" | "admin";
   colorClass: string;
   count: number;
   subtitle?: string;
@@ -24,86 +25,93 @@ type SeatGroup = {
 const chairGroups: SeatGroup[] = [
   {
     title: "مدیر",
+    type: "admin",
     prefix: "admin",
-    colorClass: "bg-gray-200",
+    colorClass: "bg-res-gray-dark/40",
     count: 1,
     // subtitle: "(ادمین)",
     isAdmin: true,
   },
   {
-    title: "صندلی های Dotin",
-    prefix: "dotin",
-    colorClass: "bg-sky-200",
+    title: "صندلی Dotin",
+    type: "dotin",
+    prefix: "D",
+    colorClass: "bg-res-gray-dark/40",
     count: 4,
   },
   {
-    title: "صندلی های Optimization",
-    prefix: "optimization",
-    colorClass: "bg-purple-200",
+    title: "صندلی Optimization",
+    type: "optimization",
+    prefix: "O",
+    colorClass: "bg-res-gray-dark/40",
     count: 2,
   },
   {
-    title: "صندلی های Laptop",
-    prefix: "laptop",
-    colorClass: "bg-green-200",
+    title: "صندلی Laptop",
+    type: "laptop",
+    prefix: "L",
+    colorClass: "bg-res-gray-dark/40",
     count: 3,
   },
 ];
 
 const SeatList = ({ seat, onChairSelect }: SeatListParams) => {
   return (
-    <div className="flex h-full w-50 flex-col rounded-2xl border-2 border-gray-300 bg-white p-4">
-      <p className="text-center text-2xl">صندلی / زمان</p>
-      <p className="text-center text-lg">نوع صندلی</p>
+    // full calendar styles affect this comp. so if it resets the css styels (all: "revert") everything will be default.
+    <div style={{ all: "revert" }}>
+      <div className="h-[calc(100vh-130px)] flex w-50 flex-col rounded-2xl border-2 bg-res-green-100 border-gray-300 p-4">
+        {/* <p className="text-center text-2xl ">صندلی / زمان</p> */}
+        <p className="text-center text-xl">نوع صندلی</p>
 
-      {chairGroups.map((group) => {
-        const isSelectedGroup = seat?.type === group.prefix;
+        {chairGroups.map((group) => {
+          const isSelectedGroup = seat?.type === group.type;
 
-        return (
-          <div key={group.prefix} className="mt-7">
-            <p className="fa mb-2 flex gap-1 text-lg">
-              {group.isAdmin ? <GrUserAdmin className="text-lg" /> : null}
-              {group.title}
-            </p>
+          return (
+            <div key={group.type} className="mt-7">
+              <p className="fa mb-2 flex gap-1 text-lg">
+                {/* {group.isAdmin ? <GrUserAdmin className="text-lg" /> : null} */}
+                {group.title}
+              </p>
 
-            <div className="flex flex-col gap-1">
-              {Array.from({ length: group.count }, (_, index) => {
-                const chairNumber = index + 1;
-                const chairId = `${group.prefix}${chairNumber}`;
-                const isSelected =
-                  isSelectedGroup && seat?.number === chairNumber;
+              <div className="flex flex-col gap-1 ">
+                {Array.from({ length: group.count }, (_, index) => {
+                  const chairNumber = index + 1;
+                  const chairId = `${group.prefix}${chairNumber}`;
+                  const isSelected =
+                    isSelectedGroup && seat?.number === chairNumber;
 
-                const chairIcon = <GiOfficeChair size={30} />;
+                  const chairIcon = <GiOfficeChair size={30} />;
 
-                const baseCardClassName = cn(
-                  group.colorClass,
-                  isSelected
-                    ? "border-2 border-red-500 ring-2 ring-red-300 rounded-2xl "
-                    : "rounded-2xl ",
-                );
+                  const baseCardClassName = cn(
+                    group.colorClass,
+                    isSelected
+                      ? "border-2 border-red-500 ring-2 ring-red-300 rounded-2xl "
+                      : "rounded-2xl h-[50px]",
+                  );
 
-                return (
-                  <SmallButtonCard
-                    key={chairId}
-                    title={chairId}
-                    subTitle={group.isAdmin ? group.subtitle : undefined}
-                    icon={chairIcon}
-                    className={baseCardClassName}
-                    onClick={() => {
-                      if (!group.isAdmin) {
-                        onChairSelect({
-                          type: group.prefix as DesktopSeat["type"],
-                          number: chairNumber,
-                        });
-                      }
-                    }}
-                  />
-                );
-              })}
+                  return (
+                    <SmallButtonCard
+                      key={chairId}
+                      title={chairId}
+                      subTitle={group.isAdmin ? group.subtitle : undefined}
+                      icon={chairIcon}
+                      className={baseCardClassName}
+                      onClick={() => {
+                        if (!group.isAdmin) {
+                          onChairSelect({
+                            type: group.type as DesktopSeat["type"],
+                            number: chairNumber,
+                          });
+                        }
+                      }}
+                    />
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 };

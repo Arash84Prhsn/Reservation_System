@@ -17,13 +17,14 @@ export function mapScheduleIntervalsToCalendarEvents(
           reservedBy: reservation.reserved_by,
           reservationType: reservation.reservation_type,
           type: "reservation",
+          reservationId: reservation.reservation_id,
         },
       }),
     );
 
     const systemEvents: CalendarEvent[] = day.events.map((event, index) => ({
       id: `event-${day.date}-${index}`,
-      title: "Unavailable",
+      title: "Event",
       start: `${day.date}T${event.start_time}`,
       end: `${day.date}T${event.end_time}`,
       allDay: false,
