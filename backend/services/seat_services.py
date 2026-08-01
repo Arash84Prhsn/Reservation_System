@@ -77,6 +77,7 @@ class SeatServices:
     
     # ============<SCHEDULES>============
 
+    # TODO: Make sure you also retrive events and reservations that are set to "over"
     @staticmethod
     def get_seat_schedule_for_day(seat_type, seat_number, date_of_day: date):
         """
