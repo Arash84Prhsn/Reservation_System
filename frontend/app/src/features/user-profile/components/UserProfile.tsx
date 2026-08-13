@@ -40,7 +40,7 @@ export default function UserProfile() {
         username: user.username || "",
         email: user.email || "",
         phone: user.phone || "",
-        association: user.association || "",
+        association: getAssociationStatusLabel(user.association || ""),
       });
     }
   }, [user]);

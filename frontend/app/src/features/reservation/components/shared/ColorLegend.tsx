@@ -13,9 +13,9 @@ import { useSidebar } from "@/context/SidebarContext";
 const CALENDAR_LEGEND_ITEMS = [
   { colorClass: "bg-res-red", label: "جلسه آزمایشگاه" },
   { colorClass: "bg-white", label: "در دسترس" },
-  { colorClass: "bg-res-orange", label: "رزرو شده توسط دیگران" },
-  { colorClass: "bg-res-green-success", label: "رزرو شده توسط من" },
-  { colorClass: "bg-gray-400", label: "رزرو system only" },
+  { colorClass: "bg-res-orange", label: "رزرو شده" },
+  { colorClass: "bg-res-green-success", label: "رزرو من" },
+  { colorClass: "bg-gray-400", label: 'رزرو \"فقط سیستم\"' },
 ] as const;
 
 // const SEAT_LEGEND_ITEMS = [
@@ -98,51 +98,27 @@ export default function ColorLegend({
           {/* Drag handle */}
           <div className="mx-auto mb-4 h-1 w-12 rounded-full bg-white/30" />
 
-          <div className="max-h-[60vh] overflow-y-auto">
+          <div className="max-h-[60vh] overflow-y-auto" dir="rtl">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-gray-200">
-                 راهنمای رنگ‌ها
+                راهنمای رنگ‌ها
               </h3>
             </div>
 
             <div className="space-y-6">
               {/* 1. Calendar Color Guide */}
-              <div>
-                <h4 className="mb-2 text-xs font-medium text-gray-300">
-                  📅 تقویم
-                </h4>
-                <div className="grid grid-cols-2 gap-2">
-                  {CALENDAR_LEGEND_ITEMS.map((item) => (
-                    <div key={item.label} className="flex items-center gap-2">
-                      <span
-                        className={`h-3 w-3 rounded-full shadow-[0_0_0_2px_rgba(255,255,255,0.1)] ${item.colorClass}`}
-                      />
-                      <span className="text-xs text-gray-200">
-                        {item.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+              <div className="grid grid-cols-2 gap-2">
+                {CALENDAR_LEGEND_ITEMS.map((item) => (
+                  <div key={item.label} className="flex items-center gap-2">
+                    <span
+                      className={`h-3 w-3 rounded-full shadow-[0_0_0_2px_rgba(255,255,255,0.1)] ${item.colorClass}`}
+                    />
+                    <span className="text-xs text-gray-200">
+                      {item.label}
+                    </span>
+                  </div>
+                ))}
               </div>
-
-              {/* 2. Seat Color Guide */}
-              {/* <div>
-                <h4 className="mb-2 text-xs font-medium text-gray-300">
-                  🪑 صندلی‌ها
-                </h4>
-                <div className="grid grid-cols-2 gap-2">
-                  {SEAT_LEGEND_ITEMS.map((item) => (
-                    <div key={item.label} className="flex items-center gap-2">
-                      <span
-                        className={`h-3 w-3 rounded-full shadow-[0_0_0_2px_rgba(255,255,255,0.1)] ${item.colorClass}`}
-                      />
-                      <span className="text-xs text-gray-200">
-                        {item.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div> */}
 
               {/* Action Buttons - Reordered */}
               <div className="flex flex-col gap-2 pt-2">
@@ -206,7 +182,7 @@ export default function ColorLegend({
             : "pointer-events-none max-h-0 scale-95 overflow-hidden opacity-0",
         )}
       >
-        <div className="max-h-[70vh] overflow-y-auto">
+        <div className="max-h-[70vh] overflow-y-auto" dir="rtl">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-gray-200">
               🎯 راهنمای رنگ‌ها
@@ -215,38 +191,17 @@ export default function ColorLegend({
 
           <div className="space-y-6">
             {/* 1. Calendar Color Guide */}
-            <div>
-              <h4 className="mb-2 text-xs font-medium text-gray-300">
-                📅 تقویم
-              </h4>
-              <div className="grid grid-cols-2 gap-2">
-                {CALENDAR_LEGEND_ITEMS.map((item) => (
-                  <div key={item.label} className="flex items-center gap-2">
-                    <span
-                      className={`h-3 w-3 rounded-full shadow-[0_0_0_2px_rgba(255,255,255,0.1)] ${item.colorClass}`}
-                    />
-                    <span className="text-xs text-gray-200">{item.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
 
-            {/* 2. Seat Color Guide */}
-            {/* <div>
-              <h4 className="mb-2 text-xs font-medium text-gray-300">
-                🪑 صندلی‌ها
-              </h4>
-              <div className="grid grid-cols-2 gap-2">
-                {SEAT_LEGEND_ITEMS.map((item) => (
-                  <div key={item.label} className="flex items-center gap-2">
-                    <span
-                      className={`h-3 w-3 rounded-full shadow-[0_0_0_2px_rgba(255,255,255,0.1)] ${item.colorClass}`}
-                    />
-                    <span className="text-xs text-gray-200">{item.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div> */}
+            <div className="grid grid-cols-2 gap-2">
+              {CALENDAR_LEGEND_ITEMS.map((item) => (
+                <div key={item.label} className="flex items-center gap-2">
+                  <span
+                    className={`h-3 w-3 rounded-full shadow-[0_0_0_2px_rgba(255,255,255,0.1)] ${item.colorClass}`}
+                  />
+                  <span className="text-xs text-gray-200">{item.label}</span>
+                </div>
+              ))}
+            </div>
 
             {/* 3. Seat Map Image - Small version */}
             <div>

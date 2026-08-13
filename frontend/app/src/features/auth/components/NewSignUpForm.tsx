@@ -10,7 +10,10 @@ import ComponentCard from "@/components/common/ComponentCard";
 import { useRegisterForm } from "../hooks/use-register-form";
 import Select from "@/components/form/Select";
 import CustomPhoneInput from "@/components/form/group-input/CustomPhoneInput";
-import { AssociationStatus } from "@/lib/api/services/auth.service";
+import {
+  AssociationStatus,
+  ASSOCIATION_STATUS_LABELS,
+} from "@/lib/api/services/auth.service";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 // import Checkbox from "../form/input/Checkbox";
@@ -46,19 +49,10 @@ const NewSignUpForm = () => {
     label: string;
   }
 
-  const options: Options[] = [
-    { value: AssociationStatus.None, label: "نامشخص" },
-    { value: AssociationStatus.BachelorStudent, label: "دانشجوی کارشناسی" },
-    {
-      value: AssociationStatus.DataScienceCompetitions,
-      label: "مسابقات علوم داده",
-    },
-    { value: AssociationStatus.DotinAssociate, label: "همکار داتین" },
-    { value: AssociationStatus.DotinEmployee, label: "کارمند داتین" },
-    { value: AssociationStatus.MasterStudent, label: "دانشجوی ارشد" },
-    { value: AssociationStatus.PhDStudent, label: "دانشجوی دکتری" },
-    { value: AssociationStatus.RelatedCompany, label: "شرکت مرتبط" },
-  ];
+  const options: Options[] = Object.values(AssociationStatus).map((value) => ({
+    value,
+    label: ASSOCIATION_STATUS_LABELS[value],
+  }));
   //   const [isChecked, setIsChecked] = useState(false);
 
   const title = (

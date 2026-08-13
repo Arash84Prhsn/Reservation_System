@@ -19,42 +19,49 @@ export enum AssociationStatus {
   PhDStudent = "PhD student",
 }
 
-export function getAssociationStatusLabel(status?: string | null): string {
-  switch (status) {
-    case AssociationStatus.None:
-    case "None":
-      return "نامشخص";
-    case AssociationStatus.DotinEmployee:
-    case "Dotin employee":
-    case "DotinEmployee":
-      return "کارمند داتین";
-    case AssociationStatus.DotinAssociate:
-    case "Dotin associate":
-    case "DotinAssociate":
-      return "همکار داتین";
-    case AssociationStatus.DataScienceCompetitions:
-    case "Data science competitions":
-    case "DataScienceCompetitions":
-      return "مسابقات علوم داده";
-    case AssociationStatus.RelatedCompany:
-    case "Related Company":
-    case "RelatedCompany":
-      return "شرکت مرتبط";
-    case AssociationStatus.BachelorStudent:
-    case "Bachelor student":
-    case "BachelorStudent":
-      return "دانشجوی کارشناسی";
-    case AssociationStatus.MasterStudent:
-    case "Master's student":
-    case "MasterStudent":
-      return "دانشجوی ارشد";
-    case AssociationStatus.PhDStudent:
-    case "PhD student":
-    case "PhDStudent":
-      return "دانشجوی دکتری";
-    default:
-      return status || "نامشخص";
+export const ASSOCIATION_STATUS_LABELS: Record<AssociationStatus, string> = {
+  [AssociationStatus.None]: "نامشخص",
+  [AssociationStatus.DotinEmployee]: "کارمند داتین",
+  [AssociationStatus.DotinAssociate]: "همکار داتین",
+  [AssociationStatus.DataScienceCompetitions]: "مسابقات علوم داده",
+  [AssociationStatus.RelatedCompany]: "شرکت مرتبط",
+  [AssociationStatus.BachelorStudent]: "دانشجوی کارشناسی",
+  [AssociationStatus.MasterStudent]: "دانشجوی ارشد",
+  [AssociationStatus.PhDStudent]: "دانشجوی دکتری",
+};
+
+/**
+ * Safely parses any incoming string into a type-safe `AssociationStatus` enum value.
+ */
+export function parseAssociationStatus(status?: string | null): AssociationStatus {
+  if (!status) return AssociationStatus.None;
+  const clean = status.trim().toLowerCase().replace(/['_\s]/g, "");
+
+  for (const value of Object.values(AssociationStatus)) {
+    if (clean === value.toLowerCase().replace(/['_\s]/g, "")) {
+      return value;
+    }
   }
+
+  if (clean.includes("bachelor")) return AssociationStatus.BachelorStudent;
+  if (clean.includes("master")) return AssociationStatus.MasterStudent;
+  if (clean.includes("phd")) return AssociationStatus.PhDStudent;
+  if (clean.includes("employee")) return AssociationStatus.DotinEmployee;
+  if (clean.includes("associate")) return AssociationStatus.DotinAssociate;
+  if (clean.includes("datascience") || clean.includes("datainside") || clean.includes("competition")) {
+    return AssociationStatus.DataScienceCompetitions;
+  }
+  if (clean.includes("company") || clean.includes("related")) return AssociationStatus.RelatedCompany;
+
+  return AssociationStatus.None;
+}
+
+/**
+ * Returns the Persian display label for an `AssociationStatus` or status string.
+ */
+export function getAssociationStatusLabel(status?: AssociationStatus | string | null): string {
+  const enumStatus = parseAssociationStatus(status);
+  return ASSOCIATION_STATUS_LABELS[enumStatus];
 }
 
 export type RegisterInput = {
