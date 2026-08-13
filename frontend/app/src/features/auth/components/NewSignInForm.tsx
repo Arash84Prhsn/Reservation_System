@@ -110,9 +110,8 @@ const NewSignInForm = () => {
               </div>
             </div>
           </div>
-        </div>
-      </ComponentCard>
-    </div>
+        </ComponentCard>
+      </div>
   );
 };
 
