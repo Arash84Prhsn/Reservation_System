@@ -12,6 +12,7 @@ import { useUpdatePhone } from "../hooks/use-update-phone";
 import { useUpdateUsername } from "../hooks/use-update-username";
 import { Loader2 } from "lucide-react";
 import CustomPhoneInput from "@/components/form/group-input/CustomPhoneInput";
+import { getAssociationStatusLabel } from "@/lib/api/services/auth.service";
 
 interface FormData {
   username: string;
@@ -114,7 +115,7 @@ export default function UserProfile() {
               </h4>
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-right">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {user?.association || "-"}
+                  {getAssociationStatusLabel(user?.association)}
                 </p>
               </div>
             </div>
@@ -161,7 +162,7 @@ export default function UserProfile() {
                   انجمن
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {user?.association || "-"}
+                  {getAssociationStatusLabel(user?.association)}
                 </p>
               </div>
             </div>

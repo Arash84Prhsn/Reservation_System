@@ -10,6 +10,10 @@ import {
   ActiveReservations,
   CancelReservationByIdResponse,
 } from "@/lib/api/services/reservation.service";
+import {
+  getReservationTypeLabel,
+  getSeatTypeLabel,
+} from "@/features/reservation/config/reservation-options";
 import { UseMutateAsyncFunction } from "@tanstack/react-query";
 
 function formatTimeFa(time: string) {
@@ -201,10 +205,10 @@ const DesktopReserveList: React.FC<ReserveListUIProps> = ({
                       </p>
 
                       <p className="text-sm text-gray-600">
-                        نوع: {reservation.reservation_type}
+                        نوع: {getReservationTypeLabel(reservation.reservation_type)}
                       </p>
                       <p className="text-sm text-gray-600">
-                        صندلی: {reservation.seat_type} {reservation.seat_number}
+                        صندلی: {getSeatTypeLabel(reservation.seat_type)} {reservation.seat_number}
                       </p>
 
                       {index < group.reservations.length - 1 && (
@@ -298,7 +302,7 @@ const MobileReserveList: React.FC<ReserveListUIProps> = ({
                     </p>
 
                     <p className="text-sm text-gray-600">
-                      نوع: {reservation.reservation_type}
+                      نوع: {getReservationTypeLabel(reservation.reservation_type)}
                     </p>
                   </div>
                 );
@@ -349,7 +353,7 @@ export const MobileCalendar = ({
                   >
                     <div className="flex items-center justify-between">
                       <span className="rounded-full bg-res-green-100 px-2 py-0.5 text-[10px] text-res-green-success">
-                        {res.reservation_type}
+                        {getReservationTypeLabel(res.reservation_type)}
                       </span>
 
                       <span className="text-sm font-medium text-gray-700">

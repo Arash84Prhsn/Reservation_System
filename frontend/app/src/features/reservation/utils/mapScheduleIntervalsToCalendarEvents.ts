@@ -1,5 +1,6 @@
 import { CalendarEvent } from "@/features/reservation/types";
 import { ScheduleIntervalDay } from "@/lib/api/services/reservation.service";
+import { getReservationTypeLabel } from "@/features/reservation/config/reservation-options";
 
 export function mapScheduleIntervalsToCalendarEvents(
   scheduleIntervals: ScheduleIntervalDay[],
@@ -8,7 +9,7 @@ export function mapScheduleIntervalsToCalendarEvents(
     const reservationEvents: CalendarEvent[] = day.reservations.map(
       (reservation, index) => ({
         id: `reservation-${day.date}-${index}`,
-        title: reservation.reservation_type,
+        title: getReservationTypeLabel(reservation.reservation_type),
         start: `${day.date}T${reservation.start_time}`,
         end: `${day.date}T${reservation.end_time}`,
         allDay: false,

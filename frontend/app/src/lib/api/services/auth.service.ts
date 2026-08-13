@@ -19,6 +19,44 @@ export enum AssociationStatus {
   PhDStudent = "PhD student",
 }
 
+export function getAssociationStatusLabel(status?: string | null): string {
+  switch (status) {
+    case AssociationStatus.None:
+    case "None":
+      return "نامشخص";
+    case AssociationStatus.DotinEmployee:
+    case "Dotin employee":
+    case "DotinEmployee":
+      return "کارمند داتین";
+    case AssociationStatus.DotinAssociate:
+    case "Dotin associate":
+    case "DotinAssociate":
+      return "همکار داتین";
+    case AssociationStatus.DataScienceCompetitions:
+    case "Data science competitions":
+    case "DataScienceCompetitions":
+      return "مسابقات علوم داده";
+    case AssociationStatus.RelatedCompany:
+    case "Related Company":
+    case "RelatedCompany":
+      return "شرکت مرتبط";
+    case AssociationStatus.BachelorStudent:
+    case "Bachelor student":
+    case "BachelorStudent":
+      return "دانشجوی کارشناسی";
+    case AssociationStatus.MasterStudent:
+    case "Master's student":
+    case "MasterStudent":
+      return "دانشجوی ارشد";
+    case AssociationStatus.PhDStudent:
+    case "PhD student":
+    case "PhDStudent":
+      return "دانشجوی دکتری";
+    default:
+      return status || "نامشخص";
+  }
+}
+
 export type RegisterInput = {
   username: string;
   email: string;

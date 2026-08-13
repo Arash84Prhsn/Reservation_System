@@ -47,17 +47,17 @@ const NewSignUpForm = () => {
   }
 
   const options: Options[] = [
-    { value: AssociationStatus.None, label: "None" },
-    { value: AssociationStatus.BachelorStudent, label: "BachelorStudent" },
+    { value: AssociationStatus.None, label: "نامشخص" },
+    { value: AssociationStatus.BachelorStudent, label: "دانشجوی کارشناسی" },
     {
       value: AssociationStatus.DataScienceCompetitions,
-      label: "DataScienceCompetitions",
+      label: "مسابقات علوم داده",
     },
-    { value: AssociationStatus.DotinAssociate, label: "DotinAssociate" },
-    { value: AssociationStatus.DotinEmployee, label: "DotinEmployee" },
-    { value: AssociationStatus.MasterStudent, label: "MasterStudent" },
-    { value: AssociationStatus.PhDStudent, label: "PhDStudent" },
-    { value: AssociationStatus.RelatedCompany, label: "RelatedCompany" },
+    { value: AssociationStatus.DotinAssociate, label: "همکار داتین" },
+    { value: AssociationStatus.DotinEmployee, label: "کارمند داتین" },
+    { value: AssociationStatus.MasterStudent, label: "دانشجوی ارشد" },
+    { value: AssociationStatus.PhDStudent, label: "دانشجوی دکتری" },
+    { value: AssociationStatus.RelatedCompany, label: "شرکت مرتبط" },
   ];
   //   const [isChecked, setIsChecked] = useState(false);
 
