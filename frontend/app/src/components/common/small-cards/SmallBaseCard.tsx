@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { cn } from "@/utilities/cn";
+import { cn } from "@/lib/utils";
 
 type SmallBaseCardProps = {
   title: string;

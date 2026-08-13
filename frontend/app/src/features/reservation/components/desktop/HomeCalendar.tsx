@@ -23,12 +23,11 @@ import gregorian_en from "react-date-object/locales/gregorian_en";
 
 import { useModal } from "@/hooks/useModal";
 import { Modal } from "@/components/ui/modal";
-import Select from "../../../components/form/Select";
+import Select from "@/components/form/Select";
 
-import { CalendarEvent } from "@/app/type";
-import { DesktopSeat } from "@/app/(admin)/page";
+import { CalendarEvent, DesktopSeat } from "@/features/reservation/types";
 import { useAuth } from "@/context/AuthContext";
-import { mapScheduleIntervalsToCalendarEvents } from "./mapScheduleIntervalsToCalendarEvents";
+import { mapScheduleIntervalsToCalendarEvents } from "@/features/reservation/utils/mapScheduleIntervalsToCalendarEvents";
 import {
   FinalReservationSubmissionInput,
   ReservationSystemOnly,
@@ -37,77 +36,95 @@ import {
   SYSTEM_ONLY_TYPES,
   Warning,
 } from "@/lib/api/services/reservation.service";
-import { useMakeReservation } from "../hooks/use-make-reservation";
-import { FinalReservationModal } from "./seat-map/FinalReservationModal";
-import { useFinalReservationSubmission } from "../hooks/use-final-reservation-submission";
+import { useMakeReservation } from "@/features/reservation/hooks/use-make-reservation";
+import { FinalReservationModal } from "@/features/reservation/components/shared/FinalReservationModal";
+import { ConfirmModal } from "@/components/ui/modal/ConfirmModal";
+import { useFinalReservationSubmission } from "@/features/reservation/hooks/use-final-reservation-submission";
 import { toast } from "sonner";
-import { useWeeklyScheduleIntervals } from "../hooks/use-weekly-schedule-intervals";
+import { useWeeklyScheduleIntervals } from "@/features/reservation/hooks/use-weekly-schedule-intervals";
 import { useQueryClient } from "@tanstack/react-query";
-import { reservationKeys } from "../queryKeys";
-import { useCancelReservationById } from "../hooks/use-cancel-reservation-by-id";
+import { reservationKeys } from "@/features/reservation/queryKeys";
+import { useCancelReservationById } from "@/features/reservation/hooks/use-cancel-reservation-by-id";
 import { cn } from "@/lib/utils";
+import {
+  ReservationOption,
+  PC_RESERVATION_OPTIONS,
+  LAPTOP_RESERVATION_OPTIONS,
+} from "@/features/reservation/config/reservation-options";
+import {
+  toPersianDateObject,
+  dateStringToPersianDateObject,
+  mergeDateAndTime,
+  mergeDateAndTimeString,
+  isWithinWorkingHours,
+  isEndAfterStart,
+  formatDateForApi,
+  formatTimeForApi,
+  getInitialPersianWeekDate,
+} from "@/features/reservation/utils/date";
+
+// ============================================================
+// CALENDAR MODE & TYPES
+// ============================================================
 
 type CalendarMode = "create" | "view";
 
-type ReservationOption = {
-  value: ReservationType;
-  label: string;
-};
+/**
+ * HomeCalendar — Desktop Reservation Calendar
+ *
+ * This is the main desktop view for making reservations. It shows a
+ * FullCalendar week view (Saturday–Wednesday, 8AM–2PM) with existing
+ * reservations and allows users to:
+ *
+ * 1. Select an empty time range → opens "Make Reservation" modal
+ * 2. Click an existing event → opens "View/Cancel Reservation" modal
+ * 3. Navigate between weeks
+ *
+ * The reservation flow is two-step:
+ *   Step 1: `make_reservation` — validates the request & returns warnings
+ *   Step 2: `final_reservation_submission` — commits the reservation
+ *
+ * Props:
+ *   seat — The currently selected seat from SeatList (required for API calls)
+ */
 
-// seat existence is handled conditionally in parent component but i keep the type safe for now.
 type HomeCalendarProps = {
   seat?: DesktopSeat;
 };
 
-const PC_RESERVATION_OPTIONS: ReservationOption[] = [
-  { value: "only running programs", label: "محاسبات" },
-  { value: "dorsan desk", label: "درسان دسک" },
-  { value: "internship", label: "کارآموزی" },
-  { value: "project", label: "پروژه" },
-];
-
-const LAPTOP_RESERVATION_OPTIONS: ReservationOption[] = [
-  { value: "internship", label: "کارآموزی" },
-  { value: "project", label: "پروژه" },
-];
-
 const HomeCalendar = ({ seat }: HomeCalendarProps) => {
+  // ─── Verified reservation state (from Step 1 API response) ──
   const [verifiedReservationInfo, setVerifiedReservationInfo] =
     useState<FinalReservationSubmissionInput | null>(null);
-
   const [verifiedReservationWanring, setVerifiedReservationWanring] =
     useState<Warning | null>(null);
 
-  //state for system-only reservations
+  // Tracks whether user is selecting over system-only events
   const [isSystemOverride, setIsSystemOverride] = useState(false);
 
   const calendarRef = useRef<FullCalendar>(null);
 
-  /**
-   * Used to prevent TimePicker from keeping an invalid selected value.
-   */
-  // const previousValidEndRef = useRef<DateObject | null>(null);
-  // const previousValidStartRef = useRef<DateObject | null>(null);
-
-  // make-reservation modal
+  // ─── Modal state ────────────────────────────────────────────
   const {
     isOpen: isMakeReservationModalOpen,
     openModal: openMakeReservationModal,
     closeModal: closeMakeReservationModal,
   } = useModal();
 
-  // final-reservation modal
   const {
     isOpen: isFinalReservationModalOpen,
     openModal: openFinalReservationModal,
     closeModal: closeFinalReservationModal,
   } = useModal();
 
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+
   const [mode, setMode] = useState<CalendarMode>("create");
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null,
   );
 
+  // Tracks which week the user is viewing (Gregorian YYYY-MM-DD of week start)
   const [selectedWeekDate, setSelectedWeekDate] = useState<string>(
     new DateObject({
       calendar: gregorian,
@@ -120,9 +137,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  /**
-   * Reservation API related
-   */
+  // ─── Reservation form & API hooks ───────────────────────────
   const {
     reservationDate,
     reservationType,
@@ -140,22 +155,20 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     resetReservationForm,
   } = useMakeReservation();
 
-  // final reservation submission api
   const { submitFinalReservation, pending: finalSubmissionPending } =
     useFinalReservationSubmission();
 
   /**
-   * Keep selected seat data in reservation hook.
-   * This avoids building API payload manually inside HomeCalendar.
+   * Sync the selected seat into the reservation form hook.
+   * This avoids manually building the API payload inside HomeCalendar.
    */
   useEffect(() => {
     if (!seat) return;
-
     setSeatType(seat.type as SeatType);
     setSeatNumber(seat.number);
   }, [seat, setSeatType, setSeatNumber]);
 
-  // fetch intervals of the week
+  // ─── Fetch schedule data for the current week ───────────────
   const { intervals: scheduleIntervals, refetch: refetchScheduleIntervals } =
     useWeeklyScheduleIntervals({
       seatType: seat?.type,
@@ -163,53 +176,47 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
       date: selectedWeekDate,
     });
 
-  // make it usable for calendar
+  // Transform API intervals into FullCalendar-compatible events
   const events = useMemo(
     () => mapScheduleIntervalsToCalendarEvents(scheduleIntervals),
     [scheduleIntervals],
   );
 
-  // cancel reservation api
   const { cancelReservation, pending: cancelPending } =
     useCancelReservationById();
 
-  // static options for reservation type select
+  // Determine which reservation type options to show based on seat type
   const reservationOptions = useMemo(() => {
     return seat?.type === "laptop"
       ? LAPTOP_RESERVATION_OPTIONS
       : PC_RESERVATION_OPTIONS;
   }, [seat?.type]);
 
+  // ─── Derived DateObject values for time pickers ─────────────
   const selectedDateObject = useMemo(() => {
     if (!reservationDate) return null;
-
     return dateStringToPersianDateObject(reservationDate);
   }, [reservationDate]);
 
   const startTimeObject = useMemo(() => {
     if (!selectedDateObject || !startTime) return null;
-
     return mergeDateAndTimeString(selectedDateObject, startTime);
   }, [selectedDateObject, startTime]);
 
   const endTimeObject = useMemo(() => {
     if (!selectedDateObject || !endTime) return null;
-
     return mergeDateAndTimeString(selectedDateObject, endTime);
   }, [selectedDateObject, endTime]);
 
-  // Helpers
+  // ─── Internal Helpers ───────────────────────────────────────
 
   const resetModalFields = () => {
     setMode("create");
     setSelectedEvent(null);
-    // previousValidEndRef.current = null;
     resetReservationForm();
     setIsSystemOverride(false);
 
-    /**
-     * resetReservationForm may clear seat data, so set it again.
-     */
+    // resetReservationForm clears seat data, so restore it
     if (seat) {
       setSeatType(seat.type as SeatType);
       setSeatNumber(seat.number);
@@ -221,14 +228,18 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     resetModalFields();
   };
 
+  // ─── Calendar Event Handlers ────────────────────────────────
+
+  /**
+   * Called when the user selects an empty time range on the calendar.
+   * Opens the "Make Reservation" modal pre-filled with the selected time.
+   */
   const handleDateSelect = (selectInfo: DateSelectArg) => {
-    // openFinalReservationModal();
     resetModalFields();
 
     const selected = toPersianDateObject(selectInfo.start);
     const start = toPersianDateObject(selectInfo.start);
     const end = toPersianDateObject(selectInfo.end);
-    // console.log(start., ",,,,,", end);
 
     if (seat) {
       setSeatType(seat.type as SeatType);
@@ -242,13 +253,16 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     setStartTime(formatTimeForApi(start));
     setEndTime(formatTimeForApi(end));
 
-    // previousValidEndRef.current = end;
-    // previousValidStartRef.current = start;
-
     openMakeReservationModal();
   };
 
-  // edit api is not availabel yet.
+  /**
+   * Called when the user clicks an existing event on the calendar.
+   *
+   * Two scenarios:
+   * 1. System-only event (not mine) → opens in "create" mode with system-override warning
+   * 2. Any other event → opens in "view" mode with event details
+   */
   const handleEventClick = (clickInfo: EventClickArg) => {
     const event = clickInfo.event;
     const start = event.start ? toPersianDateObject(event.start) : null;
@@ -261,11 +275,13 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     const isMine = user?.id != null && reservedByID === user?.id;
 
     if (isSystemOnly && !isMine) {
+      // System-only event by someone else → allow creating on top of it
       resetModalFields();
       setMode("create");
       setSelectedEvent(null);
       setIsSystemOverride(true);
     } else {
+      // Regular event → show details
       setMode("view");
       setSelectedEvent(event as unknown as CalendarEvent);
       setReservationType(
@@ -276,17 +292,17 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     if (start) {
       setReservationDate(formatDateForApi(start));
       setStartTime(formatTimeForApi(start));
-      // previousValidStartRef.current = start;
     }
     if (end) {
       setEndTime(formatTimeForApi(end));
-      // previousValidEndRef.current = end;
     }
     openMakeReservationModal();
   };
 
-  // TODO: make these to time change handlres into one.
-
+  /**
+   * Validates time changes from the end-time picker.
+   * Ensures the new end time is within working hours and after start time.
+   */
   const handleEndTimeChange = (time: DateObject | null) => {
     if (!time || !selectedDateObject) return;
 
@@ -305,6 +321,10 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     setEndTime(formatTimeForApi(fixedEndTime));
   };
 
+  /**
+   * Validates time changes from the start-time picker.
+   * Ensures the new start time is within working hours and before end time.
+   */
   const handleStartTimeChange = (time: DateObject | null) => {
     if (!time || !selectedDateObject) return;
 
@@ -323,6 +343,12 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     setStartTime(formatTimeForApi(fixedStartTime));
   };
 
+  /**
+   * Handles the "Submit Reservation" button in the modal.
+   * This triggers Step 1 of the two-step flow:
+   *   1. Validates the reservation via `make_reservation` API
+   *   2. If valid, opens the FinalReservationModal for confirmation
+   */
   const handleAddReservation = async () => {
     if (!seat) {
       toast.warning("صندلی انتخاب نشده است");
@@ -366,6 +392,10 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     resetModalFields();
   };
 
+  /**
+   * Called when the user navigates to a different week.
+   * Triggers a refetch of schedule data for the new week.
+   */
   const handleDatesSet = (dateInfo: DatesSetArg) => {
     const startOfWeek = new DateObject({
       date: dateInfo.view.activeStart,
@@ -378,6 +408,11 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     }
   };
 
+  /**
+   * Step 2 of the two-step reservation flow.
+   * Called when the user confirms in the FinalReservationModal.
+   * Commits the reservation and refreshes all related data.
+   */
   async function handleConfirmFinalSubmission() {
     if (!verifiedReservationInfo) return;
 
@@ -392,11 +427,13 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
       queryKey: reservationKeys.active(),
     });
     resetReservationForm();
-
-    // onDeselect?.();
   }
 
-  // make system-only reservation events editable
+  /**
+   * Controls which time ranges can be selected on the calendar.
+   * Allows selection over system-only events (since the physical seat is free)
+   * but prevents selection over regular reservations and lab meetings.
+   */
   const selectAllow = (selectInfo: { start: Date; end: Date }) => {
     const overlappingEvents =
       calendarRef.current
@@ -408,10 +445,8 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
           return eventStart < selectInfo.end && eventEnd > selectInfo.start;
         }) || [];
 
-    // If no overlap -> always allow
     if (overlappingEvents.length === 0) return true;
 
-    // If every overlapping event is system‑only -> allow
     const allSystemOnly = overlappingEvents.every((event) => {
       const type = event.extendedProps?.reservationType as ReservationType;
       return type === "dorsan desk" || type === "only running programs";
@@ -420,10 +455,12 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     return allSystemOnly;
   };
 
+  /** Handles cancellation of a reservation from the view modal. */
   const handleCancelReservation = async () => {
-    const confirmed = window.confirm("آیا از حذف این رزرو مطمئن هستید؟");
-    if (!confirmed) return;
+    setIsCancelModalOpen(true);
+  };
 
+  const confirmCancel = async () => {
     const reservationId = selectedEvent?.extendedProps?.reservationId;
 
     try {
@@ -431,8 +468,12 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
       closeMakeReservationModal();
     } catch {
       toast.error("حذف رزرو انجام نشد");
+    } finally {
+      setIsCancelModalOpen(false);
     }
   };
+
+  // ─── Render ─────────────────────────────────────────────────
 
   return (
     <div
@@ -450,7 +491,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
           selectOverlap={false}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           locale={faLocale}
-          editable
+          editable={false}
           selectable
           direction="rtl"
           firstDay={6}
@@ -469,13 +510,12 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
           }}
           customButtons={{
             myNext: {
-              text: "◀", // یا ""
+              text: "◀",
               hint: "بعدی",
-
               click: () => calendarRef.current?.getApi().next(),
             },
             myPrev: {
-              text: "▶", // یا ""
+              text: "▶",
               hint: "قبلی",
               click: () => calendarRef.current?.getApi().prev(),
             },
@@ -526,11 +566,26 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
         reservationInfo={verifiedReservationInfo}
         reservationWarning={verifiedReservationWanring}
       />
+
+      <ConfirmModal
+        isOpen={isCancelModalOpen}
+        title="حذف رزرو"
+        message="آیا از حذف این رزرو مطمئن هستید؟ این عملیات غیرقابل بازگشت است."
+        confirmText="حذف رزرو"
+        cancelText="انصراف"
+        isDestructive={true}
+        isLoading={cancelPending}
+        onConfirm={confirmCancel}
+        onCancel={() => setIsCancelModalOpen(false)}
+      />
     </div>
   );
 };
 
-// Modal
+// ============================================================
+// RESERVATION MODAL
+// ============================================================
+
 type ReservationModalContentProps = {
   isOpen: boolean;
   mode: CalendarMode;
@@ -658,9 +713,6 @@ const ReservationModalContent = ({
                 ]}
                 onChange={onStartTimeChange}
               />
-              {/* <div className="h-11 w-full rounded-lg border border-gray-200 bg-res-green-100 px-4 py-2.5 text-sm text-gray-700">
-                {startTime?.format("HH:mm") ?? "-"}
-              </div> */}
             </div>
 
             <div className="w-full">
@@ -727,7 +779,18 @@ const ReservationModalContent = ({
   );
 };
 
-// custom event content
+// ============================================================
+// CUSTOM EVENT CONTENT RENDERER
+// ============================================================
+
+/**
+ * Custom event renderer for FullCalendar.
+ * Color-codes events based on:
+ *   - Green: my reservations
+ *   - Orange: others' reservations
+ *   - Gray: system-only reservations (dorsan desk / running programs)
+ *   - Red: lab meeting events
+ */
 
 type EventType = ReservationType | "event";
 
@@ -765,101 +828,25 @@ const renderEventContent = (userId?: number) =>
         <p className="text-xs font-semibold ">
           {eventInfo.event.extendedProps.seat}
         </p>
-        <div className="text-xs font-semibold">{eventInfo.timeText}</div>
-        <div className="truncate text-xs">{eventInfo.event.title}</div>
+        {/* <div className="text-xs text-center font-semibold">{eventInfo.timeText}</div> */}
+        {/* <div className="truncate text-xs">{eventInfo.event.title}</div> */}
       </div>
     );
   };
 
-// helpers
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
 
-const WORKING_START_MINUTES = 8 * 60;
-const WORKING_END_MINUTES = 14 * 60;
-
-// Type-safe helper function
+/**
+ * Type guard for system-only reservation types.
+ * System-only means the computer system is reserved (dorsan desk / running programs)
+ * but the physical seat may still be available.
+ */
 const isSystemOnlyHelper = (
   reservationType: EventType,
 ): reservationType is ReservationSystemOnly => {
   return SYSTEM_ONLY_TYPES.includes(reservationType as ReservationSystemOnly);
 };
-
-export const toPersianDateObject = (date: Date) => {
-  return new DateObject({
-    date,
-    calendar: persian,
-    locale: persian_fa,
-  });
-};
-
-export const dateStringToPersianDateObject = (date: string) => {
-  return new DateObject({
-    date,
-    calendar: gregorian,
-    locale: gregorian_en,
-  }).convert(persian, persian_fa);
-};
-
-const mergeDateAndTime = (date: DateObject, time: DateObject) => {
-  return new DateObject(date).set({
-    hour: time.hour,
-    minute: time.minute,
-    second: 0,
-    millisecond: 0,
-  });
-};
-
-const mergeDateAndTimeString = (date: DateObject, time: string) => {
-  const [hour, minute] = time.split(":").map(Number);
-
-  return new DateObject(date).set({
-    hour,
-    minute,
-    second: 0,
-    millisecond: 0,
-  });
-};
-
-const getTimeInMinutes = (time: DateObject) => {
-  return time.hour * 60 + time.minute;
-};
-
-const isWithinWorkingHours = (time: DateObject) => {
-  const minutes = getTimeInMinutes(time);
-
-  return minutes >= WORKING_START_MINUTES && minutes <= WORKING_END_MINUTES;
-};
-
-const isEndAfterStart = (startTime: DateObject, endTime: DateObject) => {
-  return getTimeInMinutes(endTime) > getTimeInMinutes(startTime);
-};
-
-const formatDateForApi = (date: DateObject) => {
-  return new DateObject(date)
-    .convert(gregorian, gregorian_en)
-    .format("YYYY-MM-DD");
-};
-
-const formatTimeForApi = (time: DateObject) => {
-  // make it english number
-  const hour = String(time.hour).padStart(2, "0");
-  const minute = String(time.minute).padStart(2, "0");
-
-  return `${hour}:${minute}`;
-};
-
-// if day passed wednesday, show next week
-function getInitialPersianWeekDate(): Date {
-  const today = new Date();
-  const dow = today.getDay(); // 0 (Sun) - 6 (Sat)
-
-  if (dow >= 4 && dow <= 5) {
-    const nextWeekSaturday = new Date(today);
-    const daysUntilSaturday = (6 - dow + 7) % 7 || 7;
-    nextWeekSaturday.setDate(today.getDate() + daysUntilSaturday);
-    return nextWeekSaturday;
-  }
-
-  return today;
-}
 
 export default HomeCalendar;

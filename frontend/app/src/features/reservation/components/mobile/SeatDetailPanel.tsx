@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { type SeatStatus, MobileSeat } from "./SeatMap.config";
+import { type SeatStatus, MobileSeat } from "@/features/reservation/config/SeatMap.config";
 import DatePicker, { DateObject } from "react-multi-date-picker";
 import Select from "@/components/form/Select";
 import persian from "react-date-object/calendars/persian";
@@ -11,16 +11,20 @@ import {
   SeatType,
   Warning,
 } from "@/lib/api/services/reservation.service";
-import { useMakeReservation } from "../../hooks/use-make-reservation";
-import { useWeeklyScheduleTimeslots } from "../../hooks/use-weekly-shedule-timeslots";
+import { useMakeReservation } from "@/features/reservation/hooks/use-make-reservation";
+import { useWeeklyScheduleTimeslots } from "@/features/reservation/hooks/use-weekly-schedule-timeslots";
 
-import { useFinalReservationSubmission } from "../../hooks/use-final-reservation-submission";
+import { useFinalReservationSubmission } from "@/features/reservation/hooks/use-final-reservation-submission";
 import { useModal } from "@/hooks/useModal";
-import useOpenDatesForUser from "../../hooks/use-oepn-dates-for-user";
-import { FinalReservationModal } from "./FinalReservationModal";
+import useOpenDatesForUser from "@/features/reservation/hooks/use-open-dates-for-user";
+import { FinalReservationModal } from "@/features/reservation/components/shared/FinalReservationModal";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { reservationKeys } from "../../queryKeys";
+import { reservationKeys } from "@/features/reservation/queryKeys";
+import {
+  PC_RESERVATION_OPTIONS,
+  LAPTOP_RESERVATION_OPTIONS,
+} from "@/features/reservation/config/reservation-options";
 
 type SeatDetailPanelProps = {
   seat: MobileSeat;
@@ -28,6 +32,18 @@ type SeatDetailPanelProps = {
   onDeselect: () => void;
 };
 
+/**
+ * SeatDetailPanel - Mobile Reservation UI
+ * 
+ * This component is the primary interface for mobile users to book a seat.
+ * It slides up from the bottom when a seat is tapped on the SeatMap.
+ * 
+ * Responsibilities:
+ * - Displays seat information (Type, Number)
+ * - Allows the user to select a date, time range, and reservation type
+ * - Validates the selection and submits it to the API (Two-step flow)
+ * - Displays a grid of available/booked timeslots for the selected date
+ */
 export function SeatDetailPanel({ seat, onDeselect }: SeatDetailPanelProps) {
   const [verifiedReservationInfo, setVerifiedReservationInfo] =
     useState<FinalReservationSubmissionInput | null>(null);
@@ -67,19 +83,10 @@ export function SeatDetailPanel({ seat, onDeselect }: SeatDetailPanelProps) {
   // open dates for user
   const { openDates } = useOpenDatesForUser(seat.type as SeatType);
 
-  // static options for reservation type select
-  const pcReservationOptions: { value: ReservationType; label: string }[] = [
-    { value: "only running programs", label: "محاسبات" },
-    { value: "dorsan desk", label: "درسان دسک" },
-    { value: "internship", label: "کارآموزی" },
-    { value: "project", label: "پروژه" },
-  ];
-
-  const laptopReservationOptions: { value: ReservationType; label: string }[] =
-    [
-      { value: "internship", label: "کارآموزی" },
-      { value: "project", label: "پروژه" },
-    ];
+  // Determine which reservation type options to show based on seat type
+  const reservationOptions = seat.type === "laptop"
+    ? LAPTOP_RESERVATION_OPTIONS
+    : PC_RESERVATION_OPTIONS;
 
   // full label for seat (e.g. "dotin1")
   const fullLabel = `${seat.type}${seat.number}`;
@@ -119,15 +126,15 @@ export function SeatDetailPanel({ seat, onDeselect }: SeatDetailPanelProps) {
     setSeatNumber(seat.number);
   }, [seat.type, seat.number, setSeatType, setSeatNumber]);
 
-  // Handlres
-  async function handleSubmitReservation() {
-    const result = await makeReservation();
+  // // Handlres
+  // async function handleSubmitReservation() {
+  //   const result = await makeReservation();
 
-    if (!result.ok) return;
-    setVerifiedReservationInfo(result.reservation_info);
-    setVerifiedReservationWarning(result.warning);
-    openModal();
-  }
+  //   if (!result.ok) return;
+  //   setVerifiedReservationInfo(result.reservation_info);
+  //   setVerifiedReservationWarning(result.warning);
+  //   openModal();
+  // }
 
   function handleDateChange(value: DateObject | DateObject[] | null) {
     if (!value) return;
@@ -148,8 +155,6 @@ export function SeatDetailPanel({ seat, onDeselect }: SeatDetailPanelProps) {
   async function handleOpenFinalModal() {
     await handleSubmitReservation();
     if (!finalSubmissionInput) {
-      // You can replace this with toast.error if you prefer.
-      // console.warn("Reservation form is incomplete.");
       toast.error("DEV ERR: Reservation form is incomplete");
       return;
     }
@@ -157,23 +162,46 @@ export function SeatDetailPanel({ seat, onDeselect }: SeatDetailPanelProps) {
     openModal();
   }
 
+  /**
+   * Triggers the first step of the two-step reservation process:
+   * 1. Validates the input via make_reservation API
+   * 2. If valid, opens the FinalReservationModal with the summary and any warnings
+   */
+  async function handleSubmitReservation() {
+    setSeatType(seat.type as SeatType);
+    setSeatNumber(seat.number);
+
+    const result = await makeReservation();
+
+    if (!result.ok) return; // Errors are handled inside the hook via toast
+
+    setVerifiedReservationInfo(result.reservation_info);
+    setVerifiedReservationWarning(result.warning);
+    openModal();
+  }
+
+  /**
+   * Final step of the reservation process:
+   * Commits the reservation after the user confirms the warnings in the modal.
+   */
   async function handleConfirmFinalSubmission() {
     if (!verifiedReservationInfo) return;
 
     const res = await submitFinalReservation(verifiedReservationInfo);
+
     if (!res) return;
 
     closeModal();
     setVerifiedReservationInfo(null);
-    setVerifiedReservationWarning(null); // ADD THIS
+    setVerifiedReservationWarning(null);
 
-    // ADD THIS QUERY INVALIDATION ↓
+    // Refresh active reservations and current schedule view
     await queryClient.invalidateQueries({
       queryKey: reservationKeys.active(),
     });
 
+    onDeselect();
     resetReservationForm();
-    // onDeselect?.();
   }
 
   const handleCloseSeatDetailPanel = () => {
@@ -206,8 +234,8 @@ export function SeatDetailPanel({ seat, onDeselect }: SeatDetailPanelProps) {
               </label>
 
               <DatePicker
-                minDate={new DateObject(openDates[0])}
-                maxDate={new DateObject(openDates[openDates.length - 1])}
+                minDate={openDates && openDates[0] ? new DateObject(openDates[0]) : undefined}
+                maxDate={openDates && openDates.length > 0 ? new DateObject(openDates[openDates.length - 1]) : undefined}
                 editable={false}
                 calendar={persian}
                 locale={persian_fa}
@@ -226,11 +254,7 @@ export function SeatDetailPanel({ seat, onDeselect }: SeatDetailPanelProps) {
               </label>
 
               <Select
-                options={
-                  seat.type === "laptop"
-                    ? laptopReservationOptions
-                    : pcReservationOptions
-                }
+                options={reservationOptions}
                 placeholder="انتخاب کنید"
                 className="relative text-black"
                 // defaultValue={reservationType}
@@ -254,8 +278,8 @@ export function SeatDetailPanel({ seat, onDeselect }: SeatDetailPanelProps) {
               seatType={seat.type as SeatType}
               setStartTime={setStartTime}
               setEndTime={setEndTime}
-              onRangeSelect={(start, end) => {
-                console.log(`انتخاب بازه: ${start} تا ${end}`);
+              onRangeSelect={() => {
+
               }}
               onSystemOnlyWarning={setHasSystemOnlyInRange}
             />
@@ -334,7 +358,7 @@ function TimeSlotGridContainer(props: {
     }));
   }, [schedule, props.date]);
 
-  console.log("slots: ", slots);
+
 
   // Compute system‑only presence inside the selected range
   useEffect(() => {

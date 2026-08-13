@@ -1,11 +1,27 @@
+/**
+ * FinalReservationModal — Confirmation step before committing a reservation.
+ *
+ * Displays a summary of the reservation details and any warnings about
+ * time conflicts. This is Step 2 of the two-step reservation flow:
+ *   Step 1: make_reservation → validates & returns warnings
+ *   Step 2: final_reservation_submission → commits (triggered by this modal)
+ */
+
 import { Modal } from "@/components/ui/modal";
 import {
   FinalReservationSubmissionInput,
   Warning,
 } from "@/lib/api/services/reservation.service";
-import { dateStringToPersianDateObject } from "../HomeCalendar";
+import {
+  formatPersianDate,
+  formatPersianTime,
+  formatPersianNumber,
+} from "@/features/reservation/utils/date";
+import {
+  getReservationTypeLabel,
+  getSeatTypeLabel,
+} from "@/features/reservation/config/reservation-options";
 
-// FinalReservationModal
 type FinalReservationModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -15,7 +31,6 @@ type FinalReservationModalProps = {
   reservationWarning: Warning | null;
 };
 
-// Modal
 export function FinalReservationModal({
   isOpen,
   onClose,
@@ -43,7 +58,7 @@ export function FinalReservationModal({
           </h5>
         </div>
 
-        {/* Warning Alert - if conflicts exist */}
+        {/* Warning Alert — shown when time conflicts exist with other reservations */}
         {hasConflicts && (
           <div className="fa mb-4 rounded-lg border border-yellow-300 bg-yellow-50 p-4 dark:bg-yellow-900/20">
             <div className="flex items-start gap-3">
@@ -79,6 +94,7 @@ export function FinalReservationModal({
           </div>
         )}
 
+        {/* Reservation summary grid */}
         <div className="fa mt-6 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-white/[0.03]">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <InfoItem
@@ -137,6 +153,9 @@ export function FinalReservationModal({
   );
 }
 
+// ─── Sub-components ───────────────────────────────────────
+
+/** Displays a label-value pair in the reservation summary grid. */
 function InfoItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -150,52 +169,3 @@ function InfoItem({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-
-// helpers
-function getReservationTypeLabel(type: string | null | undefined) {
-  switch (type) {
-    case "only running programs":
-      return "محاسبات";
-    case "dorsan desk":
-      return "درسان دسک";
-    case "internship":
-      return "کارآموزی";
-    case "project":
-      return "پروژه";
-    default:
-      return "انتخاب نشده";
-  }
-}
-
-function getSeatTypeLabel(type: string | null | undefined) {
-  switch (type) {
-    case "pc":
-      return "کامپیوتر";
-    case "laptop":
-      return "لپ‌تاپ";
-    default:
-      return type || "نامشخص";
-  }
-}
-
-const formatPersianNumber = (str: string): string => {
-  const persianNumbers = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
-  return str.replace(/\d/g, (digit) => persianNumbers[parseInt(digit)]);
-};
-
-const formatPersianTime = (timeString: string) => {
-  // Remove seconds if present (keep only HH:MM)
-  const timeWithoutSeconds = timeString.split(":").slice(0, 2).join(":");
-
-  // Convert "HH:MM" string to Persian numbers
-  const persianNumbers = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
-  return timeWithoutSeconds.replace(
-    /\d/g,
-    (digit) => persianNumbers[parseInt(digit)],
-  );
-};
-
-const formatPersianDate = (dateString: string) => {
-  const persianDate = dateStringToPersianDateObject(dateString);
-  return persianDate.format("YYYY/MM/DD");
-};

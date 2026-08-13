@@ -5,4 +5,4 @@ export type {
   SeatData,
   SeatStatus,
   MobileSeat,
-} from "./SeatMap.config";
+} from "@/features/reservation/config/SeatMap.config";

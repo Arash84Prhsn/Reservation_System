@@ -1,16 +1,12 @@
 "use client";
 import { useState } from "react";
-import ColorLegend from "@/features/home/components/ColorLegend";
+import ColorLegend from "@/features/reservation/components/shared/ColorLegend";
 import { useSidebar } from "@/context/SidebarContext";
-import SeatMap from "@/features/home/components/seat-map";
-import { SeatType } from "@/lib/api/services/reservation.service";
-import SeatList from "@/features/home/components/SeatList";
-import HomeCalendar from "@/features/home/components/HomeCalendar";
-import ReserveList from "@/features/home/components/ReserveList";
-export interface DesktopSeat {
-  type: SeatType;
-  number: number;
-}
+import SeatMap from "@/features/reservation/components/mobile";
+import SeatList from "@/features/reservation/components/desktop/SeatList";
+import HomeCalendar from "@/features/reservation/components/desktop/HomeCalendar";
+import ReserveList from "@/features/reservation/components/desktop/ReserveList";
+import { DesktopSeat } from "@/features/reservation/types";
 
 export default function Ecommerce() {
   const { isMobile } = useSidebar();

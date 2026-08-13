@@ -1,13 +1,13 @@
-import ReserveList from "@/features/home/components/ReserveList";
 import React from "react";
+import ReserveList from "@/features/reservation/components/desktop/ReserveList";
+import { NextPage } from "next";
 
-const page = () => {
+const ReserveListPage: NextPage = () => {
   return (
     <div className="flex flex-col">
       <ReserveList />
-      
     </div>
   );
 };
 
-export default page;
+export default ReserveListPage;

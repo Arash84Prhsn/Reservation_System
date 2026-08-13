@@ -4,7 +4,7 @@ import {
 } from "@/lib/api/services/reservation.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { reservationKeys } from "../queryKeys";
+import { reservationKeys } from "@/features/reservation/queryKeys";
 
 export function useCancelReservationById() {
   const queryClient = useQueryClient();

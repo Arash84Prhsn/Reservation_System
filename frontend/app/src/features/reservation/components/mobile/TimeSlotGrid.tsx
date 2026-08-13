@@ -29,7 +29,7 @@ export function TimeSlotGrid({
   setStartTime,
   setEndTime,
 }: TimeSlotGridProps) {
-  // console.log("slots: ", slots);
+
 
   const handleSlotClick = (
     time: string,

@@ -20,6 +20,20 @@ type MakeReservationResult =
       ok: false;
     };
 
+/**
+ * Hook: useMakeReservation
+ * 
+ * Manages the state and logic for the first step of the reservation flow.
+ * 
+ * Flow:
+ * 1. User selects date/time/type/seat
+ * 2. `makeReservation` is called, which validates the inputs via the API.
+ * 3. The API checks for conflicts (e.g. outside working hours, overlaps).
+ * 4. If successful, returns the parsed `reservation_info` and any `warning` 
+ *    (e.g., if there is a "System Only" overlap that the user should know about).
+ * 
+ * The second step (committing the reservation) is handled by `useFinalReservationSubmission`.
+ */
 export function useMakeReservation() {
   const [reservationDate, setReservationDate] = useState(
     new DateObject().format("YYYY-MM-DD"),
@@ -36,6 +50,10 @@ export function useMakeReservation() {
 
   const [pending, setPending] = useState(false);
 
+  /**
+   * Validates local state and builds the payload expected by the API.
+   * Shows toast errors if any required fields are missing or invalid.
+   */
   function buildReservationInput(): FinalReservationSubmissionInput | null {
     if (!reservationDate) {
       toast.error("لطفا تاریخ رزرو را انتخاب کنید");
@@ -82,6 +100,12 @@ export function useMakeReservation() {
     };
   }
 
+  /**
+   * Calls the `make_reservation` API endpoint (Step 1).
+   * 
+   * Returns an object indicating success/failure. If successful, includes
+   * the sanitized reservation_info and any warnings to present to the user.
+   */
   async function makeReservation(): Promise<MakeReservationResult> {
     const input = buildReservationInput();
 
@@ -114,6 +138,7 @@ export function useMakeReservation() {
     }
   }
 
+  /** Resets all form fields to their defaults. */
   function resetReservationForm() {
     setReservationDate(new DateObject().format("YYYY-MM-DD"));
     setReservationType(null);

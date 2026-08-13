@@ -1,4 +1,4 @@
-import { BASE_H, BASE_W, TABLE_H, TABLE_W } from "./SeatMap.config";
+import { BASE_H, BASE_W, TABLE_H, TABLE_W } from "@/features/reservation/config/SeatMap.config";
 
 export function Table() {
   return (

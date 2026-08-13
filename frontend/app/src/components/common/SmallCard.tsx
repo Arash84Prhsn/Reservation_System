@@ -1,7 +1,7 @@
 // don't use this component. you can use common/small-cards/base
 
 "use client ";
-import { cn } from "@/utilities/cn";
+import { cn } from "@/lib/utils";
 import React from "react";
 
 type SmallCardProps = {

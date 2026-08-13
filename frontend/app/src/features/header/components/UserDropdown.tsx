@@ -18,8 +18,11 @@ export default function UserDropdown() {
   }
 
   const handleLogout = () => {
-    LocalLogout();
-    serverLogout();
+    serverLogout(undefined, {
+      onSuccess: () => {
+        LocalLogout();
+      },
+    });
   };
   function closeDropdown() {
     setIsOpen(false);

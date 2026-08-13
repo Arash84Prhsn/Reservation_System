@@ -5,15 +5,25 @@ import Label from "@/components/form/Label";
 // import Button from "@/components/ui/button/Button";
 import { EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
-import React, { useState } from "react";
-import ComponentCard from "../../../components/common/ComponentCard";
+import React, { useState, useEffect } from "react";
+import ComponentCard from "@/components/common/ComponentCard";
 import { useRegisterForm } from "../hooks/use-register-form";
 import Select from "@/components/form/Select";
 import CustomPhoneInput from "@/components/form/group-input/CustomPhoneInput";
-import { AssociationStatus } from "@/lib/api/services/auth.servise";
+import { AssociationStatus } from "@/lib/api/services/auth.service";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 // import Checkbox from "../form/input/Checkbox";
 
 const NewSignUpForm = () => {
+  const { user, isUserInitialized } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isUserInitialized && user) {
+      router.replace("/");
+    }
+  }, [user, isUserInitialized, router]);
   const [showPassword, setShowPassword] = useState(false);
   const {
     username,
@@ -175,7 +185,7 @@ const NewSignUpForm = () => {
                       type="email"
                       id="email"
                       name="email"
-                      placeholder="Enter your email"
+                      placeholder="ایمیل خود را وارد کنید"
                       defaultValue={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
@@ -187,7 +197,7 @@ const NewSignUpForm = () => {
                     </Label>
                     <div className="relative">
                       <Input
-                        placeholder="Enter your password"
+                        placeholder="رمز عبور خود را وارد کنید"
                         type={showPassword ? "text" : "password"}
                         defaultValue={password}
                         onChange={(e) => setPassword(e.target.value)}

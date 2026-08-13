@@ -3,9 +3,9 @@
 import { GiOfficeChair } from "react-icons/gi";
 // import { GrUserAdmin } from "react-icons/gr";
 
-import { cn } from "@/utilities/cn";
-import { SmallButtonCard } from "../../../components/common/small-cards/SmallButtonCard";
-import { DesktopSeat } from "@/app/(admin)/page";
+import { cn } from "@/lib/utils";
+import { SmallButtonCard } from "@/components/common/small-cards/SmallButtonCard";
+import { DesktopSeat } from "@/features/reservation/types";
 
 type SeatListParams = {
   seat: DesktopSeat | null;

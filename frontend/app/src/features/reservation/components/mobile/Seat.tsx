@@ -1,11 +1,11 @@
 import React, { memo } from "react";
-import { cx, getSeatRect, toPercentStyle } from "./SeatMap.utils";
+import { cx, getSeatRect, toPercentStyle } from "@/features/reservation/utils/SeatMap.utils";
 import {
   SeatColorTypes,
   STATUS_COLOR,
   STATUS_LABEL,
   type MobileSeat,
-} from "./SeatMap.config";
+} from "@/features/reservation/config/SeatMap.config";
 
 interface SeatProps {
   seat: MobileSeat;

@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { SmallHoverCard } from "../../../components/common/small-cards/SmallHoverCard";
-import { useActiveReservations } from "../hooks/use-get-active-reservations";
-import { useCancelReservationById } from "../hooks/use-cancel-reservation-by-id";
+import { SmallHoverCard } from "@/components/common/small-cards/SmallHoverCard";
+import { ConfirmModal } from "@/components/ui/modal/ConfirmModal";
+import { useActiveReservations } from "@/features/reservation/hooks/use-get-active-reservations";
+import { useCancelReservationById } from "@/features/reservation/hooks/use-cancel-reservation-by-id";
 import { toast } from "sonner";
 import {
   ActiveReservations,
@@ -46,27 +47,34 @@ const ReserveList = () => {
       map.get(reservation.date)!.push(reservation);
     });
 
-    return Array.from(map.entries()).map(([date, reservations]) => ({
-      date,
-      label: formatDayFa(date),
-      reservations: [...reservations].sort((a, b) =>
-        a.start_time.localeCompare(b.start_time),
-      ),
-    }));
+    return Array.from(map.entries())
+      .map(([date, reservations]) => ({
+        date,
+        label: formatDayFa(date),
+        reservations: [...reservations].sort((a, b) =>
+          a.start_time.localeCompare(b.start_time),
+        ),
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
   }, [activeReservations]);
 
-  const handleCancelReservation = async (reservationId: number) => {
-    const confirmed = window.confirm("آیا از حذف این رزرو مطمئن هستید؟");
-    if (!confirmed) return;
+  const [cancelModalId, setCancelModalId] = useState<number | null>(null);
 
+  const confirmCancel = async () => {
+    if (cancelModalId === null) return;
     try {
-      setDeletingReservationId(reservationId);
-      await cancelReservation(reservationId);
+      setDeletingReservationId(cancelModalId);
+      await cancelReservation(cancelModalId);
     } catch {
       toast.error("حذف رزرو انجام نشد");
     } finally {
       setDeletingReservationId(null);
+      setCancelModalId(null);
     }
+  };
+
+  const handleCancelReservation = async (reservationId: number) => {
+    setCancelModalId(reservationId);
   };
 
   const commonProps = {
@@ -91,6 +99,18 @@ const ReserveList = () => {
       <div className="md:hidden">
         <MobileCalendar groupedReservations={groupedReservations} />
       </div>
+
+      <ConfirmModal
+        isOpen={cancelModalId !== null}
+        title="حذف رزرو"
+        message="آیا از حذف این رزرو مطمئن هستید؟ این عملیات غیرقابل بازگشت است."
+        confirmText="حذف رزرو"
+        cancelText="انصراف"
+        isDestructive={true}
+        isLoading={deletingReservationId !== null}
+        onConfirm={confirmCancel}
+        onCancel={() => setCancelModalId(null)}
+      />
     </>
   );
 };
@@ -114,13 +134,14 @@ interface ReserveListUIProps {
   handleCancelReservation: (reservationId: number) => Promise<void>;
 }
 
-const DesktopReserveList = ({
+const DesktopReserveList: React.FC<ReserveListUIProps> = ({
   groupedReservations,
   pending,
   deletingReservationId,
   loading,
+  error,
   handleCancelReservation,
-}: ReserveListUIProps) => {
+}) => {
   return (
     <div className="fa flex  w-50 flex-col rounded-2xl border-2 border-gray-300 bg-res-orange p-4">
       <div className="bg-res-green-success rounded-2xl  p-1">
@@ -132,11 +153,11 @@ const DesktopReserveList = ({
           <p className="text-center text-sm text-white">در حال بارگذاری...</p>
         )}
 
-        {/* {error && (
+        {!!error && (
           <p className="text-center text-sm text-red-500">
             خطا در دریافت اطلاعات
           </p>
-        )} */}
+        )}
 
         {!loading && groupedReservations.length === 0 && (
           <p className="text-center text-sm text-white">رزروی ثبت نشده است</p>
@@ -205,13 +226,14 @@ const DesktopReserveList = ({
   );
 };
 
-const MobileReserveList = ({
+const MobileReserveList: React.FC<ReserveListUIProps> = ({
   groupedReservations,
   pending,
   deletingReservationId,
   loading,
+  error,
   handleCancelReservation,
-}: ReserveListUIProps) => {
+}) => {
   const [open, setOpen] = useState<string | null>(null);
 
   return (
@@ -224,11 +246,11 @@ const MobileReserveList = ({
         <p className="text-center text-sm text-gray-500">در حال بارگذاری...</p>
       )}
 
-      {/* {error && (
+      {!!error && (
         <p className="text-center text-sm text-red-500">
           خطا در دریافت اطلاعات
         </p>
-      )} */}
+      )}
 
       {!loading && groupedReservations.length === 0 && (
         <p className="text-center text-sm text-gray-500">رزروی ثبت نشده است</p>

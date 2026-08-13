@@ -2,9 +2,9 @@
 
 import React, { Dispatch, SetStateAction } from "react";
 import { SeatComponent } from "./Seat";
-import { useSeatMap, useSelectedSeat } from "./SeatMap.utils";
-import { type SeatMapConfig, type SeatData } from "./SeatMap.config";
-import { CalendarEvent } from "@/app/type";
+import { useSeatMap, useSelectedSeat } from "@/features/reservation/utils/SeatMap.utils";
+import { type SeatMapConfig, type SeatData } from "@/features/reservation/config/SeatMap.config";
+import { CalendarEvent } from "@/features/reservation/types";
 import { Table } from "./Table";
 import { SeatDetailPanel } from "./SeatDetailPanel";
 

@@ -1,4 +1,4 @@
-import Calendar from "@/features/home/components/HomeCalendar";
+import HomeCalendar from "@/features/reservation/components/desktop/HomeCalendar";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Metadata } from "next";
 import React from "react";
@@ -14,9 +14,7 @@ export default function page() {
     <div>
       <PageBreadcrumb pageTitle="Calendar" />
       <div className="min-h-screen w-full overflow-hidden">
-        <div className="mx-auto max-w-7xl p-4">
-          <Calendar />
-        </div>
+          <HomeCalendar />
       </div>
     </div>
   );

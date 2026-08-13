@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { get_user_active_reservations } from "@/lib/api/services/reservation.service";
-import { reservationKeys } from "../queryKeys";
+import { reservationKeys } from "@/features/reservation/queryKeys";
 
 export function useActiveReservations() {
   const query = useQuery({

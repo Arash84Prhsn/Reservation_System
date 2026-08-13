@@ -15,7 +15,7 @@ import {
   // DEFAULT_SEAT_CONFIG,
   SeatTypes,
   LAYOUT,
-} from "./SeatMap.config";
+} from "@/features/reservation/config/SeatMap.config";
 import { useState, useMemo, useCallback } from "react";
 
 // ─── Utils ───────────────────────────────────────────────

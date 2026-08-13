@@ -144,19 +144,6 @@ export default function ColorLegend({
                 </div>
               </div> */}
 
-              {/* 3. Seat Map Image - Small version */}
-              <div>
-                <h4 className="mb-2 text-xs font-medium text-gray-300">
-                  🗺️ موقعیت صندلی‌ها
-                </h4>
-                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg border border-white/10 bg-white/5">
-                  <div className="flex h-full flex-col items-center justify-center p-2 text-center text-gray-400">
-                    <p className="text-2xl">🗺️</p>
-                    <p className="text-[10px]">نقشه صندلی‌ها</p>
-                  </div>
-                </div>
-              </div>
-
               {/* Action Buttons - Reordered */}
               <div className="flex flex-col gap-2 pt-2">
                 <button

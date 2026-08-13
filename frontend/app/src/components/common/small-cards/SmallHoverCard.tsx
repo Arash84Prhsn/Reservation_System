@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { SmallBaseCard } from "./SmallBaseCard";
-import { cn } from "@/utilities/cn";
+import { cn } from "@/lib/utils";
 
 type HoverPosition = "top" | "bottom" | "left" | "right";
 
