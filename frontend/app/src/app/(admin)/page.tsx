@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import ColorLegend from "@/features/reservation/components/shared/ColorLegend";
 import { useSidebar } from "@/context/SidebarContext";
 import SeatMap from "@/features/reservation/components/mobile";
@@ -25,10 +25,15 @@ export default function Ecommerce() {
   return (
     <div>
       {isMobile ? (
-        <>
+        <Suspense
+          fallback={
+            <div className="flex h-64 items-center justify-center">
+              <p className="fa text-gray-500">در حال بارگذاری نقشه صندلی‌ها...</p>
+            </div>
+          }
+        >
           <SeatMap />
-          {/* <ColorLegend /> */}
-        </>
+        </Suspense>
       ) : (
         <div className="flex justify-end gap-5  h-[calc(100vh-130px)]">
           <ReserveList />

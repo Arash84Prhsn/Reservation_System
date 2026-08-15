@@ -2,11 +2,12 @@
 
 import React, { Dispatch, SetStateAction } from "react";
 import { SeatComponent } from "./Seat";
-import { useSeatMap, useSelectedSeat } from "@/features/reservation/utils/SeatMap.utils";
+import { useSeatMap } from "@/features/reservation/utils/SeatMap.utils";
 import { type SeatMapConfig, type SeatData } from "@/features/reservation/config/SeatMap.config";
 import { CalendarEvent } from "@/features/reservation/types";
 import { Table } from "./Table";
 import { SeatDetailPanel } from "./SeatDetailPanel";
+import { useReservationParams } from "@/features/reservation/hooks/use-reservation-params";
 
 interface SeatMapProps {
   config?: SeatMapConfig;
@@ -18,7 +19,8 @@ interface SeatMapProps {
 // ─── SeatMap (main) ──────────────────────────────────────
 export default function SeatMap({ config, data }: SeatMapProps) {
   const { seats, config: mergedConfig } = useSeatMap({ config, data });
-  const { selectedId, select, deselect, isSelected } = useSelectedSeat();
+  const { selectedSeatId, selectedDate, setReservationParams } =
+    useReservationParams();
 
   const countBySide = {
     top: mergedConfig.top,
@@ -27,9 +29,21 @@ export default function SeatMap({ config, data }: SeatMapProps) {
     right: mergedConfig.right,
   };
 
-  const selectedSeat = selectedId
-    ? seats.find((s) => s.id === selectedId)
+  const selectedSeat = selectedSeatId
+    ? seats.find((s) => s.id === selectedSeatId)
     : null;
+
+  const handleSelectSeat = (id: string) => {
+    setReservationParams({ seat: id });
+  };
+
+  const handleDeselectSeat = () => {
+    setReservationParams({ seat: null });
+  };
+
+  const handleDateChange = (date: string) => {
+    setReservationParams({ date });
+  };
 
   const seatIsNotSelectedMessage = (
     <div className="mt-4 rounded-4xl h-115 flex justify-center items-center bg-res-green-100 border border-black p-4 shadow-lg">
@@ -45,11 +59,10 @@ export default function SeatMap({ config, data }: SeatMapProps) {
           {seats.map((seat) => (
             <SeatComponent
               key={seat.id}
-              // selectable={Number(seat.id) === 0}
               seat={seat}
               total={countBySide[seat.side]}
-              isSelected={isSelected(seat.id)}
-              onSelect={select}
+              isSelected={seat.id === selectedSeatId}
+              onSelect={handleSelectSeat}
             />
           ))}
         </div>
@@ -59,8 +72,9 @@ export default function SeatMap({ config, data }: SeatMapProps) {
         <SeatDetailPanel
           seat={selectedSeat}
           status={selectedSeat.status}
-          onDeselect={deselect}
-          // chair={chair}
+          initialDate={selectedDate}
+          onDateChange={handleDateChange}
+          onDeselect={handleDeselectSeat}
         />
       ) : (
         seatIsNotSelectedMessage

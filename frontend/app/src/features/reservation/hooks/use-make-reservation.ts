@@ -34,9 +34,9 @@ type MakeReservationResult =
  * 
  * The second step (committing the reservation) is handled by `useFinalReservationSubmission`.
  */
-export function useMakeReservation() {
+export function useMakeReservation(options?: { initialDate?: string }) {
   const [reservationDate, setReservationDate] = useState(
-    new DateObject().format("YYYY-MM-DD"),
+    options?.initialDate || new DateObject().format("YYYY-MM-DD"),
   );
 
   const [reservationType, setReservationType] =
@@ -138,9 +138,11 @@ export function useMakeReservation() {
     }
   }
 
-  /** Resets all form fields to their defaults. */
-  function resetReservationForm() {
-    setReservationDate(new DateObject().format("YYYY-MM-DD"));
+  /** Resets form fields. Optionally provide a date to set, or defaults to initialDate / today. */
+  function resetReservationForm(newDate?: string) {
+    setReservationDate(
+      newDate || options?.initialDate || new DateObject().format("YYYY-MM-DD"),
+    );
     setReservationType(null);
     setStartTime("");
     setEndTime("");

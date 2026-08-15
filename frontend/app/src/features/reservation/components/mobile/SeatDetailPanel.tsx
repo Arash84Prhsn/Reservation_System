@@ -29,6 +29,8 @@ import {
 type SeatDetailPanelProps = {
   seat: MobileSeat;
   status: SeatStatus;
+  initialDate?: string;
+  onDateChange?: (date: string) => void;
   onDeselect: () => void;
 };
 
@@ -44,7 +46,12 @@ type SeatDetailPanelProps = {
  * - Validates the selection and submits it to the API (Two-step flow)
  * - Displays a grid of available/booked timeslots for the selected date
  */
-export function SeatDetailPanel({ seat, onDeselect }: SeatDetailPanelProps) {
+export function SeatDetailPanel({
+  seat,
+  initialDate,
+  onDateChange,
+  onDeselect,
+}: SeatDetailPanelProps) {
   const [verifiedReservationInfo, setVerifiedReservationInfo] =
     useState<FinalReservationSubmissionInput | null>(null);
 
@@ -74,7 +81,13 @@ export function SeatDetailPanel({ seat, onDeselect }: SeatDetailPanelProps) {
 
     makeReservation,
     resetReservationForm,
-  } = useMakeReservation();
+  } = useMakeReservation({ initialDate });
+
+  useEffect(() => {
+    if (initialDate && initialDate !== reservationDate) {
+      setReservationDate(initialDate);
+    }
+  }, [initialDate, reservationDate, setReservationDate]);
 
   // final reservation submission
   const { submitFinalReservation, pending: finalSubmissionPending } =
@@ -126,16 +139,6 @@ export function SeatDetailPanel({ seat, onDeselect }: SeatDetailPanelProps) {
     setSeatNumber(seat.number);
   }, [seat.type, seat.number, setSeatType, setSeatNumber]);
 
-  // // Handlres
-  // async function handleSubmitReservation() {
-  //   const result = await makeReservation();
-
-  //   if (!result.ok) return;
-  //   setVerifiedReservationInfo(result.reservation_info);
-  //   setVerifiedReservationWarning(result.warning);
-  //   openModal();
-  // }
-
   function handleDateChange(value: DateObject | DateObject[] | null) {
     if (!value) return;
 
@@ -150,6 +153,7 @@ export function SeatDetailPanel({ seat, onDeselect }: SeatDetailPanelProps) {
     const gregorianDate = `${year}-${month}-${day}`;
 
     setReservationDate(gregorianDate);
+    onDateChange?.(gregorianDate);
   }
 
   async function handleOpenFinalModal() {
@@ -197,15 +201,17 @@ export function SeatDetailPanel({ seat, onDeselect }: SeatDetailPanelProps) {
 
     // Refresh active reservations and current schedule view
     await queryClient.invalidateQueries({
-      queryKey: reservationKeys.active(),
+      queryKey: reservationKeys.all,
     });
 
-    onDeselect();
-    resetReservationForm();
+    // Hold the day and seat selection, only reset time slot selection
+    setStartTime("");
+    setEndTime("");
+    setReservationType(null);
   }
 
   const handleCloseSeatDetailPanel = () => {
-    resetReservationForm();
+    resetReservationForm(reservationDate);
     onDeselect?.();
   };
 
