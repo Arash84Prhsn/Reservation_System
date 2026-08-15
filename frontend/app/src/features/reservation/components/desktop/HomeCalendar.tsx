@@ -35,7 +35,7 @@ import {
   SeatType,
   SYSTEM_ONLY_TYPES,
   Warning,
-} from "@/shared/lib/api/services/reservation.service";
+} from "@/features/reservation/api";
 import { useMakeReservation } from "@/features/reservation/hooks/use-make-reservation";
 import { FinalReservationModal } from "@/features/reservation/components/shared/FinalReservationModal";
 import { ConfirmModal } from "@/shared/components/ui/modal/ConfirmModal";

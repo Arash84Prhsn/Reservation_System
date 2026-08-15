@@ -4,7 +4,7 @@ import {
   SeatType,
   WeeklyScheduleIntervalsResponse,
   ScheduleIntervalDay,
-} from "@/shared/lib/api/services/reservation.service";
+} from "../api";
 import { reservationKeys } from "@/features/reservation/queryKeys";
 
 type UseWeeklyScheduleIntervalsParams = {

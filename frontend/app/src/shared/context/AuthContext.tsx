@@ -1,5 +1,5 @@
 "use client";
-import { User } from "@/shared/lib/api/services/auth.service";
+import { User } from "@/features/auth/api/auth.service";
 import {
   createContext,
   useContext,

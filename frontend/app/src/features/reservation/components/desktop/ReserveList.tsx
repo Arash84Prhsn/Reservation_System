@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import {
   ActiveReservations,
   CancelReservationByIdResponse,
-} from "@/shared/lib/api/services/reservation.service";
+} from "@/features/reservation/api";
 import {
   getReservationTypeLabel,
   getSeatTypeLabel,

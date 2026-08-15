@@ -11,7 +11,7 @@ import { Modal } from "@/shared/components/ui/modal";
 import {
   FinalReservationSubmissionInput,
   Warning,
-} from "@/shared/lib/api/services/reservation.service";
+} from "../../api";
 import {
   formatPersianDate,
   formatPersianTime,

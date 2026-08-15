@@ -13,7 +13,7 @@ import CustomPhoneInput from "@/shared/components/form/group-input/CustomPhoneIn
 import {
   AssociationStatus,
   ASSOCIATION_STATUS_LABELS,
-} from "@/shared/lib/api/services/auth.service";
+} from "../api";
 import { useAuth } from "@/shared/context/AuthContext";
 import { useRouter } from "next/navigation";
 // import Checkbox from "../form/input/Checkbox";

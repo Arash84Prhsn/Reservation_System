@@ -1,5 +1,5 @@
 import { CalendarEvent } from "@/features/reservation/types";
-import { ScheduleIntervalDay } from "@/shared/lib/api/services/reservation.service";
+import { ScheduleIntervalDay } from "../api";
 import { getReservationTypeLabel } from "@/features/reservation/config/reservation-options";
 
 export function mapScheduleIntervalsToCalendarEvents(

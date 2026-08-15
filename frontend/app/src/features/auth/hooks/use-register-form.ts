@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AssociationStatus, register } from "@/shared/lib/api/services/auth.service";
+import { AssociationStatus, register } from "../api";
 import { useAuth } from "@/shared/context/AuthContext";
 import { toast } from "sonner";
 

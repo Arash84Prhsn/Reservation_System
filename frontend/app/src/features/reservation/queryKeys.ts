@@ -1,6 +1,6 @@
 // features/reservations/queryKeys.ts
 
-import { SeatType } from "@/shared/lib/api/services/reservation.service";
+import { SeatType } from "./api";
 
 export const reservationKeys = {
   all: ["reservations"] as const,

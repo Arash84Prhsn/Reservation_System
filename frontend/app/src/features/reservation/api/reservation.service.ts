@@ -1,5 +1,5 @@
-import { apiFetch } from "../core/http";
-import { HttpError } from "../core/errors";
+import { HttpError } from "@/shared/lib/api/core/errors";
+import { apiFetch } from "@/shared/lib/api/core/http";
 
 // type: reservation
 export type ReservationSystemOnly = "only running programs" | "dorsan desk";

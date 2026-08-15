@@ -1,7 +1,7 @@
 import {
   updateEmail,
   UpdateEmailResponse,
-} from "@/shared/lib/api/services/auth.service";
+} from "../api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { userKeys } from "../queryKeys";

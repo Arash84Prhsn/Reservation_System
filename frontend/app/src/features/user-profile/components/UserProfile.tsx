@@ -12,7 +12,7 @@ import { useUpdatePhone } from "../hooks/use-update-phone";
 import { useUpdateUsername } from "../hooks/use-update-username";
 import { Loader2 } from "lucide-react";
 import CustomPhoneInput from "@/shared/components/form/group-input/CustomPhoneInput";
-import { getAssociationStatusLabel } from "@/shared/lib/api/services/auth.service";
+import { getAssociationStatusLabel } from "@/features/auth/api";
 import { toPersianDigits } from "@/shared/lib/utils";
 
 interface FormData {

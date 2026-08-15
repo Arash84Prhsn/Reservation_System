@@ -10,7 +10,7 @@ import {
   ReservationType,
   SeatType,
   Warning,
-} from "@/shared/lib/api/services/reservation.service";
+} from "../../api";
 import { useMakeReservation } from "@/features/reservation/hooks/use-make-reservation";
 import { useWeeklyScheduleTimeslots } from "@/features/reservation/hooks/use-weekly-schedule-timeslots";
 

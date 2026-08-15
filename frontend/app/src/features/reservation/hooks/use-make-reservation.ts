@@ -5,7 +5,7 @@ import {
   FinalReservationSubmissionInput,
   ReservationInfo,
   Warning,
-} from "@/shared/lib/api/services/reservation.service";
+} from "../api";
 import { useState } from "react";
 import { DateObject } from "react-multi-date-picker";
 import { toast } from "sonner";

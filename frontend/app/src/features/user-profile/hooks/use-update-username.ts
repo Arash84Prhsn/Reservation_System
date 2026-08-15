@@ -1,4 +1,4 @@
-import { updateUsername, UpdateUsernameResponse } from "@/shared/lib/api/services/auth.service";
+import { updateUsername, UpdateUsernameResponse } from "../api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { userKeys } from "../queryKeys";

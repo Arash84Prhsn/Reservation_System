@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   SeatType,
   weekly_schedule_timeslots,
-} from "@/shared/lib/api/services/reservation.service";
+} from "../api";
 import { reservationKeys } from "@/features/reservation/queryKeys";
 
 export function useWeeklyScheduleTimeslots(

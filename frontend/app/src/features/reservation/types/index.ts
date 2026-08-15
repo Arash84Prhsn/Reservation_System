@@ -6,7 +6,7 @@
  */
 
 import { EventInput } from "@fullcalendar/core/index.js";
-import { SeatType } from "@/shared/lib/api/services/reservation.service";
+import { SeatType } from "../api";
 
 // ─── Desktop Seat ─────────────────────────────────────────
 /**

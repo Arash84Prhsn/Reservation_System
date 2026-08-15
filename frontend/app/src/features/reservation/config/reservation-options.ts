@@ -5,7 +5,7 @@
  * Previously duplicated in HomeCalendar.tsx and SeatDetailPanel.tsx.
  */
 
-import { ReservationType } from "@/shared/lib/api/services/reservation.service";
+import { ReservationType } from "../api";
 
 // ─── Reservation Type Options ─────────────────────────────
 
