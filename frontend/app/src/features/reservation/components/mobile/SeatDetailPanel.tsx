@@ -272,9 +272,21 @@ export function SeatDetailPanel({
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700">
-              انتخاب زمان
-            </label>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="block text-sm font-medium text-gray-700">
+                انتخاب زمان
+              </label>
+              {startTime && endTime && (
+                <span className="rounded border border-gray-300 bg-white px-2 py-0.5 text-xs font-medium text-res-green-success">
+                  بازه انتخابی: {startTime.slice(0, 5)} تا {endTime.slice(0, 5)}
+                </span>
+              )}
+              {startTime && !endTime && (
+                <span className="rounded border border-gray-300 bg-white px-2 py-0.5 text-xs text-gray-600">
+                  شروع: {startTime.slice(0, 5)} (روی زمان پایان کلیک کنید)
+                </span>
+              )}
+            </div>
 
             <TimeSlotGridContainer
               date={reservationDate}
@@ -326,7 +338,17 @@ export function SeatDetailPanel({
 }
 
 // time slot container
-function TimeSlotGridContainer(props: {
+function TimeSlotGridContainer({
+  date,
+  seatType,
+  seatNumber,
+  startTime,
+  endTime,
+  setStartTime,
+  setEndTime,
+  onRangeSelect,
+  onSystemOnlyWarning,
+}: {
   date: string;
   seatType: SeatType;
   seatNumber: number;
@@ -340,44 +362,44 @@ function TimeSlotGridContainer(props: {
 }) {
   const { schedule, loading, error } = useWeeklyScheduleTimeslots(
     {
-      date: props.date,
-      seatType: props.seatType,
-      seatNumber: props.seatNumber,
+      date,
+      seatType,
+      seatNumber,
     },
     {
-      enabled: Boolean(props.date && props.seatType && props.seatNumber),
+      enabled: Boolean(date && seatType && seatNumber),
     },
   );
 
   const slots = useMemo<TimeSlot[]>(() => {
-    const selectedDay = schedule.find((day) => day.date === props.date);
+    const selectedDay = schedule.find((day) => day.date === date);
 
     if (!selectedDay) return [];
 
     return selectedDay.slots.map((slot) => ({
       id: `${selectedDay.date}-${slot.timeslot_number}`,
       time: slot.start_time,
+      startTime: slot.start_time,
+      endTime: slot.end_time,
       status: slot.status,
       systemOnly:
         slot.reservation_type === "dorsan desk" ||
         slot.reservation_type === "only running programs",
     }));
-  }, [schedule, props.date]);
-
-
+  }, [schedule, date]);
 
   // Compute system‑only presence inside the selected range
   useEffect(() => {
-    if (!props.startTime || !props.endTime || !schedule.length) return;
+    if (!startTime || !endTime || !schedule.length) return;
 
-    const selectedDay = schedule.find((day) => day.date === props.date);
+    const selectedDay = schedule.find((day) => day.date === date);
     if (!selectedDay) return;
 
     const startIdx = selectedDay.slots.findIndex(
-      (s) => s.start_time === props.startTime,
+      (s) => s.start_time === startTime,
     );
     const endIdx = selectedDay.slots.findIndex(
-      (s) => s.start_time === props.endTime,
+      (s) => s.end_time === endTime || s.start_time === endTime,
     );
     if (startIdx === -1 || endIdx === -1) return;
 
@@ -387,17 +409,10 @@ function TimeSlotGridContainer(props: {
         slot.reservation_type === "dorsan desk" ||
         slot.reservation_type === "only running programs",
     );
-    props.onSystemOnlyWarning?.(hasSystemOnly);
-  }, [
-    props.startTime,
-    props.endTime,
-    props.date,
-    schedule,
-    props.onSystemOnlyWarning,
-    props,
-  ]);
+    onSystemOnlyWarning?.(hasSystemOnly);
+  }, [startTime, endTime, date, schedule, onSystemOnlyWarning]);
 
-  if (!props.date) {
+  if (!date) {
     return (
       <div className="text-sm text-gray-400">
         ابتدا تاریخ رزرو را انتخاب کنید.
@@ -426,11 +441,11 @@ function TimeSlotGridContainer(props: {
   return (
     <TimeSlotGrid
       slots={slots}
-      startTime={props.startTime}
-      endTime={props.endTime}
-      setStartTime={props.setStartTime}
-      setEndTime={props.setEndTime}
-      onRangeSelect={props.onRangeSelect}
+      startTime={startTime}
+      endTime={endTime}
+      setStartTime={setStartTime}
+      setEndTime={setEndTime}
+      onRangeSelect={onRangeSelect}
     />
   );
 }
