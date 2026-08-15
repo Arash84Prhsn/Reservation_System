@@ -1,7 +1,7 @@
 "use client";
 import { Suspense, useState } from "react";
 import ColorLegend from "@/features/reservation/components/shared/ColorLegend";
-import { useSidebar } from "@/context/SidebarContext";
+import { useSidebar } from "@/shared/context/SidebarContext";
 import SeatMap from "@/features/reservation/components/mobile";
 import SeatList from "@/features/reservation/components/desktop/SeatList";
 import HomeCalendar from "@/features/reservation/components/desktop/HomeCalendar";

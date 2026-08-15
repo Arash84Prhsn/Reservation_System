@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { SmallHoverCard } from "@/components/common/small-cards/SmallHoverCard";
-import { ConfirmModal } from "@/components/ui/modal/ConfirmModal";
+import { SmallHoverCard } from "@/shared/components/common/small-cards/SmallHoverCard";
+import { ConfirmModal } from "@/shared/components/ui/modal/ConfirmModal";
 import { useActiveReservations } from "@/features/reservation/hooks/use-get-active-reservations";
 import { useCancelReservationById } from "@/features/reservation/hooks/use-cancel-reservation-by-id";
 import { toast } from "sonner";
 import {
   ActiveReservations,
   CancelReservationByIdResponse,
-} from "@/lib/api/services/reservation.service";
+} from "@/shared/lib/api/services/reservation.service";
 import {
   getReservationTypeLabel,
   getSeatTypeLabel,

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { type SeatStatus, MobileSeat } from "@/features/reservation/config/SeatMap.config";
 import DatePicker, { DateObject } from "react-multi-date-picker";
-import Select from "@/components/form/Select";
+import Select from "@/shared/components/form/Select";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import { TimeSlot, TimeSlotGrid } from "./TimeSlotGrid";
@@ -10,12 +10,12 @@ import {
   ReservationType,
   SeatType,
   Warning,
-} from "@/lib/api/services/reservation.service";
+} from "@/shared/lib/api/services/reservation.service";
 import { useMakeReservation } from "@/features/reservation/hooks/use-make-reservation";
 import { useWeeklyScheduleTimeslots } from "@/features/reservation/hooks/use-weekly-schedule-timeslots";
 
 import { useFinalReservationSubmission } from "@/features/reservation/hooks/use-final-reservation-submission";
-import { useModal } from "@/hooks/useModal";
+import { useModal } from "@/shared/hooks/useModal";
 import useOpenDatesForUser from "@/features/reservation/hooks/use-open-dates-for-user";
 import { FinalReservationModal } from "@/features/reservation/components/shared/FinalReservationModal";
 import { toast } from "sonner";
@@ -26,7 +26,7 @@ import {
   LAPTOP_RESERVATION_OPTIONS,
   getSeatTypeLabel,
 } from "@/features/reservation/config/reservation-options";
-import { toPersianDigits } from "@/lib/utils";
+import { toPersianDigits } from "@/shared/lib/utils";
 import { formatPersianTime } from "@/features/reservation/utils/date";
 
 type SeatDetailPanelProps = {

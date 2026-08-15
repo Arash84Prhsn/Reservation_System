@@ -21,12 +21,12 @@ import persian_fa from "react-date-object/locales/persian_fa";
 import gregorian from "react-date-object/calendars/gregorian";
 import gregorian_en from "react-date-object/locales/gregorian_en";
 
-import { useModal } from "@/hooks/useModal";
-import { Modal } from "@/components/ui/modal";
-import Select from "@/components/form/Select";
+import { useModal } from "@/shared/hooks/useModal";
+import { Modal } from "@/shared/components/ui/modal";
+import Select from "@/shared/components/form/Select";
 
 import { CalendarEvent, DesktopSeat } from "@/features/reservation/types";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/shared/context/AuthContext";
 import { mapScheduleIntervalsToCalendarEvents } from "@/features/reservation/utils/mapScheduleIntervalsToCalendarEvents";
 import {
   FinalReservationSubmissionInput,
@@ -35,17 +35,17 @@ import {
   SeatType,
   SYSTEM_ONLY_TYPES,
   Warning,
-} from "@/lib/api/services/reservation.service";
+} from "@/shared/lib/api/services/reservation.service";
 import { useMakeReservation } from "@/features/reservation/hooks/use-make-reservation";
 import { FinalReservationModal } from "@/features/reservation/components/shared/FinalReservationModal";
-import { ConfirmModal } from "@/components/ui/modal/ConfirmModal";
+import { ConfirmModal } from "@/shared/components/ui/modal/ConfirmModal";
 import { useFinalReservationSubmission } from "@/features/reservation/hooks/use-final-reservation-submission";
 import { toast } from "sonner";
 import { useWeeklyScheduleIntervals } from "@/features/reservation/hooks/use-weekly-schedule-intervals";
 import { useQueryClient } from "@tanstack/react-query";
 import { reservationKeys } from "@/features/reservation/queryKeys";
 import { useCancelReservationById } from "@/features/reservation/hooks/use-cancel-reservation-by-id";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import {
   ReservationOption,
   PC_RESERVATION_OPTIONS,

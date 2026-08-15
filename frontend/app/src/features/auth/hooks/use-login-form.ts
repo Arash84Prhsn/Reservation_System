@@ -1,5 +1,5 @@
-import { useAuth } from "@/context/AuthContext";
-import { login } from "@/lib/api/services/auth.service";
+import { useAuth } from "@/shared/context/AuthContext";
+import { login } from "@/shared/lib/api/services/auth.service";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";

@@ -1,9 +1,9 @@
 "use client";
 
-import { AuthProvider } from "@/context/AuthContext";
-import { SidebarProvider } from "@/context/SidebarContext";
-import { ThemeProvider } from "@/context/ThemeContext";
-import { createQueryClient } from "@/lib/react-query/query-client";
+import { AuthProvider } from "@/shared/context/AuthContext";
+import { SidebarProvider } from "@/shared/context/SidebarContext";
+import { ThemeProvider } from "@/shared/context/ThemeContext";
+import { createQueryClient } from "@/shared/lib/react-query/query-client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode, useState } from "react";
 import { Toaster } from "sonner";

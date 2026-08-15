@@ -1,8 +1,8 @@
 import {
   open_dates_for_user,
   SeatType,
-} from "@/lib/api/services/reservation.service";
-import {  useEffect, useState } from "react";
+} from "@/shared/lib/api/services/reservation.service";
+import { useEffect, useState } from "react";
 
 export default function useOpenDatesForUser(seatType: SeatType) {
   const [openDates, setOpenDates] = useState<string[]>([]);

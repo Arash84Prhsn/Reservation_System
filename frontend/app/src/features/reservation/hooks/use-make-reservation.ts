@@ -5,20 +5,20 @@ import {
   FinalReservationSubmissionInput,
   ReservationInfo,
   Warning,
-} from "@/lib/api/services/reservation.service";
+} from "@/shared/lib/api/services/reservation.service";
 import { useState } from "react";
 import { DateObject } from "react-multi-date-picker";
 import { toast } from "sonner";
 
 type MakeReservationResult =
   | {
-      ok: true;
-      reservation_info: ReservationInfo;
-      warning: Warning;
-    }
+    ok: true;
+    reservation_info: ReservationInfo;
+    warning: Warning;
+  }
   | {
-      ok: false;
-    };
+    ok: false;
+  };
 
 /**
  * Hook: useMakeReservation

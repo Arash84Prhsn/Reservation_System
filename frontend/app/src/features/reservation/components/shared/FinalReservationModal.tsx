@@ -7,11 +7,11 @@
  *   Step 2: final_reservation_submission → commits (triggered by this modal)
  */
 
-import { Modal } from "@/components/ui/modal";
+import { Modal } from "@/shared/components/ui/modal";
 import {
   FinalReservationSubmissionInput,
   Warning,
-} from "@/lib/api/services/reservation.service";
+} from "@/shared/lib/api/services/reservation.service";
 import {
   formatPersianDate,
   formatPersianTime,

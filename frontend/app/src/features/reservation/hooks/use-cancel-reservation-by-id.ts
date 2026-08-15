@@ -1,7 +1,7 @@
 import {
   cancel_reservation_by_id,
   CancelReservationByIdResponse,
-} from "@/lib/api/services/reservation.service";
+} from "@/shared/lib/api/services/reservation.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { reservationKeys } from "@/features/reservation/queryKeys";

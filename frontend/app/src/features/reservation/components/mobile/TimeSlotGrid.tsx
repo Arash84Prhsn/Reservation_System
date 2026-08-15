@@ -20,7 +20,7 @@ interface TimeSlotGridProps {
 
   onRangeSelect?: (start: string, end: string) => void;
 }
-import { ScheduleSlotStatus } from "@/lib/api/services/reservation.service";
+import { ScheduleSlotStatus } from "@/shared/lib/api/services/reservation.service";
 import clsx from "clsx"; // برای مدیریت کاندیشنال کلاس‌ها
 import { formatPersianTime } from "@/features/reservation/utils/date";
 

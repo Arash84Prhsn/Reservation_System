@@ -6,7 +6,7 @@ import {
   STATUS_LABEL,
   type MobileSeat,
 } from "@/features/reservation/config/SeatMap.config";
-import { toPersianDigits } from "@/lib/utils";
+import { toPersianDigits } from "@/shared/lib/utils";
 import { getSeatTypeLabel } from "@/features/reservation/config/reservation-options";
 
 interface SeatProps {

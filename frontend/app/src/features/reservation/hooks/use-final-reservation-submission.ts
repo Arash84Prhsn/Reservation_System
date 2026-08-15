@@ -1,7 +1,7 @@
 import {
   final_reservation_submission,
   FinalReservationSubmissionInput,
-} from "@/lib/api/services/reservation.service";
+} from "@/shared/lib/api/services/reservation.service";
 import { useState } from "react";
 import { toast } from "sonner";
 

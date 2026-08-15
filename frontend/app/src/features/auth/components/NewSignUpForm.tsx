@@ -1,20 +1,20 @@
 "use client";
 // TODO: correct the name
-import Input from "@/components/form/input/InputField";
-import Label from "@/components/form/Label";
+import Input from "@/shared/components/form/input/InputField";
+import Label from "@/shared/components/form/Label";
 // import Button from "@/components/ui/button/Button";
-import { EyeCloseIcon, EyeIcon } from "@/icons";
+import { EyeCloseIcon, EyeIcon } from "@/shared/icons";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import ComponentCard from "@/components/common/ComponentCard";
+import ComponentCard from "@/shared/components/common/ComponentCard";
 import { useRegisterForm } from "../hooks/use-register-form";
-import Select from "@/components/form/Select";
-import CustomPhoneInput from "@/components/form/group-input/CustomPhoneInput";
+import Select from "@/shared/components/form/Select";
+import CustomPhoneInput from "@/shared/components/form/group-input/CustomPhoneInput";
 import {
   AssociationStatus,
   ASSOCIATION_STATUS_LABELS,
-} from "@/lib/api/services/auth.service";
-import { useAuth } from "@/context/AuthContext";
+} from "@/shared/lib/api/services/auth.service";
+import { useAuth } from "@/shared/context/AuthContext";
 import { useRouter } from "next/navigation";
 // import Checkbox from "../form/input/Checkbox";
 

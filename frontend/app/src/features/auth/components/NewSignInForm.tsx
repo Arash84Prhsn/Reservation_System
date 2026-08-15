@@ -1,14 +1,14 @@
 "use client";
 // TODO: correct the name
-import Input from "@/components/form/input/InputField";
-import Label from "@/components/form/Label";
-import Button from "@/components/ui/button/Button";
-import { EyeCloseIcon, EyeIcon } from "@/icons";
+import Input from "@/shared/components/form/input/InputField";
+import Label from "@/shared/components/form/Label";
+import Button from "@/shared/components/ui/button/Button";
+import { EyeCloseIcon, EyeIcon } from "@/shared/icons";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import ComponentCard from "@/components/common/ComponentCard";
+import ComponentCard from "@/shared/components/common/ComponentCard";
 import { useLoginForm } from "../hooks/use-login-form";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/shared/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 const NewSignInForm = () => {

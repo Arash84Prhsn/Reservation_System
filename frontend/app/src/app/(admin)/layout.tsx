@@ -1,12 +1,12 @@
 "use client";
 
-import { useAuth } from "@/context/AuthContext";
-import { useSidebar } from "@/context/SidebarContext";
-import AppHeader from "@/layout/AppHeader";
-import AppSidebar from "@/layout/AppSidebar";
-import Backdrop from "@/layout/Backdrop";
-import MobileBottomNavBar from "@/layout/MobileBottomNavBar";
-import MobileTopBar from "@/layout/MobileTopBar";
+import { useAuth } from "@/shared/context/AuthContext";
+import { useSidebar } from "@/shared/context/SidebarContext";
+import AppHeader from "@/shared/layout/AppHeader";
+import AppSidebar from "@/shared/layout/AppSidebar";
+import Backdrop from "@/shared/layout/Backdrop";
+import MobileBottomNavBar from "@/shared/layout/MobileBottomNavBar";
+import MobileTopBar from "@/shared/layout/MobileTopBar";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 

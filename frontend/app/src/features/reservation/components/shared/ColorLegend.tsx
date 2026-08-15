@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { BsQuestionCircle, BsChevronDown } from "react-icons/bs";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { useSidebar } from "@/context/SidebarContext";
+import { cn } from "@/shared/lib/utils";
+import { useSidebar } from "@/shared/context/SidebarContext";
 
 // ============================================================
 // LEGEND DATA

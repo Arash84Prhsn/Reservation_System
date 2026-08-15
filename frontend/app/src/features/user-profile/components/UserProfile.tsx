@@ -1,19 +1,19 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useModal } from "../../../hooks/useModal";
-import { Modal } from "../../../components/ui/modal";
-import Button from "../../../components/ui/button/Button";
-import Input from "../../../components/form/input/InputField";
-import Label from "../../../components/form/Label";
+import { useModal } from "../../../shared/hooks/useModal";
+import { Modal } from "../../../shared/components/ui/modal";
+import Button from "../../../shared/components/ui/button/Button";
+import Input from "../../../shared/components/form/input/InputField";
+import Label from "../../../shared/components/form/Label";
 import Image from "next/image";
 import { useUserProfile } from "../hooks/use-user-profile";
 import { useUpdateEmail } from "../hooks/use-update-email";
 import { useUpdatePhone } from "../hooks/use-update-phone";
 import { useUpdateUsername } from "../hooks/use-update-username";
 import { Loader2 } from "lucide-react";
-import CustomPhoneInput from "@/components/form/group-input/CustomPhoneInput";
-import { getAssociationStatusLabel } from "@/lib/api/services/auth.service";
-import { toPersianDigits } from "@/lib/utils";
+import CustomPhoneInput from "@/shared/components/form/group-input/CustomPhoneInput";
+import { getAssociationStatusLabel } from "@/shared/lib/api/services/auth.service";
+import { toPersianDigits } from "@/shared/lib/utils";
 
 interface FormData {
   username: string;

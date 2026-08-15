@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   SeatType,
   weekly_schedule_timeslots,
-} from "@/lib/api/services/reservation.service";
+} from "@/shared/lib/api/services/reservation.service";
 import { reservationKeys } from "@/features/reservation/queryKeys";
 
 export function useWeeklyScheduleTimeslots(
@@ -19,7 +19,7 @@ export function useWeeklyScheduleTimeslots(
       if (!date || !seatType || !seatNumber) {
         throw new Error("Missing required parameters for weekly timeslots");
       }
-      
+
       return weekly_schedule_timeslots({
         date,
         seat_type: seatType,
@@ -29,9 +29,9 @@ export function useWeeklyScheduleTimeslots(
     select: (data) => data.schedule ?? [],
   });
 
-  return { 
-    schedule: query.data ?? [], 
-    loading: query.isLoading, 
-    error: query.error?.message ?? null 
+  return {
+    schedule: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error?.message ?? null
   };
 }

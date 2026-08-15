@@ -3,8 +3,8 @@
 import { GiOfficeChair } from "react-icons/gi";
 // import { GrUserAdmin } from "react-icons/gr";
 
-import { cn, toPersianDigits } from "@/lib/utils";
-import { SmallButtonCard } from "@/components/common/small-cards/SmallButtonCard";
+import { cn, toPersianDigits } from "@/shared/lib/utils";
+import { SmallButtonCard } from "@/shared/components/common/small-cards/SmallButtonCard";
 import { DesktopSeat } from "@/features/reservation/types";
 
 type SeatListParams = {

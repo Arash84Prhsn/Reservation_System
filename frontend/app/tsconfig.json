@@ -35,8 +35,8 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "src/app/(full-width-pages)/(auth)/(layout.tsx)",
-    "src/layout/SidebarWidget.tsx",
-    "src/components/common/small-cards/SmallBaseCard.tsx"
+    "src/shared/layout/SidebarWidget.tsx",
+    "src/shared/components/common/small-cards/SmallBaseCard.tsx"
   ],
   "exclude": [
     "node_modules"

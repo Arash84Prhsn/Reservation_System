@@ -2,7 +2,7 @@ import {
   current_week_schedule_intervals,
   ScheduleIntervalDay,
   SeatType,
-} from "@/lib/api/services/reservation.service";
+} from "@/shared/lib/api/services/reservation.service";
 import { useEffect, useState } from "react";
 
 interface UseCurrentWeekScheduleIntervalsParams {
