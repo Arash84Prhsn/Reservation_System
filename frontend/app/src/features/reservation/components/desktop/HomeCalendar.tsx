@@ -61,6 +61,7 @@ import {
   formatDateForApi,
   formatTimeForApi,
   getInitialPersianWeekDate,
+  formatPersianNumber,
 } from "@/features/reservation/utils/date";
 
 // ============================================================
@@ -664,7 +665,7 @@ const ReservationModalContent = ({
               </label>
 
               <div className="h-11 w-full rounded-lg border border-gray-200 bg-res-green-100 px-4 py-2.5 text-sm text-gray-700">
-                {selectedDate?.format("YYYY/MM/DD") ?? "-"}
+                {selectedDate ? formatPersianNumber(selectedDate.format("YYYY/MM/DD")) : "-"}
               </div>
             </div>
 

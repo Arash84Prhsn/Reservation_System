@@ -22,6 +22,7 @@ interface TimeSlotGridProps {
 }
 import { ScheduleSlotStatus } from "@/lib/api/services/reservation.service";
 import clsx from "clsx"; // برای مدیریت کاندیشنال کلاس‌ها
+import { formatPersianTime } from "@/features/reservation/utils/date";
 
 export function TimeSlotGrid({
   slots,
@@ -115,7 +116,7 @@ export function TimeSlotGrid({
             slot.status === "event"
           }
         >
-          {slot.time.slice(0, 5)}
+          {formatPersianTime(slot.time)}
         </button>
       ))}
     </div>

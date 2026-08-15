@@ -24,7 +24,10 @@ import { reservationKeys } from "@/features/reservation/queryKeys";
 import {
   PC_RESERVATION_OPTIONS,
   LAPTOP_RESERVATION_OPTIONS,
+  getSeatTypeLabel,
 } from "@/features/reservation/config/reservation-options";
+import { toPersianDigits } from "@/lib/utils";
+import { formatPersianTime } from "@/features/reservation/utils/date";
 
 type SeatDetailPanelProps = {
   seat: MobileSeat;
@@ -101,8 +104,8 @@ export function SeatDetailPanel({
     ? LAPTOP_RESERVATION_OPTIONS
     : PC_RESERVATION_OPTIONS;
 
-  // full label for seat (e.g. "dotin1")
-  const fullLabel = `${seat.type}${seat.number}`;
+  // full label for seat (e.g. "صندلی داتین ۱")
+  const fullLabel = `${getSeatTypeLabel(seat.type as SeatType)} ${toPersianDigits(seat.number)}`;
 
   const finalSubmissionInput =
     useMemo<FinalReservationSubmissionInput | null>(() => {
@@ -278,12 +281,12 @@ export function SeatDetailPanel({
               </label>
               {startTime && endTime && (
                 <span className="rounded border border-gray-300 bg-white px-2 py-0.5 text-xs font-medium text-res-green-success">
-                  بازه انتخابی: {startTime.slice(0, 5)} تا {endTime.slice(0, 5)}
+                  بازه انتخابی: {formatPersianTime(startTime)} تا {formatPersianTime(endTime)}
                 </span>
               )}
               {startTime && !endTime && (
                 <span className="rounded border border-gray-300 bg-white px-2 py-0.5 text-xs text-gray-600">
-                  شروع: {startTime.slice(0, 5)} (روی زمان پایان کلیک کنید)
+                  شروع: {formatPersianTime(startTime)} (روی زمان پایان کلیک کنید)
                 </span>
               )}
             </div>

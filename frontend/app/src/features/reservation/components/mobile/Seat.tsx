@@ -6,6 +6,8 @@ import {
   STATUS_LABEL,
   type MobileSeat,
 } from "@/features/reservation/config/SeatMap.config";
+import { toPersianDigits } from "@/lib/utils";
+import { getSeatTypeLabel } from "@/features/reservation/config/reservation-options";
 
 interface SeatProps {
   seat: MobileSeat;
@@ -32,12 +34,12 @@ export const SeatComponent = memo(function SeatComponent({
 
   const effectiveLabelStatus = isSelected ? "selected" : seat.status;
 
-  const fullLabel = `${seat.type}${seat.number}`;
+  const fullLabel = `${getSeatTypeLabel(seat.type)} ${toPersianDigits(seat.number)}`;
   return (
     <button
       style={{ position: "absolute", ...style }}
       className={cx(
-        "flex items-center justify-center rounded-md  font-bold text-white transition-all",
+        "fa flex items-center justify-center rounded-md font-bold text-white transition-all",
         STATUS_COLOR[effectiveColorStatus],
       )}
       disabled={isDisabled}
@@ -46,7 +48,7 @@ export const SeatComponent = memo(function SeatComponent({
       aria-pressed={isSelected}
       title={fullLabel}
     >
-      {seat.type[0].toUpperCase()} {seat.number}
+      {seat.type[0].toUpperCase()} {toPersianDigits(seat.number)}
     </button>
   );
 });

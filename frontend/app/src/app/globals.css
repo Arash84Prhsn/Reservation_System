@@ -133,7 +133,22 @@
 }
 
 html, body {
-  font-family: "Sahel", sans-serif;
+  font-family: "Sahel", "Vazirmatn", sans-serif;
+  font-feature-settings: "ss01" 1;
+  -webkit-font-feature-settings: "ss01" 1;
+  -moz-font-feature-settings: "ss01" 1;
+}
+
+*, ::after, ::before {
+  font-feature-settings: "ss01" 1;
+  -webkit-font-feature-settings: "ss01" 1;
+  -moz-font-feature-settings: "ss01" 1;
+}
+
+input, button, select, textarea {
+  font-feature-settings: "ss01" 1;
+  -webkit-font-feature-settings: "ss01" 1;
+  -moz-font-feature-settings: "ss01" 1;
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -393,7 +408,10 @@ html, body {
   }
   body {
     @apply relative font-normal font-sans z-1 bg-gray-50;
-    font-family: "Sahel", sans-serif;
+    font-family: "Sahel", "Vazirmatn", sans-serif;
+    font-feature-settings: "ss01" 1;
+    -webkit-font-feature-settings: "ss01" 1;
+    -moz-font-feature-settings: "ss01" 1;
   }
 }
 

@@ -13,6 +13,7 @@ import { useUpdateUsername } from "../hooks/use-update-username";
 import { Loader2 } from "lucide-react";
 import CustomPhoneInput from "@/components/form/group-input/CustomPhoneInput";
 import { getAssociationStatusLabel } from "@/lib/api/services/auth.service";
+import { toPersianDigits } from "@/lib/utils";
 
 interface FormData {
   username: string;
@@ -153,7 +154,7 @@ export default function UserProfile() {
                   تلفن
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {user?.phone || "-"}
+                  {user?.phone ? toPersianDigits(user.phone) : "-"}
                 </p>
               </div>
 

@@ -15,14 +15,12 @@ import {
   getSeatTypeLabel,
 } from "@/features/reservation/config/reservation-options";
 import { UseMutateAsyncFunction } from "@tanstack/react-query";
+import {
+  formatPersianNumber,
+  formatPersianTime,
+} from "@/features/reservation/utils/date";
 
-function formatTimeFa(time: string) {
-  return new Intl.DateTimeFormat("fa-IR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(new Date(`1970-01-01T${time}`));
-}
+
 
 function formatDayFa(date: string) {
   return new Intl.DateTimeFormat("fa-IR", {
@@ -171,7 +169,7 @@ const DesktopReserveList: React.FC<ReserveListUIProps> = ({
           <SmallHoverCard
             key={group.date}
             title={group.label}
-            subTitle={`(${group.reservations.length} رزرو)`}
+            subTitle={`(${formatPersianNumber(String(group.reservations.length))} رزرو)`}
             hoverContent={
               <div className="max-h-72 overflow-auto p-2">
                 {group.reservations.map((reservation, index) => {
@@ -185,7 +183,7 @@ const DesktopReserveList: React.FC<ReserveListUIProps> = ({
                       className="mb-4 last:mb-0"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <h4 className="font-semibold">رزرو {index + 1}</h4>
+                        <h4 className="font-semibold">رزرو {formatPersianNumber(String(index + 1))}</h4>
 
                         <button
                           type="button"
@@ -200,15 +198,15 @@ const DesktopReserveList: React.FC<ReserveListUIProps> = ({
                       </div>
 
                       <p className="mt-2 text-sm text-gray-600">
-                        ساعت: {formatTimeFa(reservation.start_time)} تا{" "}
-                        {formatTimeFa(reservation.end_time)}
+                        ساعت: {formatPersianTime(reservation.start_time)} تا{" "}
+                        {formatPersianTime(reservation.end_time)}
                       </p>
 
                       <p className="text-sm text-gray-600">
                         نوع: {getReservationTypeLabel(reservation.reservation_type)}
                       </p>
                       <p className="text-sm text-gray-600">
-                        صندلی: {getSeatTypeLabel(reservation.seat_type)} {reservation.seat_number}
+                        صندلی: {getSeatTypeLabel(reservation.seat_type)} {formatPersianNumber(String(reservation.seat_number))}
                       </p>
 
                       {index < group.reservations.length - 1 && (
@@ -267,7 +265,7 @@ const MobileReserveList: React.FC<ReserveListUIProps> = ({
             onClick={() => setOpen(open === group.date ? null : group.date)}
           >
             <span>{group.label}</span>
-            <span>({group.reservations.length})</span>
+            <span>({formatPersianNumber(String(group.reservations.length))})</span>
           </button>
 
           {open === group.date && (
@@ -283,7 +281,7 @@ const MobileReserveList: React.FC<ReserveListUIProps> = ({
                     className="rounded-lg border bg-white p-3"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium">رزرو {index + 1}</span>
+                      <span className="font-medium">رزرو {formatPersianNumber(String(index + 1))}</span>
 
                       <button
                         disabled={isDeleting}
@@ -297,8 +295,8 @@ const MobileReserveList: React.FC<ReserveListUIProps> = ({
                     </div>
 
                     <p className="mt-2 text-sm text-gray-600">
-                      {formatTimeFa(reservation.start_time)} تا{" "}
-                      {formatTimeFa(reservation.end_time)}
+                      {formatPersianTime(reservation.start_time)} تا{" "}
+                      {formatPersianTime(reservation.end_time)}
                     </p>
 
                     <p className="text-sm text-gray-600">
@@ -327,7 +325,7 @@ export const MobileCalendar = ({
   groupedReservations,
 }: MobileCalendarProps) => {
   return (
-    <div dir="rtl" className="flex flex-col gap-6 p-4 text-right">
+    <div dir="rtl" className="fa flex flex-col gap-6 p-4 text-right">
       <h2 className="text-xl font-bold text-gray-800">تقویم رزروها</h2>
 
       {groupedReservations.length === 0 ? (
@@ -357,8 +355,8 @@ export const MobileCalendar = ({
                       </span>
 
                       <span className="text-sm font-medium text-gray-700">
-                        {res.start_time.slice(0, 5)} -{" "}
-                        {res.end_time.slice(0, 5)}
+                        {formatPersianTime(res.start_time)} -{" "}
+                        {formatPersianTime(res.end_time)}
                       </span>
                     </div>
                   </div>

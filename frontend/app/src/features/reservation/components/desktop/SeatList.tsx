@@ -3,7 +3,7 @@
 import { GiOfficeChair } from "react-icons/gi";
 // import { GrUserAdmin } from "react-icons/gr";
 
-import { cn } from "@/lib/utils";
+import { cn, toPersianDigits } from "@/lib/utils";
 import { SmallButtonCard } from "@/components/common/small-cards/SmallButtonCard";
 import { DesktopSeat } from "@/features/reservation/types";
 
@@ -77,6 +77,7 @@ const SeatList = ({ seat, onChairSelect }: SeatListParams) => {
                 {Array.from({ length: group.count }, (_, index) => {
                   const chairNumber = index + 1;
                   const chairId = `${group.prefix}${chairNumber}`;
+                  const displayTitle = group.isAdmin ? group.title : `${group.prefix}${toPersianDigits(chairNumber)}`;
                   const isSelected =
                     isSelectedGroup && seat?.number === chairNumber;
 
@@ -92,7 +93,7 @@ const SeatList = ({ seat, onChairSelect }: SeatListParams) => {
                   return (
                     <SmallButtonCard
                       key={chairId}
-                      title={chairId}
+                      title={displayTitle}
                       subTitle={group.isAdmin ? group.subtitle : undefined}
                       icon={chairIcon}
                       className={baseCardClassName}
