@@ -1,4 +1,3 @@
-import { toast } from "sonner";
 import { HttpError } from "../core/errors";
 import { apiFetch } from "../core/http";
 
@@ -136,8 +135,7 @@ export async function login(input: LoginInput) {
 
   // if api status is 2xx but success is false throw err.
   if (!res.success) {
-    toast.error(res.message || "ورود ناموفق بود");
-    throw new HttpError(res.message || "Login failed", 400, res);
+    throw new HttpError(res.message || "ورود ناموفق بود", 400, res);
   }
 
   return res;
@@ -150,8 +148,7 @@ export async function logout() {
 
   // if api status is 2xx but success is false throw err.
   if (!res.success) {
-    toast.error(res.message || "خروج ناموفق بود");
-    throw new HttpError(res.message || "logout failed", 400, res);
+    throw new HttpError(res.message || "خروج ناموفق بود", 400, res);
   }
 
   return res;
@@ -164,8 +161,7 @@ export async function user_profile() {
 
   // if api status is 2xx but success is false throw err.
   if (!res.success) {
-    toast.error(res.message || "دریافت اطلاعات کاربر ناموفق بود");
-    throw new HttpError(res.message || "getting user profile failed", 400, res);
+    throw new HttpError(res.message || "دریافت اطلاعات کاربر ناموفق بود", 400, res);
   }
 
   return res;
@@ -181,8 +177,7 @@ export async function updateEmail(newEmail: string) {
 
   // if api status is 2xx but success is false throw err.
   if (!res.success) {
-    toast.error(res.message || "بروزرسانی ایمیل ناموفق بود");
-    throw new HttpError(res.message || "updating email failed", 400, res);
+    throw new HttpError(res.message || "بروزرسانی ایمیل ناموفق بود", 400, res);
   }
 
   return res;
@@ -198,8 +193,7 @@ export async function updatePhone(newPhone: string) {
 
   // if api status is 2xx but success is false throw err.
   if (!res.success) {
-    toast.error(res.message || "بروزرسانی تلفن ناموفق بود");
-    throw new HttpError(res.message || "updating phone failed", 400, res);
+    throw new HttpError(res.message || "بروزرسانی تلفن ناموفق بود", 400, res);
   }
 
   return res;
@@ -215,8 +209,7 @@ export async function updateUsername(newUsername: string) {
 
   // if api status is 2xx but success is false throw err.
   if (!res.success) {
-    toast.error(res.message || "بروزرسانی نام کاربری ناموفق بود");
-    throw new HttpError(res.message || "updating username failed", 400, res);
+    throw new HttpError(res.message || "بروزرسانی نام کاربری ناموفق بود", 400, res);
   }
 
   return res;

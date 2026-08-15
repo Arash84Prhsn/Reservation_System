@@ -53,6 +53,7 @@ export function useLoginForm() {
             : "مشکلی پیش آمده است";
 
       setError(message);
+      toast.error(message);
     } finally {
       setPending(false);
     }

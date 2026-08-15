@@ -53,7 +53,6 @@ export async function apiFetch<T = unknown>(
       throw new HttpError(getErrorMessage(data, res), res.status, data);
     }
 
-    toast.error(getErrorMessage(data, res) || "خطا در ارتباط با سرور");
     throw new HttpError(getErrorMessage(data, res), res.status, data);
   }
 
