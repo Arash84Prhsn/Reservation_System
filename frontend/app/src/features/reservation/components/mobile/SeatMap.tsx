@@ -46,28 +46,56 @@ export default function SeatMap({ config, data }: SeatMapProps) {
   };
 
   const seatIsNotSelectedMessage = (
-    <div className="mt-4 rounded-4xl h-115 flex justify-center items-center bg-res-green-100 border border-black p-4 shadow-lg">
-      <p className="text-2xl  text-gray-700">ابتدا صندلی خود را انتخاب کنید</p>
+    <div className="mt-4 rounded-2xl flex flex-col justify-center items-center bg-white/80 border border-gray-200/60 shadow-sm p-8 gap-3 backdrop-blur-sm" dir="rtl">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-500 text-2xl">
+        💺
+      </div>
+      <p className="text-base font-bold text-gray-700 text-center">
+        صندلی مورد نظر را انتخاب کنید
+      </p>
+      <p className="text-xs text-gray-400 text-center leading-5">
+        روی یکی از صندلی‌های نقشه کلیک کنید تا فرم رزرو باز شود
+      </p>
     </div>
   );
 
   return (
-    <div className="mx-auto w-full max-w-sm rounded-2xl  p-4" dir="rtl">
-      <div className="relative w-full -mt-12" style={{ paddingBottom: "100%" }}>
-        <div className="absolute inset-0 ">
-          <Table />
-          {seats.map((seat) => (
-            <SeatComponent
-              key={seat.id}
-              seat={seat}
-              total={countBySide[seat.side]}
-              isSelected={seat.id === selectedSeatId}
-              onSelect={handleSelectSeat}
-            />
-          ))}
+    <div className="mx-auto w-full max-w-sm" dir="rtl">
+      {/* ── Map Card ─────────────────────────────────── */}
+      <div className="relative rounded-2xl overflow-hidden border border-gray-200/70 shadow-lg">
+        {/* Room background: subtle dot grid */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundColor: "#f8fafc",
+            backgroundImage:
+              "radial-gradient(circle, #cbd5e1 1px, transparent 1px)",
+            backgroundSize: "20px 20px",
+          }}
+        />
+
+        {/* Subtle vignette */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-slate-100/60 pointer-events-none" />
+
+        {/* Map Canvas */}
+        <div className="relative w-full -mt-12" style={{ paddingBottom: "100%" }}>
+          <div className="absolute inset-0">
+            <Table />
+            {seats.map((seat) => (
+              <SeatComponent
+                key={seat.id}
+                seat={seat}
+                total={countBySide[seat.side]}
+                isSelected={seat.id === selectedSeatId}
+                onSelect={handleSelectSeat}
+              />
+            ))}
+          </div>
         </div>
+
       </div>
 
+      {/* ── Seat Detail / Empty Message ──────────────── */}
       {selectedSeat ? (
         <SeatDetailPanel
           seat={selectedSeat}

@@ -236,6 +236,13 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
    * Opens the "Make Reservation" modal pre-filled with the selected time.
    */
   const handleDateSelect = (selectInfo: DateSelectArg) => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - 2);
+    if (selectInfo.start < now) {
+      toast.error("امکان رزرو در تاریخ و زمان گذشته وجود ندارد");
+      return;
+    }
+
     resetModalFields();
 
     const selected = toPersianDateObject(selectInfo.start);
@@ -436,6 +443,13 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
    * but prevents selection over regular reservations and lab meetings.
    */
   const selectAllow = (selectInfo: { start: Date; end: Date }) => {
+    // Disallow past dates / elapsed timeslots (with 2-minute buffer)
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - 2);
+    if (selectInfo.start < now) {
+      return false;
+    }
+
     const overlappingEvents =
       calendarRef.current
         ?.getApi()
@@ -478,15 +492,17 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
 
   return (
     <div
-      className="w-full  rounded-2xl border border-gray-200
-         dark:border-gray-800 dark:bg-white/[0.03] "
+      className="w-full h-[calc(100vh-130px)] flex flex-col rounded-2xl border border-gray-200 shadow-sm
+         dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden"
     >
-      <div className="custom-calendar">
+      <div className="custom-calendar flex-1 h-full">
         <FullCalendar
           // calendar custom UI
           eventBackgroundColor="transparent"
           eventBorderColor="transparent"
           eventTextColor="inherit"
+          nowIndicator={true}
+          selectMirror={true}
           // some configuration
           eventOverlap={false}
           selectOverlap={false}

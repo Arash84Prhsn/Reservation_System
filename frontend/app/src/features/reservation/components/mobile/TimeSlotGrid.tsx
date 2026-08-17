@@ -81,16 +81,16 @@ export function TimeSlotGrid({
     const isSystemOnly = slot.systemOnly === true;
 
     return clsx(
-      "flex h-12 cursor-pointer items-center justify-center rounded-md border text-xs transition-all",
+      "flex h-12 cursor-pointer items-center justify-center rounded-lg border text-xs font-medium transition-all duration-150 active:scale-95",
       {
-        "bg-res-red text-white cursor-not-allowed":
+        "bg-res-red text-white cursor-not-allowed opacity-80":
           slot.status === "event" && !isSystemOnly,
-        "bg-res-orange text-white cursor-not-allowed":
+        "bg-res-orange text-white cursor-not-allowed opacity-80":
           slot.status === "reserved_by_others" && !slot.systemOnly,
-        "bg-res-green-success  text-white": slot.status === "reserved_by_user",
-        "bg-res-gray-dark/30 text-white": isSystemOnly && !isSelected,
-        "bg-blue-400 text-white font-semibold shadow-sm": isSelected,
-        "bg-white text-gray-800 ":
+        "bg-res-green-success text-white font-semibold": slot.status === "reserved_by_user",
+        "bg-res-gray-dark/30 text-gray-700 dark:text-gray-200 hover:bg-res-gray-dark/50": isSystemOnly && !isSelected,
+        "bg-blue-500 text-white font-bold ring-2 ring-blue-400 ring-offset-1 shadow-md scale-[1.03] z-10": isSelected,
+        "bg-white text-gray-800 hover:bg-emerald-50 hover:border-emerald-300 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700":
           slot.status === "free" && !isSelected && !isSystemOnly,
         "bg-gradient-to-r from-res-gray-dark/30 from-50% to-res-green-success to-50% text-white":
           slot.status === "reserved_by_user_with_system_reservation",

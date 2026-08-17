@@ -10,6 +10,7 @@ import ComponentCard from "@/shared/components/common/ComponentCard";
 import { useLoginForm } from "../hooks/use-login-form";
 import { useAuth } from "@/shared/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 const NewSignInForm = () => {
   const { user, isUserInitialized } = useAuth();
@@ -87,24 +88,31 @@ const NewSignInForm = () => {
                   </div>
                   <div>
                     <Button
-                      className="w-full bg-res-green-success hover:bg-res-green-success/80"
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 rounded-xl"
                       size="sm"
                       disabled={pending}
                     >
-                      <p className="font-bold">ورود</p>
+                      {pending ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <Loader2 className="animate-spin" size={16} />
+                          <span>در حال ورود...</span>
+                        </div>
+                      ) : (
+                        <p className="font-bold">ورود به حساب کاربری</p>
+                      )}
                     </Button>
                   </div>
                 </div>
               </form>
 
-              <div className="fa mt-5">
-                <p className="text-center  font-normal text-gray-700 sm:text-start dark:text-gray-400">
-                  اکانت ندارید ؟ {""}
+              <div className="fa mt-5 text-center sm:text-start">
+                <p className="font-normal text-xs text-gray-600 dark:text-gray-400">
+                  حساب کاربری ندارید؟{" "}
                   <Link
                     href="/signup"
-                    className="text-res-green-success hover:text-res-green-success/80 font-bold dark:text-brand-400"
+                    className="font-bold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400"
                   >
-                    ساخت اکانت
+                    ثبت نام کنید
                   </Link>
                 </p>
               </div>

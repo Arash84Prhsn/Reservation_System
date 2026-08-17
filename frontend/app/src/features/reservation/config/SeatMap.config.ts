@@ -56,14 +56,14 @@ export const STATUS_LABEL: Record<SeatStatus, string> = {
 };
 
 export const STATUS_COLOR: Record<SeatColorTypes, string> = {
-  dotin: "bg-res-green-success hover:bg-res-green-success/80 cursor-pointer",
+  dotin: "bg-white text-gray-800 border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50/50 cursor-pointer shadow-xs",
   optimization:
-    "bg-res-orange hover:bg-res-orange/80 cursor-pointer opacity-70",
-  laptop: "bg-res-gray-dark hover:bg-res-gray-dark/80 cursor-pointer",
-  manager: "bg-res-red hover:bg-res-red/80 cursor-pointer", // this color is not using because manager seat is not selectable according to the requirements.
+    "bg-white text-gray-800 border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50/50 cursor-pointer shadow-xs",
+  laptop: "bg-white text-gray-800 border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50/50 cursor-pointer shadow-xs",
+  manager: "bg-gray-200 text-gray-400 border-2 border-gray-300 cursor-not-allowed opacity-60",
 
-  selected: "bg-blue-400 ring-2 ring-blue-300 cursor-pointer scale-110",
-  disabled: "bg-gray-400 cursor-not-allowed opacity-50",
+  selected: "bg-blue-600 text-white border-2 border-blue-600 ring-2 ring-blue-400/50 cursor-pointer scale-105 shadow-md z-10",
+  disabled: "bg-gray-200 text-gray-400 border-2 border-gray-300 cursor-not-allowed opacity-60",
 };
 
 export const LAYOUT: Record<SeatSide, SeatTypes[]> = {

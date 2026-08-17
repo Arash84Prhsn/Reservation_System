@@ -98,26 +98,27 @@ export default function UserProfile() {
   }
 
   return (
-    <div className="fa ">
-      <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 shadow-res-green-success/30 shadow-lg">
-        <div className="flex flex-col gap-5 pb-6 mb-6 border-b border-gray-200 dark:border-gray-800 xl:flex-row xl:items-center xl:justify-between">
-          <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
-            <div className="w-20 h-20 flex justify-center items-center overflow-hidden border border-gray-200 rounded-full dark:border-gray-800 bg-gray-50">
+    <div className="fa max-w-4xl mx-auto">
+      <div className="p-6 border border-gray-200 rounded-3xl bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 lg:p-8">
+        <div className="flex flex-col gap-5 pb-6 mb-6 border-b border-gray-100 dark:border-gray-800 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex flex-col items-center w-full gap-5 xl:flex-row">
+            <div className="w-20 h-20 flex justify-center items-center overflow-hidden border-2 border-emerald-100 rounded-full dark:border-emerald-900/60 bg-emerald-50 shadow-xs">
               <Image
-                width={50}
-                height={50}
+                width={56}
+                height={56}
                 src="/images/user.png"
                 alt="کاربر"
+                className="object-cover"
               />
             </div>
-            <div className="order-3 xl:order-2">
-              <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-right">
+            <div className="order-3 xl:order-2 text-center xl:text-right">
+              <h4 className="text-xl font-bold text-gray-900 dark:text-white">
                 {user?.username || "-"}
               </h4>
-              <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-right">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="mt-1 flex items-center justify-center xl:justify-start gap-2">
+                <span className="rounded-full bg-emerald-50 border border-emerald-200 px-3 py-0.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-300">
                   {getAssociationStatusLabel(user?.association)}
-                </p>
+                </span>
               </div>
             </div>
           </div>
@@ -126,43 +127,43 @@ export default function UserProfile() {
         {/* اطلاعات شخصی */}
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex-1">
-            <h4 className="mb-6 text-lg font-semibold text-gray-800 dark:text-white/90">
-              اطلاعات شخصی
+            <h4 className="mb-6 text-base font-bold text-gray-800 dark:text-white/90">
+              اطلاعات حساب کاربری
             </h4>
 
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:gap-7">
+              <div className="rounded-2xl border border-gray-100 bg-gray-50/70 p-4 dark:border-gray-800 dark:bg-gray-800/40">
+                <p className="mb-1 text-xs font-medium text-gray-400 dark:text-gray-500">
                   نام کاربری
                 </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                <p className="text-sm font-bold text-gray-800 dark:text-white">
                   {user?.username || "-"}
                 </p>
               </div>
 
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+              <div className="rounded-2xl border border-gray-100 bg-gray-50/70 p-4 dark:border-gray-800 dark:bg-gray-800/40">
+                <p className="mb-1 text-xs font-medium text-gray-400 dark:text-gray-500">
                   آدرس ایمیل
                 </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                <p className="text-sm font-bold text-gray-800 dark:text-white">
                   {user?.email || "-"}
                 </p>
               </div>
 
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  تلفن
+              <div className="rounded-2xl border border-gray-100 bg-gray-50/70 p-4 dark:border-gray-800 dark:bg-gray-800/40">
+                <p className="mb-1 text-xs font-medium text-gray-400 dark:text-gray-500">
+                  شماره تماس
                 </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                <p className="text-sm font-bold text-gray-800 dark:text-white">
                   {user?.phone ? toPersianDigits(user.phone) : "-"}
                 </p>
               </div>
 
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  انجمن
+              <div className="rounded-2xl border border-gray-100 bg-gray-50/70 p-4 dark:border-gray-800 dark:bg-gray-800/40">
+                <p className="mb-1 text-xs font-medium text-gray-400 dark:text-gray-500">
+                  وضعیت همکاری / دانشگاهی
                 </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                <p className="text-sm font-bold text-gray-800 dark:text-white">
                   {getAssociationStatusLabel(user?.association)}
                 </p>
               </div>
@@ -172,13 +173,13 @@ export default function UserProfile() {
           {/* دکمه ویرایش */}
           <button
             onClick={openModal}
-            className="flex w-full items-center justify-center gap-2 rounded-full border border-res-green-800/80 text-white bg-res-green-800 px-4 py-3 text-sm font-medium  shadow-theme-xs hover:bg-res-green-800/80  dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-res-green-900 px-5 py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-res-green-900/90 active:scale-[0.98] lg:w-auto"
           >
-            ویرایش
+            <span>ویرایش مشخصات</span>
             <svg
               className="fill-current"
-              width="18"
-              height="18"
+              width="16"
+              height="16"
               viewBox="0 0 18 18"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -196,65 +197,50 @@ export default function UserProfile() {
 
       {/* مودال ویرایش */}
       <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
-        <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8">
-          <div className="text-left ">
-            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              ویرایش اطلاعات شخصی
+        <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-6 dark:bg-gray-900 lg:p-8" dir="rtl">
+          <div className="text-right border-b border-gray-100 pb-3 dark:border-gray-800">
+            <h4 className="text-xl font-bold text-gray-900 dark:text-white">
+              ویرایش اطلاعات حساب کاربری
             </h4>
           </div>
           <form className="flex flex-col" onSubmit={(e) => e.preventDefault()}>
-            <div className="custom-scrollbar overflow-y-auto px-2 pb-3">
-              <div className="mt-7">
-                {/* <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  اطلاعات شخصی
-                </h5> */}
+            <div className="custom-scrollbar overflow-y-auto pt-4 pb-3">
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div className="col-span-2 lg:col-span-1 text-right">
+                  <Label>نام کاربری</Label>
+                  <Input
+                    type="text"
+                    defaultValue={formData.username}
+                    onChange={handleInputChange("username")}
+                  />
+                </div>
 
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>نام کاربری</Label>
-                    <Input
-                      type="text"
-                      defaultValue={formData.username}
-                      onChange={handleInputChange("username")}
-                    />
-                  </div>
+                <div className="col-span-2 lg:col-span-1 text-right">
+                  <Label>تلفن</Label>
+                  <CustomPhoneInput
+                    defaultValue={formData.phone}
+                    onChange={handleInputChange("phone")}
+                  />
+                </div>
 
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>تلفن</Label>
-                    <CustomPhoneInput
-                      defaultValue={formData.phone}
-                      onChange={handleInputChange("phone")}
-                    />
-                  </div>
-
-                  <div className="col-span-2" dir="ltr">
-                    <Label>آدرس ایمیل</Label>
-                    <Input
-                      type="email"
-                      defaultValue={formData.email}
-                      onChange={handleInputChange("email")}
-                    />
-                  </div>
-
-                  {/* <div className="col-span-2 lg:col-span-1">
-                    <Label>انجمن</Label>
-                    <Input
-                      type="text"
-                      defaultValue={formData.association}
-                      onChange={handleInputChange("association")}
-                    />
-                  </div> */}
+                <div className="col-span-2 text-right">
+                  <Label>آدرس ایمیل</Label>
+                  <Input
+                    type="email"
+                    defaultValue={formData.email}
+                    onChange={handleInputChange("email")}
+                  />
                 </div>
               </div>
             </div>
-            <div className=" flex items-center gap-3 px-2 mt-6 ">
-              <Button size="sm" variant="outline" onClick={closeModal}>
-                بستن
+            <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-100 dark:border-gray-800">
+              <Button size="sm" variant="outline" onClick={closeModal} className="rounded-xl">
+                انصراف
               </Button>
               <Button
                 size="sm"
                 onClick={handleSave}
-                className="bg-res-green-success hover:bg-res-green-success/80"
+                className="bg-emerald-600 hover:bg-emerald-700 rounded-xl"
                 disabled={
                   isSaving ||
                   updateEmailMutation.isPending ||
@@ -264,8 +250,8 @@ export default function UserProfile() {
               >
                 {isSaving ? (
                   <>
-                    <Loader2 className="w-4 h-4 ml-2 animate-spin" /> در حال
-                    ذخیره...
+                    <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                    <span>در حال ذخیره...</span>
                   </>
                 ) : (
                   "ذخیره تغییرات"

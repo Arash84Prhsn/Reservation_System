@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import {
+  CalenderIcon,
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
@@ -24,7 +25,11 @@ const navItems: NavItem[] = [
     icon: <GridIcon />,
     name: "خانه",
     path: "/",
-    // subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+  },
+  {
+    icon: <CalenderIcon />,
+    name: "رزروهای من",
+    path: "/reserve-list",
   },
   {
     icon: <UserCircleIcon />,

@@ -28,24 +28,25 @@ export default function UserDropdown() {
     setIsOpen(false);
   }
   return (
-    <div className="relative bg-res-green-100 p-1 md:p-3 rounded-2xl  ">
+    <div className="relative">
       <button
         onClick={toggleDropdown}
-        className="flex items-center text-gray-700 dark:text-gray-400 dropdown-toggle"
+        className="flex items-center gap-2 rounded-2xl border border-gray-200/80 bg-white/80 px-2.5 py-1.5 text-gray-700 shadow-2xs backdrop-blur-sm transition-all hover:border-gray-300 hover:bg-white dark:border-gray-800 dark:bg-gray-900/80 dark:text-gray-200 dropdown-toggle"
       >
-        <span className="mr-3 overflow-hidden h-6 w-6">
-          <Image width={24} height={24} src="/images/user.png" alt="User" />
+        <span className="relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-100 ring-2 ring-emerald-200 dark:bg-emerald-950/60 dark:ring-emerald-800">
+          <Image width={24} height={24} src="/images/user.png" alt="User" className="object-cover" />
         </span>
 
-        <span className=" mr-1 font-medium text-theme-sm ">
+        <span className="font-semibold text-xs text-gray-800 dark:text-gray-200">
           {user?.username}
         </span>
 
         <svg
-          className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
-            }`}
-          width="18"
-          height="20"
+          className={`stroke-gray-500 transition-transform duration-200 dark:stroke-gray-400 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+          width="16"
+          height="16"
           viewBox="0 0 18 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -53,7 +54,7 @@ export default function UserDropdown() {
           <path
             d="M4.3125 8.65625L9 13.3437L13.6875 8.65625"
             stroke="currentColor"
-            strokeWidth="1.5"
+            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -63,7 +64,7 @@ export default function UserDropdown() {
       <Dropdown
         isOpen={isOpen}
         onClose={closeDropdown}
-        className="absolute left-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
+        className="absolute left-0 mt-2 flex w-60 flex-col rounded-2xl border border-gray-200 bg-white/95 p-3 shadow-xl backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/95 z-50"
       >
         <div>
           <span className=" block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
