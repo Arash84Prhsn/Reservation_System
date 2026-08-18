@@ -27,11 +27,6 @@ const navItems: NavItem[] = [
     path: "/",
   },
   {
-    icon: <CalenderIcon />,
-    name: "رزروهای من",
-    path: "/reserve-list",
-  },
-  {
     icon: <UserCircleIcon />,
     name: "پروفایل",
     path: "/profile",

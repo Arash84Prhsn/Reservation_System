@@ -417,7 +417,7 @@ function TimeSlotGridContainer({
 
   if (!date) {
     return (
-      <div className="text-sm text-gray-400">
+      <div className="flex h-full min-h-[16rem] items-center justify-center text-sm text-gray-200">
         ابتدا تاریخ رزرو را انتخاب کنید.
       </div>
     );
@@ -425,17 +425,28 @@ function TimeSlotGridContainer({
 
   if (loading) {
     return (
-      <div className="text-sm text-gray-300">در حال دریافت زمان‌ها...</div>
+      <div className="grid grid-cols-6 gap-2">
+        {Array.from({ length: 24 }).map((_, i) => (
+          <div
+            key={i}
+            className="flex h-12 animate-pulse rounded-lg bg-white/20"
+          ></div>
+        ))}
+      </div>
     );
   }
 
   if (error) {
-    return <div className="text-sm text-red-400">{error}</div>;
+    return (
+      <div className="flex h-full min-h-[16rem] items-center justify-center text-sm text-red-300">
+        {error}
+      </div>
+    );
   }
 
   if (slots.length === 0) {
     return (
-      <div className="text-sm text-gray-400">
+      <div className="flex h-full min-h-[16rem] items-center justify-center text-sm text-gray-400">
         برای این تاریخ اسلاتی پیدا نشد.
       </div>
     );
