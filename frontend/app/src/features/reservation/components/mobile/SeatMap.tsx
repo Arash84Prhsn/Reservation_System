@@ -67,9 +67,7 @@ export default function SeatMap({ config, data }: SeatMapProps) {
         <div
           className="absolute inset-0"
           style={{
-            backgroundColor: "#f8fafc",
-            backgroundImage:
-              "radial-gradient(circle, #cbd5e1 1px, transparent 1px)",
+            backgroundColor: "#EBFFEE",
             backgroundSize: "20px 20px",
           }}
         />
