@@ -12,8 +12,8 @@ import {
 import {
   formatPersianDate,
   formatPersianTime,
-  formatPersianNumber,
 } from "@/features/reservation/utils/date";
+import { toPersianDigits } from "@/shared/lib/utils";
 import {
   getReservationTypeLabel,
   getSeatTypeLabel,
@@ -119,7 +119,7 @@ export function FinalReservationModal({
             <TicketItem
               icon={<GiOfficeChair className="text-indigo-600 dark:text-indigo-400" size={20} />}
               label="صندلی انتخابی"
-              value={`صندلی ${getSeatTypeLabel(reservationInfo.seat_type)} ${formatPersianNumber(String(reservationInfo.seat_number))}`}
+              value={`صندلی ${getSeatTypeLabel(reservationInfo.seat_type)} ${toPersianDigits(String(reservationInfo.seat_number))}`}
             />
 
             <TicketItem

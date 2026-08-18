@@ -1,5 +1,4 @@
 "use client";
-// TODO: correct the name
 import Input from "@/shared/components/form/input/InputField";
 import Label from "@/shared/components/form/Label";
 import Button from "@/shared/components/ui/button/Button";

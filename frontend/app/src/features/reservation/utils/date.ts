@@ -117,11 +117,6 @@ export const formatTimeForApi = (time: DateObject) => {
 
 const PERSIAN_DIGITS = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
 
-/** Converts ASCII digits in a string to Persian (Farsi) digits. */
-export const formatPersianNumber = (str: string): string => {
-  return str.replace(/\d/g, (digit) => PERSIAN_DIGITS[parseInt(digit)]);
-};
-
 /** Converts a "HH:mm" or "HH:mm:ss" time string to Persian digits (strips seconds). */
 export const formatPersianTime = (timeString: string) => {
   const timeWithoutSeconds = timeString.split(":").slice(0, 2).join(":");

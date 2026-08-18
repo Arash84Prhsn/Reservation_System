@@ -1,8 +1,7 @@
 "use client";
-// TODO: correct the name
+
 import Input from "@/shared/components/form/input/InputField";
 import Label from "@/shared/components/form/Label";
-// import Button from "@/components/ui/button/Button";
 import { EyeCloseIcon, EyeIcon } from "@/shared/icons";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
@@ -17,7 +16,6 @@ import {
 import { useAuth } from "@/shared/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-// import Checkbox from "../form/input/Checkbox";
 
 const NewSignUpForm = () => {
   const { user, isUserInitialized } = useAuth();

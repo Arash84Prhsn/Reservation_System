@@ -15,8 +15,8 @@ import {
   getSeatTypeLabel,
 } from "@/features/reservation/config/reservation-options";
 import { UseMutateAsyncFunction } from "@tanstack/react-query";
+import { toPersianDigits } from "@/shared/lib/utils";
 import {
-  formatPersianNumber,
   formatPersianTime,
 } from "@/features/reservation/utils/date";
 
@@ -169,7 +169,7 @@ const DesktopReserveList: React.FC<ReserveListUIProps> = ({
           <SmallHoverCard
             key={group.date}
             title={group.label}
-            subTitle={`(${formatPersianNumber(String(group.reservations.length))} رزرو)`}
+            subTitle={`(${toPersianDigits(String(group.reservations.length))} رزرو)`}
             hoverContent={
               <div className="max-h-72 overflow-auto p-2">
                 {group.reservations.map((reservation, index) => {
@@ -183,7 +183,7 @@ const DesktopReserveList: React.FC<ReserveListUIProps> = ({
                       className="mb-4 last:mb-0"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <h4 className="font-semibold">رزرو {formatPersianNumber(String(index + 1))}</h4>
+                        <h4 className="font-semibold">رزرو {toPersianDigits(String(index + 1))}</h4>
 
                         <button
                           type="button"
@@ -206,7 +206,7 @@ const DesktopReserveList: React.FC<ReserveListUIProps> = ({
                         نوع: {getReservationTypeLabel(reservation.reservation_type)}
                       </p>
                       <p className="text-sm text-gray-600">
-                        صندلی: {getSeatTypeLabel(reservation.seat_type)} {formatPersianNumber(String(reservation.seat_number))}
+                        صندلی: {getSeatTypeLabel(reservation.seat_type)} {toPersianDigits(String(reservation.seat_number))}
                       </p>
 
                       {index < group.reservations.length - 1 && (
@@ -265,7 +265,7 @@ const MobileReserveList: React.FC<ReserveListUIProps> = ({
             onClick={() => setOpen(open === group.date ? null : group.date)}
           >
             <span>{group.label}</span>
-            <span>({formatPersianNumber(String(group.reservations.length))})</span>
+            <span>({toPersianDigits(String(group.reservations.length))})</span>
           </button>
 
           {open === group.date && (
@@ -281,7 +281,7 @@ const MobileReserveList: React.FC<ReserveListUIProps> = ({
                     className="rounded-lg border bg-white p-3"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium">رزرو {formatPersianNumber(String(index + 1))}</span>
+                      <span className="font-medium">رزرو {toPersianDigits(String(index + 1))}</span>
 
                       <button
                         disabled={isDeleting}

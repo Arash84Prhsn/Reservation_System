@@ -2,29 +2,28 @@ import { HttpError } from "@/shared/lib/api/core/errors";
 import { apiFetch } from "@/shared/lib/api/core/http";
 import { ApiResponse, User } from "@/features/auth/api";
 
-// type: update email
+// ─── Types ────────────────────────────────────────────────────
 export interface UpdateEmailResponse {
   success: boolean;
   message: string;
   newEmail: string;
 }
 
-// type: update phone
+
 export interface UpdatePhoneResponse {
   success: boolean;
   message: string;
   newPhone: string;
 }
 
-// type: update user name
+
 export interface UpdateUsernameResponse {
   success: boolean;
   message: string;
   newUsername: string;
 }
 
-// API functions
-
+// ─── API Functions ────────────────────────────────────────────
 export async function user_profile() {
   const res = await apiFetch<ApiResponse<User>>("/user/profile", {
     method: "GET",

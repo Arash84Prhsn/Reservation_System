@@ -6,7 +6,7 @@ export interface LogoutResponse {
   success: string;
 }
 
-// type: register, login
+// ─── Types & Enums ────────────────────────────────────────────
 export enum AssociationStatus {
   None = "None",
   DotinEmployee = "Dotin employee",
@@ -90,8 +90,7 @@ export type ApiResponse<T> = {
   data: T;
 };
 
-// API functions
-
+// ─── API Functions ────────────────────────────────────────────
 export async function register(input: RegisterInput) {
   const res = await apiFetch<ApiResponse<User>>("/auth/register", {
     method: "POST",

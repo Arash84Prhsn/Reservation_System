@@ -1,7 +1,7 @@
 import { HttpError } from "@/shared/lib/api/core/errors";
 import { apiFetch } from "@/shared/lib/api/core/http";
 
-// type: reservation
+// ─── Types: Reservation ───────────────────────────────────────
 export type ReservationSystemOnly = "only running programs" | "dorsan desk";
 export const SYSTEM_ONLY_TYPES: ReservationSystemOnly[] = [
   "only running programs",
@@ -35,7 +35,7 @@ export interface ReservationResponse {
   warning: Warning;
 }
 
-// type: schedule timeslots for a week (mobile)
+// ─── Types: Schedule Timeslots (Mobile) ───────────────────────
 export type ScheduleSlotStatus =
   | "free"
   | "reserved_by_user"
@@ -69,14 +69,14 @@ export interface WeeklyScheduleTimeslotsResponse {
   schedule: ScheduleTimeslotDay[];
 }
 
-// type: dates that user can reserve.
+// ─── Types: Open Dates ────────────────────────────────────────
 export interface OpenDatesForUserResponse {
   success: true;
   message?: string;
   dates: string[];
 }
 
-// type: final reservation submission
+// ─── Types: Final Reservation ─────────────────────────────────
 export type FinalReservationSubmissionInput = ReservationInfo;
 
 export interface FinalReservationSubmissionResponse {
@@ -84,7 +84,7 @@ export interface FinalReservationSubmissionResponse {
   message: string;
 }
 
-// type: current week schedule intervals (desktop)
+// ─── Types: Current Week Schedule (Desktop) ───────────────────
 export interface CurrentWeekScheduleIntervalsInput {
   seat_type: SeatType;
   seat_number: number;
@@ -114,7 +114,7 @@ export interface CurrentWeekScheduleIntervalsResponse {
   dates: ScheduleIntervalDay[];
 }
 
-// type: weekly schedule intervals (desktop)
+// ─── Types: Weekly Schedule (Desktop) ─────────────────────────
 export interface WeeklyScheduleIntervalsInput extends CurrentWeekScheduleIntervalsInput {
   date: string;
 }
@@ -123,7 +123,7 @@ export interface WeeklyScheduleIntervalsResponse extends CurrentWeekScheduleInte
   message?: string;
 }
 
-// type: user active reservation
+// ─── Types: User Active Reservations ──────────────────────────
 export interface ActiveReservations {
   reservation_id: number;
   date: string;
@@ -140,15 +140,18 @@ export interface GetUserActiveReservationsResponse {
   reservations: ActiveReservations[];
 }
 
-// type: cancell reservation
+// ─── Types: Cancel Reservation ────────────────────────────────
 
 export interface CancelReservationByIdResponse {
   success: boolean;
   message: string;
 }
 
-//API functions
-// make reservation API
+// ─── API Functions ────────────────────────────────────────────
+
+/**
+ * Step 1: Pre-validate a reservation before final submission.
+ */
 export async function make_reservation(input: ReservationInfo) {
   const res = await apiFetch<ReservationResponse>(
     "/reservation/make_reservation",
@@ -165,11 +168,13 @@ export async function make_reservation(input: ReservationInfo) {
   return res;
 }
 
-// time slot for a week (mobile) API
+/**
+ * Fetch available time slots for a specific day and seat (Mobile View).
+ */
 export async function weekly_schedule_timeslots(
   input: WeeklyScheduleTimeslotsInput,
 ) {
-  //TODO: report to backend and fix the API response type. (data instead of schedule)
+  // TODO: report to backend and fix the API response type. (data instead of schedule)
   const res = await apiFetch<WeeklyScheduleTimeslotsResponse>(
     "reservation/weekly_schedule_timeslots",
     {
@@ -186,6 +191,9 @@ export async function weekly_schedule_timeslots(
   return res;
 }
 
+/**
+ * Fetch dates that have available slots for a specific seat type.
+ */
 export async function open_dates_for_user(seat_type: SeatType) {
   const res = await apiFetch<OpenDatesForUserResponse>(
     "/reservation/open_dates_for_user",
@@ -202,6 +210,9 @@ export async function open_dates_for_user(seat_type: SeatType) {
   return res;
 }
 
+/**
+ * Step 2: Finalize and submit the reservation.
+ */
 export async function final_reservation_submission(
   input: FinalReservationSubmissionInput,
 ) {
@@ -224,6 +235,9 @@ export async function final_reservation_submission(
   return res;
 }
 
+/**
+ * Fetch the schedule intervals for the current week (Desktop View).
+ */
 export async function current_week_schedule_intervals(
   input: CurrentWeekScheduleIntervalsInput,
 ) {
@@ -243,6 +257,9 @@ export async function current_week_schedule_intervals(
   return res;
 }
 
+/**
+ * Fetch the schedule intervals for a specific week (Desktop View).
+ */
 export async function weekly_schedule_intervals(
   input: WeeklyScheduleIntervalsInput,
 ) {
@@ -262,6 +279,9 @@ export async function weekly_schedule_intervals(
   return res;
 }
 
+/**
+ * Fetch all active reservations for the currently logged-in user.
+ */
 export async function get_user_active_reservations() {
   const res = await apiFetch<GetUserActiveReservationsResponse>(
     "/reservation/get_user_active_reservations",
@@ -277,6 +297,9 @@ export async function get_user_active_reservations() {
   return res;
 }
 
+/**
+ * Cancel a specific reservation by ID.
+ */
 export async function cancel_reservation_by_id(reservation_id: number) {
   const res = await apiFetch<CancelReservationByIdResponse>(
     "/reservation/cancel_reservation_by_id",

@@ -161,23 +161,4 @@ export function useSeatMap({ data }: UseSeatMapProps) {
   return { seats, config: mergedConfig };
 }
 
-// export function useSeatMap({ config = {}, data }: UseSeatMapProps) {
-//   const mergedConfig = { ...DEFAULT_SEAT_CONFIG, ...config };
 
-//   const seats = useMemo<Seat[]>(() => {
-//     const sides: SeatSide[] = ["top", "bottom", "left", "right"];
-//     return sides.flatMap((side) => {
-//       const count = mergedConfig[side];
-//       return Array.from({ length: count }, (_, i) => {
-//         const id = `${side}-${i}`;
-//         const fromData = data?.find((d) => d.id === id);
-//         // mock status اگه data نداشتیم
-//         const status: SeatStatus =
-//           fromData?.status ?? (i % 3 === 0 ? "reserved" : "available");
-//         return makeSeat(side, i, status, type);
-//       });
-//     });
-//   }, [mergedConfig, data]);
-
-//   return { seats, config: mergedConfig };
-// }

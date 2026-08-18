@@ -18,11 +18,7 @@ const CALENDAR_LEGEND_ITEMS = [
   { colorClass: "bg-gray-400", label: 'رزرو \"فقط سیستم\"' },
 ] as const;
 
-// const SEAT_LEGEND_ITEMS = [
-//   { colorClass: "bg-green-500", label: "صندلی آزاد" },
-//   { colorClass: "bg-red-500", label: "صندلی اشغال شده" },
-//   { colorClass: "bg-yellow-500", label: "صندلی در حال رزرو" },
-// ] as const;
+
 
 // ============================================================
 // MAIN COLOR LEGEND COMPONENT

@@ -11,7 +11,7 @@ type ApiFetchOptions = Omit<RequestInit, "body"> & {
 
 function withQuery(url: string, query?: ApiFetchOptions["query"]) {
   if (!query) return url;
-  const u = new URL(url, "http://dummy-base"); // برای ساخت query بدون توجه به origin
+  const u = new URL(url, "http://dummy-base"); // For robust URL parsing without requiring an origin
   Object.entries(query).forEach(([k, v]) => {
     if (v === undefined || v === null) return;
     u.searchParams.set(k, String(v));
@@ -21,6 +21,9 @@ function withQuery(url: string, query?: ApiFetchOptions["query"]) {
     : `${url}?${u.searchParams}`;
 }
 
+/**
+ * Core fetch wrapper. Handles base URL injection, query params, and JSON payloads.
+ */
 export async function apiFetch<T = unknown>(
   path: string,
   options: ApiFetchOptions = {},
@@ -32,7 +35,7 @@ export async function apiFetch<T = unknown>(
 
   const res = await fetch(url, {
     ...init,
-    // برای session-cookie لازم است (به‌خصوص اگر dev جدا یا subdomain شد)
+    // Include cookies (required for session-based auth)
     credentials: "include",
     headers: {
       ...(body ? { "Content-Type": "application/json" } : {}),
