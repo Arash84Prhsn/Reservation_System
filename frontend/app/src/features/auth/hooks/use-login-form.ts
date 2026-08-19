@@ -1,5 +1,5 @@
-import { useAuth } from "@/context/AuthContext";
-import { login } from "@/lib/api/services/auth.servise";
+import { useAuth } from "@/shared/context/AuthContext";
+import { login } from "../api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -53,6 +53,7 @@ export function useLoginForm() {
             : "مشکلی پیش آمده است";
 
       setError(message);
+      toast.error(message);
     } finally {
       setPending(false);
     }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AssociationStatus, register } from "@/lib/api/services/auth.servise";
-import { useAuth } from "@/context/AuthContext";
+import { AssociationStatus, register } from "../api";
+import { useAuth } from "@/shared/context/AuthContext";
 import { toast } from "sonner";
 
 export function useRegisterForm() {
@@ -64,6 +64,7 @@ export function useRegisterForm() {
             : "مشکلی پیش آمده است";
 
       setError(message);
+      toast.error(message);
     } finally {
       setPending(false);
     }

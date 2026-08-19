@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { userKeys } from "../queryKeys";
-import { user_profile } from "@/lib/api/services/auth.servise";
+import { user_profile } from "../api";
 
 export function useUserProfile() {
   return useQuery({

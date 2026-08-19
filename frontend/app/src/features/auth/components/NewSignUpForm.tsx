@@ -1,19 +1,31 @@
 "use client";
-// TODO: correct the name
-import Input from "@/components/form/input/InputField";
-import Label from "@/components/form/Label";
-// import Button from "@/components/ui/button/Button";
-import { EyeCloseIcon, EyeIcon } from "@/icons";
+
+import Input from "@/shared/components/form/input/InputField";
+import Label from "@/shared/components/form/Label";
+import { EyeCloseIcon, EyeIcon } from "@/shared/icons";
 import Link from "next/link";
-import React, { useState } from "react";
-import ComponentCard from "../../../components/common/ComponentCard";
+import React, { useState, useEffect } from "react";
+import ComponentCard from "@/shared/components/common/ComponentCard";
 import { useRegisterForm } from "../hooks/use-register-form";
-import Select from "@/components/form/Select";
-import CustomPhoneInput from "@/components/form/group-input/CustomPhoneInput";
-import { AssociationStatus } from "@/lib/api/services/auth.servise";
-// import Checkbox from "../form/input/Checkbox";
+import Select from "@/shared/components/form/Select";
+import CustomPhoneInput from "@/shared/components/form/group-input/CustomPhoneInput";
+import {
+  AssociationStatus,
+  ASSOCIATION_STATUS_LABELS,
+} from "../api";
+import { useAuth } from "@/shared/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 const NewSignUpForm = () => {
+  const { user, isUserInitialized } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isUserInitialized && user) {
+      router.replace("/");
+    }
+  }, [user, isUserInitialized, router]);
   const [showPassword, setShowPassword] = useState(false);
   const {
     username,
@@ -36,19 +48,10 @@ const NewSignUpForm = () => {
     label: string;
   }
 
-  const options: Options[] = [
-    { value: AssociationStatus.None, label: "None" },
-    { value: AssociationStatus.BachelorStudent, label: "BachelorStudent" },
-    {
-      value: AssociationStatus.DataScienceCompetitions,
-      label: "DataScienceCompetitions",
-    },
-    { value: AssociationStatus.DotinAssociate, label: "DotinAssociate" },
-    { value: AssociationStatus.DotinEmployee, label: "DotinEmployee" },
-    { value: AssociationStatus.MasterStudent, label: "MasterStudent" },
-    { value: AssociationStatus.PhDStudent, label: "PhDStudent" },
-    { value: AssociationStatus.RelatedCompany, label: "RelatedCompany" },
-  ];
+  const options: Options[] = Object.values(AssociationStatus).map((value) => ({
+    value,
+    label: ASSOCIATION_STATUS_LABELS[value],
+  }));
   //   const [isChecked, setIsChecked] = useState(false);
 
   const title = (
@@ -175,7 +178,7 @@ const NewSignUpForm = () => {
                       type="email"
                       id="email"
                       name="email"
-                      placeholder="Enter your email"
+                      placeholder="ایمیل خود را وارد کنید"
                       defaultValue={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
@@ -187,7 +190,7 @@ const NewSignUpForm = () => {
                     </Label>
                     <div className="relative">
                       <Input
-                        placeholder="Enter your password"
+                        placeholder="رمز عبور خود را وارد کنید"
                         type={showPassword ? "text" : "password"}
                         defaultValue={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -225,24 +228,32 @@ const NewSignUpForm = () => {
                   {/* <!-- Button --> */}
                   <div>
                     <button
+                      type="button"
                       onClick={(e) => onSubmit(e)}
                       disabled={pending}
-                      className="bg-res-green-success shadow-theme-xs hover:bg-res-green-success/80 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-bold text-white transition"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      ثبت نام
+                      {pending ? (
+                        <>
+                          <Loader2 className="animate-spin" size={16} />
+                          <span>در حال ثبت نام...</span>
+                        </>
+                      ) : (
+                        <span>ثبت نام در سامانه</span>
+                      )}
                     </button>
                   </div>
                 </div>
               </form>
 
-              <div className="fa mt-5 ">
-                <p className="text-center  font-normal text-gray-700 sm:text-start dark:text-gray-400">
-                  قبلا ثبت نام کردید ؟ {""}
+              <div className="fa mt-5 text-center sm:text-start">
+                <p className="font-normal text-xs text-gray-600 dark:text-gray-400">
+                  قبلاً ثبت نام کرده‌اید؟{" "}
                   <Link
                     href="/signin"
-                    className="text-res-green-success hover:text-res-green-success/80 font-bold dark:text-brand-400"
+                    className="font-bold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400"
                   >
-                    ورود
+                    وارد شوید
                   </Link>
                 </p>
               </div>

@@ -4,11 +4,161 @@
 /* @import "@fullcalendar/timegrid/index.css"; */
 /* @import "@fullcalendar/common/main.css"; */
 
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazir-matn/Vazirmatn-Thin.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazir-matn/Vazirmatn-ExtraLight.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazir-matn/Vazirmatn-Light.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazir-matn/Vazirmatn-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazir-matn/Vazirmatn-Medium.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazir-matn/Vazirmatn-SemiBold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazir-matn/Vazirmatn-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazir-matn/Vazirmatn-ExtraBold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazir-matn/Vazirmatn-Black.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sahel";
+  src: url("/fonts/sahel/Sahel-Light.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sahel";
+  src: url("/fonts/sahel/Sahel.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sahel";
+  src: url("/fonts/sahel/Sahel-SemiBold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sahel";
+  src: url("/fonts/sahel/Sahel-SemiBold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sahel";
+  src: url("/fonts/sahel/Sahel-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sahel";
+  src: url("/fonts/sahel/Sahel-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sahel";
+  src: url("/fonts/sahel/Sahel-Black.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+
+html, body {
+  font-family: "Sahel", "Vazirmatn", sans-serif;
+  font-feature-settings: "ss01" 1;
+  -webkit-font-feature-settings: "ss01" 1;
+  -moz-font-feature-settings: "ss01" 1;
+}
+
+*, ::after, ::before {
+  font-feature-settings: "ss01" 1;
+  -webkit-font-feature-settings: "ss01" 1;
+  -moz-font-feature-settings: "ss01" 1;
+}
+
+input, button, select, textarea {
+  font-feature-settings: "ss01" 1;
+  -webkit-font-feature-settings: "ss01" 1;
+  -moz-font-feature-settings: "ss01" 1;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {
   --font-*: initial;
-  --font-outfit: Outfit, sans-serif;
+  --font-sahel: "Sahel", sans-serif;
+  --font-sans: "Sahel", sans-serif;
+  --font-outfit: "Sahel", sans-serif;
+  --font-vazir: "Vazirmatn", sans-serif;
 
 
 
@@ -257,7 +407,11 @@
     cursor: pointer;
   }
   body {
-    @apply relative font-normal font-outfit z-1 bg-gray-50;
+    @apply relative font-normal font-sans z-1 bg-gray-50;
+    font-family: "Sahel", "Vazirmatn", sans-serif;
+    font-feature-settings: "ss01" 1;
+    -webkit-font-feature-settings: "ss01" 1;
+    -moz-font-feature-settings: "ss01" 1;
   }
 }
 
@@ -716,6 +870,54 @@ span.flatpickr-weekday,
   background-color: #e5e7eb ;
   color: #9ca3af ;
   cursor: not-allowed;
+}
+
+/* Past days and slots visual disabling */
+.fc .fc-day-past {
+  background-color: rgba(243, 244, 246, 0.6) !important;
+}
+
+.fc-timegrid .fc-day-past .fc-timegrid-col-events {
+  opacity: 0.85;
+}
+
+.fc-timegrid-col.fc-day-past .fc-timegrid-slot-lane {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 10px,
+    rgba(229, 231, 235, 0.4) 10px,
+    rgba(229, 231, 235, 0.4) 20px
+  );
+  cursor: not-allowed !important;
+}
+
+/* Current time now indicator */
+.fc .fc-timegrid-now-indicator-line {
+  border-color: #ef4444 !important;
+  border-width: 2px !important;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+  z-index: 10 !important;
+}
+
+.fc .fc-timegrid-now-indicator-arrow {
+  border-top-color: #ef4444 !important;
+  border-bottom-color: #ef4444 !important;
+  z-index: 11 !important;
+}
+
+/* Calendar Event card polish */
+.fc-timegrid-event {
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+  overflow: hidden !important;
+}
+
+.fc-timegrid-event:hover {
+  transform: translateY(-1px) scale(1.01) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12) !important;
+  z-index: 20 !important;
 }
 
 

@@ -1,0 +1,7 @@
+export { default } from "./SeatMap";
+export type {
+  SeatMapConfig,
+  SeatData,
+  SeatStatus,
+  MobileSeat,
+} from "@/features/reservation/config/SeatMap.config";

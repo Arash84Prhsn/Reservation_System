@@ -1,18 +1,14 @@
 "use client";
-import { useState } from "react";
-import ColorLegend from "@/features/home/components/ColorLegend";
-import { useSidebar } from "@/context/SidebarContext";
-import SeatMap from "@/features/home/components/seat-map";
-import { SeatType } from "@/lib/api/services/reservation.service";
-import SeatList from "@/features/home/components/SeatList";
-import HomeCalendar from "@/features/home/components/HomeCalendar";
-import ReserveList from "@/features/home/components/ReserveList";
-export interface DesktopSeat {
-  type: SeatType;
-  number: number;
-}
+import { Suspense, useState } from "react";
+import ColorLegend from "@/features/reservation/components/shared/ColorLegend";
+import { useSidebar } from "@/shared/context/SidebarContext";
+import SeatMap from "@/features/reservation/components/mobile";
+import SeatList from "@/features/reservation/components/desktop/SeatList";
+import HomeCalendar from "@/features/reservation/components/desktop/HomeCalendar";
+import ReserveList from "@/features/reservation/components/desktop/ReserveList";
+import { DesktopSeat } from "@/features/reservation/types";
 
-export default function Ecommerce() {
+export default function HomePage() {
   const { isMobile } = useSidebar();
   const [seat, setSeat] = useState<DesktopSeat | null>(null);
 
@@ -21,28 +17,45 @@ export default function Ecommerce() {
   };
 
   const seatIsNotSelectedMessage = (
-    <div className="w-full flex justify-center items-center border rounded-2xl  bg-res-green-100 h-[calc(100vh-130px)]">
-      <p className="text-4xl">ابتدا صندلی خود را انتخاب کنید</p>
+    <div className="w-full h-full flex justify-center items-center border border-gray-200 rounded-2xl bg-white/90 p-6 shadow-sm backdrop-blur-sm dark:border-gray-800 dark:bg-gray-900/90" dir="rtl">
+      <div className="text-center">
+        <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-2xl bg-blue-50 text-blue-600 text-3xl mb-3 dark:bg-blue-950/40 dark:text-blue-400">
+          💺
+        </div>
+        <p className="text-xl font-bold text-gray-800 dark:text-gray-100">
+          ابتدا صندلی مورد نظر خود را انتخاب کنید
+        </p>
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          از لیست سمت راست، یکی از صندلی‌های آزمایشگاه را انتخاب نمایید تا برنامه هفتگی نمایش داده شود
+        </p>
+      </div>
     </div>
   );
 
   return (
-    <div>
+    <div className="w-full">
       {isMobile ? (
-        <>
+        <Suspense
+          fallback={
+            <div className="flex h-64 items-center justify-center">
+              <p className="fa text-gray-500">در حال بارگذاری نقشه صندلی‌ها...</p>
+            </div>
+          }
+        >
           <SeatMap />
-          {/* <ColorLegend /> */}
-        </>
+        </Suspense>
       ) : (
-        <div className="flex justify-end gap-5  h-[calc(100vh-130px)]">
+        <div className="flex items-start gap-4 h-[calc(100vh-130px)] w-full overflow-hidden">
+          {/* Left Column: Reserve List */}
           <ReserveList />
 
-          {/* if chair is not selected, don't show calendar */}
-          {seat ? <HomeCalendar seat={seat} /> : seatIsNotSelectedMessage}
+          {/* Center Column: Calendar or Empty Message */}
+          <div className="flex-1 min-w-0 h-full overflow-hidden">
+            {seat ? <HomeCalendar seat={seat} /> : seatIsNotSelectedMessage}
+          </div>
 
+          {/* Right Column: Seat List */}
           <SeatList seat={seat} onChairSelect={onChairSelect} />
-
-          {/* fixed color guidence */}
         </div>
       )}
       <ColorLegend />
