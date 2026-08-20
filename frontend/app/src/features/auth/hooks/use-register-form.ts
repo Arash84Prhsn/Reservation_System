@@ -6,8 +6,6 @@ import { toast } from "sonner";
 
 export function useRegisterForm() {
   const router = useRouter();
-
-  //STATES
   const [association, setAssociation] = useState<AssociationStatus>(
     AssociationStatus.None,
   );
@@ -17,43 +15,44 @@ export function useRegisterForm() {
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { login: localLogin } = useAuth();
 
-  //HOOKS
-  const { login: LocalLogin } = useAuth();
+  async function onSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (pending) return;
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+    const normalizedUsername = username.trim();
+    const normalizedEmail = email.trim();
+    const normalizedPhone = phone.trim();
+
+    if (association === AssociationStatus.None) {
+      const message = "نوع همکاری یا وضعیت دانشگاهی را انتخاب کنید";
+      setError(message);
+      toast.error(message);
+      return;
+    }
+
+    if (!/^09\d{9}$/.test(normalizedPhone)) {
+      const message = "شماره تلفن باید ۱۱ رقم و با 09 شروع شود";
+      setError(message);
+      toast.error(message);
+      return;
+    }
+
     setPending(true);
     setError(null);
 
     try {
-      const {
-        data: receivedUser,
-        // success,
-        message,
-      } = await register({
+      const { data: receivedUser, message } = await register({
         association,
-        email,
+        email: normalizedEmail,
         password,
-        phone,
-        username,
+        phone: normalizedPhone,
+        username: normalizedUsername,
       });
 
-      // false success is handled in the API service, so no need to check success here.
-      // if (success) {
       toast.success(message || "ثبت‌نام با موفقیت انجام شد");
-      // }
-
-      // set user to local storage
-      LocalLogin({
-        username: receivedUser.username,
-        email: receivedUser.email,
-        id: receivedUser.id,
-        association: receivedUser.association,
-        phone: receivedUser.phone,
-      });
-
-      // go to dashboard
+      localLogin(receivedUser);
       router.replace("/");
     } catch (err) {
       const message =

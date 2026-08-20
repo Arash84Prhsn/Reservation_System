@@ -1,30 +1,15 @@
-"use client";
-
-import React, { useEffect } from "react";
 import ReserveList from "@/features/reservation/components/desktop/ReserveList";
-import { NextPage } from "next";
-import { useSidebar } from "@/shared/context/SidebarContext";
-import { useRouter } from "next/navigation";
+import type { Metadata } from "next";
 
-const ReserveListPage: NextPage = () => {
-  const { isMobile } = useSidebar();
-  const router = useRouter();
+export const metadata: Metadata = {
+  title: "رزروهای من",
+  description: "مشاهده و مدیریت رزروهای فعال کاربر.",
+};
 
-  useEffect(() => {
-    if (!isMobile) {
-      router.replace("/");
-    }
-  }, [isMobile, router]);
-
-  if (!isMobile) {
-    return null;
-  }
-
+export default function ReserveListPage() {
   return (
     <div className="flex flex-col">
       <ReserveList />
     </div>
   );
-};
-
-export default ReserveListPage;
+}

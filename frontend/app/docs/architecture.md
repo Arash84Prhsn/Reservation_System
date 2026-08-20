@@ -1,151 +1,92 @@
 # Frontend Architecture
 
-## 1. Overview
+## Overview
 
-The frontend is a **Next.js 14 (App Router)** application written in TypeScript. It follows a [Feature-Sliced Design (FSD)](https://feature-sliced.design/) inspired architecture, which keeps business logic co-located, prevents cross-feature coupling, and scales cleanly as the product grows.
+The frontend is a **Next.js 14 App Router** application written in TypeScript. The code is organized around business features so authentication, reservation, and profile logic remain separated from reusable UI and infrastructure.
 
----
+## Main Structure
 
-## 2. Directory Structure
-
-```
-frontend/app/
-├── docs/                         # ← You are here
-│   ├── README.md                 # Documentation index
-│   ├── architecture.md           # This file
-│   ├── future-recommendations.md
-│   └── features/                 # Per-feature documentation
-├── public/
-│   └── videos/                   # Instructional video assets for /help page
-└── src/
-    ├── app/                      # Next.js App Router (pages & layouts)
-    │   ├── (admin)/              # Protected routes (requires login)
-    │   │   ├── layout.tsx        # AdminLayout: auth guard + shell
-    │   │   ├── page.tsx          # Home dashboard (/)
-    │   │   ├── calendar/         # /calendar
-    │   │   ├── reserve-list/     # /reserve-list
-    │   │   ├── profile/          # /profile
-    │   │   └── help/             # /help
-    │   ├── (full-width-pages)/   # Public routes (auth pages, error)
-    │   │   └── (auth)/           # /signin, /signup
-    │   ├── layout.tsx            # Root layout (Providers wrapper)
-    │   ├── providers.tsx         # React Query, Theme, Auth, Sidebar providers
-    │   └── globals.css           # Global Tailwind CSS + custom colors
-    ├── features/                 # Isolated business domains
-    │   ├── auth/
-    │   ├── reservation/
-    │   └── user-profile/
-    └── shared/                   # Domain-agnostic, reusable code
-        ├── components/           # Generic UI: Button, Modal, Input, Alert...
-        ├── context/              # Global React Contexts
-        ├── hooks/                # Generic hooks (useModal, useLocalStorage...)
-        ├── icons/                # Centralized SVG icon exports
-        ├── layout/               # App shell: Sidebar, Header, BottomNav...
-        └── lib/
-            ├── api/core/         # apiFetch wrapper, error handling, config
-            └── utils.ts          # cn(), toPersianDigits()
+```text
+src/
+├── app/                         # Routes, layouts, providers, global CSS
+├── features/
+│   ├── auth/                    # Login, registration, logout
+│   ├── reservation/             # Desktop/mobile booking experiences
+│   └── user-profile/            # Profile display and update flow
+└── shared/
+    ├── components/              # Reusable form/UI components
+    ├── context/                 # Auth, theme, responsive layout state
+    ├── icons/                   # SVG icons used by the application
+    ├── layout/                  # Sidebar, headers, mobile navigation
+    └── lib/                     # API client, React Query, utilities
 ```
 
-### Layer Import Rules (FSD)
+## State Management
 
-| Layer | Can import from |
-|---|---|
-| `app/` | `features/`, `shared/` |
-| `features/auth` | `shared/` only |
-| `features/reservation` | `shared/` only |
-| `features/user-profile` | `shared/`, `features/auth` (for types) |
-| `shared/` | Nothing in `features/` or `app/` |
-
-> ⚠️ **Critical Rule:** A feature must **never** import from another feature's internal implementation. Cross-feature data (e.g., `User` type) must be exposed through that feature's public `api/index.ts` barrel.
-
----
-
-## 3. State Management Strategy
-
-| State Type | Tool | Where |
+| State | Tool | Examples |
 |---|---|---|
-| **Server state** (API data) | TanStack Query (React Query) | Feature-level hooks |
-| **Global client state** | React Context | `shared/context/` |
-| **Local UI state** | `useState` / `useReducer` | Inside components |
+| Server state | TanStack React Query | schedules, reservations, profile data |
+| Global UI/session state | React Context | authenticated user, responsive navigation, theme |
+| Component state | React state/hooks | selected seat, form values, modal state |
 
-### React Query Cache Keys
+Reservation and profile queries use feature-owned query-key factories so invalidation remains predictable after mutations.
 
-Each feature owns its query keys in a `queryKeys.ts` file:
+## API Layer
 
-- `src/features/reservation/queryKeys.ts`
-- `src/features/user-profile/queryKeys.ts`
+All HTTP requests go through `src/shared/lib/api/core/http.ts`.
 
-This prevents key collisions and makes cache invalidation predictable.
+The backend origin is configured with:
 
----
-
-## 4. API Layer
-
-All HTTP requests flow through a single typed wrapper: `src/shared/lib/api/core/http.ts`.
-
-### `apiFetch<T>(path, options)`
-
-```ts
-// Example usage inside a service function
-export async function get_user_active_reservations() {
-  const res = await apiFetch<GetUserActiveReservationsResponse>(
-    "/reservation/get_user_active_reservations",
-    { method: "GET" },
-  );
-  if (!res.success) throw new HttpError(...);
-  return res;
-}
+```env
+NEXT_PUBLIC_API_BASE=http://localhost:5000
 ```
 
-**What `apiFetch` handles automatically:**
+`makeApiUrl()` appends `/api` and the endpoint path. For example, `/auth/login` becomes:
 
-1. **Base URL** — prepends `NEXT_PUBLIC_API_URL` via `makeApiUrl()`.
-2. **Query params** — accepts a `query` object and appends it as URL search params.
-3. **JSON body** — auto-stringifies the `body` object and sets `Content-Type: application/json`.
-4. **Credentials** — always sends `credentials: "include"` (required for session cookies).
-5. **401 handling** — on unauthorized, dispatches `auth:logout` event, clears local storage, and redirects to `/signin`.
-6. **Error parsing** — throws an `HttpError` with a user-facing Persian message extracted from the response body.
-
----
-
-## 5. Responsive Layout Strategy
-
-The app renders **two completely different UIs** depending on screen size:
-
-| Viewport | Navigation | Main Content |
-|---|---|---|
-| Desktop (`lg+`) | Collapsible sidebar (`AppSidebar`) + top `AppHeader` | `HomeCalendar` + `SeatList` |
-| Mobile (`< lg`) | Top bar (`MobileTopBar`) + Bottom nav (`MobileBottomNavBar`) | Interactive `SeatMap` |
-
-The `useSidebar()` context hook exposes `isMobile` (a boolean derived from `window.innerWidth < 1024`) which all layout and feature components use to conditionally render the correct UI.
-
----
-
-## 6. Date & Localization
-
-The app is **fully localized for Persian (Farsi)**:
-
-- **Calendar:** All dates are displayed in the **Jalali (Shamsi)** calendar using `react-multi-date-picker`.
-- **Numerals:** All numbers are converted to Persian digits using `toPersianDigits()` from `shared/lib/utils.ts`.
-- **Time:** The `formatPersianTime()` utility in `features/reservation/utils/date.ts` converts `"HH:mm"` strings to Persian digit format.
-- **API contract:** The backend expects **Gregorian** dates. The `formatDateForApi()` function converts Persian `DateObject` back to `"YYYY-MM-DD"` before every API call.
-
-```
-UI (Jalali) ──formatDateForApi()──► API (Gregorian)
-API (Gregorian) ──dateStringToPersianDateObject()──► UI (Jalali)
+```text
+http://localhost:5000/api/auth/login
 ```
 
----
+The shared client:
 
-## 7. Theming
+- sends `credentials: "include"` for cookie/session authentication;
+- JSON-encodes request bodies;
+- supports query parameters without overwriting existing URL queries;
+- converts non-2xx responses to `HttpError`;
+- performs a guarded browser-side logout/redirect on HTTP 401.
 
-Dark/Light mode is managed by the `ThemeContext` and persisted in `localStorage`.
+The frontend intentionally fails with a clear configuration error if `NEXT_PUBLIC_API_BASE` is missing instead of silently calling an incorrect relative API URL.
 
-Custom color tokens (defined in `globals.css` and `tailwind.config.ts`) use the `res-` prefix:
+## Protected Layout
 
-| Token | Description |
-|---|---|
-| `res-green-900` | Primary brand dark green |
-| `res-green-success` | Success state / "my reservation" |
-| `res-red` | Lab event (disabled slot) |
-| `res-orange` | Reserved by others |
+Routes in `src/app/(admin)/` are protected by the shared admin layout. It waits for both:
+
+1. authentication state to be restored from local storage; and
+2. viewport mode to be initialized.
+
+If no user exists, it redirects to `/signin`. Waiting for viewport initialization also prevents a desktop/mobile layout flash during hydration.
+
+## Responsive Strategy
+
+The application uses the same breakpoint in JavaScript and Tailwind:
+
+- **Desktop:** `1024px` and wider (`lg`)
+- **Mobile/tablet:** below `1024px`
+
+Desktop uses the sidebar/header plus the weekly calendar and seat list. Mobile/tablet uses the compact top bar, bottom navigation, graphical seat map, and time-slot selector.
+
+## Localization and Dates
+
+The interface is Persian and RTL. Jalali date presentation is handled with `react-multi-date-picker` and `react-date-object` while backend requests use Gregorian `YYYY-MM-DD` dates.
+
+Important helpers live in `src/features/reservation/utils/date.ts`:
+
+- `toPersianDateObject()`
+- `dateStringToPersianDateObject()`
+- `formatDateForApi()`
+- `formatTimeForApi()`
+- `formatPersianDate()` / `formatPersianTime()`
+
+## Branding and Error Handling
+
+The application uses the Financial Technologies Laboratory logo and the project green/orange visual language throughout the shell, authentication screens, help page, and custom 404 page. Unknown routes are handled by `NotFoundView`, with actions back to the reservation home page or help page.

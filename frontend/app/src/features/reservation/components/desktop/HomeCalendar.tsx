@@ -97,7 +97,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
   // ─── Verified reservation state (from Step 1 API response) ──
   const [verifiedReservationInfo, setVerifiedReservationInfo] =
     useState<FinalReservationSubmissionInput | null>(null);
-  const [verifiedReservationWanring, setVerifiedReservationWanring] =
+  const [verifiedReservationWarning, setVerifiedReservationWarning] =
     useState<Warning | null>(null);
 
   // Tracks whether user is selecting over system-only events
@@ -394,7 +394,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     if (!result.ok) return;
 
     setVerifiedReservationInfo(result.reservation_info);
-    setVerifiedReservationWanring(result.warning);
+    setVerifiedReservationWarning(result.warning);
     closeMakeReservationModal();
     openFinalReservationModal();
     resetModalFields();
@@ -478,11 +478,17 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
   const confirmCancel = async () => {
     const reservationId = selectedEvent?.extendedProps?.reservationId;
 
+    if (!reservationId) {
+      toast.error("شناسه رزرو معتبر نیست");
+      setIsCancelModalOpen(false);
+      return;
+    }
+
     try {
-      if (reservationId) await cancelReservation(reservationId);
+      await cancelReservation(reservationId);
       closeMakeReservationModal();
     } catch {
-      toast.error("حذف رزرو انجام نشد");
+      // The mutation hook already shows the backend error to the user.
     } finally {
       setIsCancelModalOpen(false);
     }
@@ -505,7 +511,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
           selectMirror={true}
           // some configuration
           eventOverlap={false}
-          selectOverlap={false}
+          selectOverlap={true}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           locale={faLocale}
           editable={false}
@@ -577,11 +583,12 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
         onClose={() => {
           closeFinalReservationModal();
           setVerifiedReservationInfo(null);
+          setVerifiedReservationWarning(null);
         }}
         onConfirm={handleConfirmFinalSubmission}
         pending={finalSubmissionPending}
         reservationInfo={verifiedReservationInfo}
-        reservationWarning={verifiedReservationWanring}
+        reservationWarning={verifiedReservationWarning}
       />
 
       <ConfirmModal
@@ -691,13 +698,12 @@ const ReservationModalContent = ({
               </label>
 
               <Select
-                key={`${mode}-${reservationType ?? "empty"}`}
                 options={reservationOptions}
+                value={reservationType ?? ""}
                 placeholder="انتخاب کنید"
                 onChange={(value) =>
                   onReservationTypeChange(value as ReservationType)
                 }
-                defaultValue={reservationType || ""}
                 className="fa dark:bg-dark-900"
                 disabled={isReadOnly}
               />

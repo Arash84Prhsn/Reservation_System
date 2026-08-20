@@ -1,0 +1,18 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Frontend dependencies and build output
+frontend/app/node_modules/
+frontend/app/.next/
+frontend/app/out/
+frontend/app/build/
+frontend/app/*.tsbuildinfo
+
+# Local environment files
+frontend/app/.env*.local
+
+# OS/editor files
+.DS_Store
+.vscode/
+.idea/

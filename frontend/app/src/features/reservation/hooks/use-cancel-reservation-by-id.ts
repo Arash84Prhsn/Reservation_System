@@ -1,6 +1,6 @@
 import {
   cancel_reservation_by_id,
-  CancelReservationByIdResponse,
+  type CancelReservationByIdResponse,
 } from "../api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -10,21 +10,13 @@ export function useCancelReservationById() {
   const queryClient = useQueryClient();
 
   const mutation = useMutation<CancelReservationByIdResponse, Error, number>({
-    mutationFn: async (reservationId: number) => {
-      return cancel_reservation_by_id(reservationId);
-    },
-
+    mutationFn: cancel_reservation_by_id,
     onSuccess: async (response) => {
       toast.success(response.message || "رزرو با موفقیت حذف شد");
-
-      // update all reservation-related queries
-      await queryClient.invalidateQueries({
-        queryKey: reservationKeys.all,
-      });
+      await queryClient.invalidateQueries({ queryKey: reservationKeys.all });
     },
-
     onError: (error) => {
-      console.error("Cancel reservation failed:", error);
+      toast.error(error.message || "حذف رزرو انجام نشد");
     },
   });
 

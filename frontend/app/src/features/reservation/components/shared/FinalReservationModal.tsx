@@ -50,7 +50,7 @@ export function FinalReservationModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      className="max-w-[560px] overflow-visible rounded-3xl bg-white p-6 shadow-2xl backdrop-blur-md dark:bg-gray-900 lg:p-8"
+      className="max-w-[560px] overflow-visible rounded-3xl bg-res-green-100 p-6 shadow-2xl backdrop-blur-md dark:bg-gray-900 lg:p-8"
     >
       <div className="relative flex flex-col text-right" dir="rtl">
         {/* Header */}

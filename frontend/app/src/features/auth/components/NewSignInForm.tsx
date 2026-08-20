@@ -1,124 +1,138 @@
 "use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+import ComponentCard from "@/shared/components/common/ComponentCard";
 import Input from "@/shared/components/form/input/InputField";
 import Label from "@/shared/components/form/Label";
 import Button from "@/shared/components/ui/button/Button";
 import { EyeCloseIcon, EyeIcon } from "@/shared/icons";
-import Link from "next/link";
-import React, { useState, useEffect } from "react";
-import ComponentCard from "@/shared/components/common/ComponentCard";
-import { useLoginForm } from "../hooks/use-login-form";
 import { useAuth } from "@/shared/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { useLoginForm } from "../hooks/use-login-form";
 
 const NewSignInForm = () => {
   const { user, isUserInitialized } = useAuth();
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const { username, password, pending, onSubmit, setUsername, setPassword } =
+    useLoginForm();
 
   useEffect(() => {
     if (isUserInitialized && user) {
       router.replace("/");
     }
   }, [user, isUserInitialized, router]);
-  const [showPassword, setShowPassword] = useState(false);
-  const {
-    username,
-    password,
-    // error,
-    pending,
-    onSubmit,
-    setUsername,
-    setPassword,
-    // setError,
-    // setPending,
-  } = useLoginForm();
 
   const title = (
-    <p className="text-title-sm sm:text-title-md mb-2 text-center text-gray-800 dark:text-white/90">
-      ورود به سامانه
-    </p>
+    <div className="text-center">
+      <p className="mb-1 text-2xl font-bold text-gray-800 dark:text-white/90 sm:text-3xl">
+        ورود به سامانه
+      </p>
+      <p className="text-xs font-normal text-gray-500 sm:text-sm">
+        سامانه رزرو آزمایشگاه فناوری‌های مالی
+      </p>
+    </div>
   );
+
   return (
-    <div className="flex h-screen items-center justify-center">
-      <ComponentCard title={title} className="shadow-2xl min-w-96">
-        <div className="flex w-full max-w-md flex-1 flex-col justify-center">
-          <div>
+    <main
+      dir="rtl"
+      className="flex min-h-dvh items-center justify-center bg-res-green-100/60 p-4"
+    >
+      <div className="w-full max-w-md">
+        <div className="mb-5 flex justify-center">
+          <Image
+            src="/DOTIN/Logo/lab.png"
+            alt="آزمایشگاه فناوری‌های مالی"
+            width={150}
+            height={48}
+            className="h-auto w-[150px]"
+            priority
+          />
+        </div>
 
-              <form onSubmit={(e) => onSubmit(e)}>
-                <div className="space-y-6">
-                  <div>
-                    <Label className="fa">
-                      نام کاربری <span className="text-error-500">*</span>{" "}
-                    </Label>
-                    <Input
-                      type="text"
-                      id="fname"
-                      name="fname"
-                      className="fa"
-                      defaultValue={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Label className="fa">
-                      رمز عبور <span className="text-error-500">*</span>{" "}
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        placeholder="رمز عبور خود را وارد کنید"
-                        type={showPassword ? "text" : "password"}
-                        defaultValue={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                      <span
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute top-1/2 right-4 z-30 -translate-y-1/2 cursor-pointer"
-                      >
-                        {showPassword ? (
-                          <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
-                        ) : (
-                          <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
+        <ComponentCard title={title} className="w-full shadow-2xl">
+          <form onSubmit={onSubmit} className="space-y-6">
+            <div>
+              <Label className="fa" htmlFor="username">
+                نام کاربری <span className="text-error-500">*</span>
+              </Label>
+              <Input
+                type="text"
+                id="username"
+                name="username"
+                className="fa"
+                value={username}
+                autoComplete="username"
+                required
+                onChange={(event) => setUsername(event.target.value)}
+              />
+            </div>
 
-                  </div>
-                  <div>
-                    <Button
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 rounded-xl"
-                      size="sm"
-                      disabled={pending}
-                    >
-                      {pending ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <Loader2 className="animate-spin" size={16} />
-                          <span>در حال ورود...</span>
-                        </div>
-                      ) : (
-                        <p className="font-bold">ورود به حساب کاربری</p>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </form>
-
-              <div className="fa mt-5 text-center sm:text-start">
-                <p className="font-normal text-xs text-gray-600 dark:text-gray-400">
-                  حساب کاربری ندارید؟{" "}
-                  <Link
-                    href="/signup"
-                    className="font-bold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400"
-                  >
-                    ثبت نام کنید
-                  </Link>
-                </p>
+            <div>
+              <Label className="fa" htmlFor="password">
+                رمز عبور <span className="text-error-500">*</span>
+              </Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  placeholder="رمز عبور خود را وارد کنید"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  autoComplete="current-password"
+                  required
+                  onChange={(event) => setPassword(event.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? "مخفی کردن رمز عبور" : "نمایش رمز عبور"}
+                  className="absolute left-3 top-1/2 z-30 -translate-y-1/2 rounded-md p-1 text-gray-500 transition hover:bg-gray-100"
+                >
+                  {showPassword ? (
+                    <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
+                  ) : (
+                    <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
+                  )}
+                </button>
               </div>
             </div>
+
+            <Button
+              type="submit"
+              className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700"
+              size="sm"
+              disabled={pending}
+            >
+              {pending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>در حال ورود...</span>
+                </>
+              ) : (
+                <span className="font-bold">ورود به حساب کاربری</span>
+              )}
+            </Button>
+          </form>
+
+          <div className="fa mt-5 text-center">
+            <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
+              حساب کاربری ندارید؟{" "}
+              <Link
+                href="/signup"
+                className="font-bold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400"
+              >
+                ثبت نام کنید
+              </Link>
+            </p>
           </div>
         </ComponentCard>
       </div>
+    </main>
   );
 };
 

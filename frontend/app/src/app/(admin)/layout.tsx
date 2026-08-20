@@ -15,7 +15,13 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isExpanded, isHovered, isMobileOpen, isMobile } = useSidebar();
+  const {
+    isExpanded,
+    isHovered,
+    isMobileOpen,
+    isMobile,
+    isViewportInitialized,
+  } = useSidebar();
   const { user, isUserInitialized } = useAuth();
   const router = useRouter();
 
@@ -25,7 +31,7 @@ export default function AdminLayout({
     if (!user) router.replace("/signin");
   }, [user, router, isUserInitialized]);
 
-  if (!user || !isUserInitialized) {
+  if (!user || !isUserInitialized || !isViewportInitialized) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="flex flex-col items-center gap-4">

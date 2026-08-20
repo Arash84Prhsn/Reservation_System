@@ -18,7 +18,6 @@ import { useFinalReservationSubmission } from "@/features/reservation/hooks/use-
 import { useModal } from "@/shared/hooks/useModal";
 import useOpenDatesForUser from "@/features/reservation/hooks/use-open-dates-for-user";
 import { FinalReservationModal } from "@/features/reservation/components/shared/FinalReservationModal";
-import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { reservationKeys } from "@/features/reservation/queryKeys";
 import {
@@ -58,13 +57,12 @@ export function SeatDetailPanel({
   const [verifiedReservationInfo, setVerifiedReservationInfo] =
     useState<FinalReservationSubmissionInput | null>(null);
 
-  // ADD THIS LINE ↓
   const [verifiedReservationWarning, setVerifiedReservationWarning] =
     useState<Warning | null>(null);
 
-  const [hasSystemOnlyInRange, setHasSystemOnlyInRange] = useState(false); // 👈 new
+  const [hasSystemOnlyInRange, setHasSystemOnlyInRange] = useState(false);
 
-  const queryClient = useQueryClient(); // ← ADD THIS
+  const queryClient = useQueryClient();
 
   const { isOpen, openModal, closeModal } = useModal();
   // make reservation
@@ -107,35 +105,6 @@ export function SeatDetailPanel({
   // full label for seat (e.g. "صندلی داتین ۱")
   const fullLabel = `${getSeatTypeLabel(seat.type as SeatType)} ${toPersianDigits(seat.number)}`;
 
-  const finalSubmissionInput =
-    useMemo<FinalReservationSubmissionInput | null>(() => {
-      if (
-        !reservationDate ||
-        !reservationType ||
-        !startTime ||
-        !endTime ||
-        !seat.type ||
-        !seat.number
-      ) {
-        return null;
-      }
-
-      return {
-        reservation_date: reservationDate,
-        reservation_type: reservationType,
-        start_time: startTime,
-        end_time: endTime,
-        seat_type: seat.type as SeatType,
-        seat_number: seat.number,
-      };
-    }, [
-      reservationDate,
-      reservationType,
-      startTime,
-      endTime,
-      seat.type,
-      seat.number,
-    ]);
 
   useEffect(() => {
     setSeatType(seat.type as SeatType);
@@ -161,12 +130,6 @@ export function SeatDetailPanel({
 
   async function handleOpenFinalModal() {
     await handleSubmitReservation();
-    if (!finalSubmissionInput) {
-      toast.error("DEV ERR: Reservation form is incomplete");
-      return;
-    }
-
-    openModal();
   }
 
   /**
@@ -264,11 +227,11 @@ export function SeatDetailPanel({
 
               <Select
                 options={reservationOptions}
+                value={reservationType ?? ""}
                 placeholder="انتخاب کنید"
                 className="relative text-black"
-                // defaultValue={reservationType}
                 onChange={(value) =>
-                  setReservationType(value as ReservationType | null)
+                  setReservationType(value as ReservationType)
                 }
               />
             </div>
@@ -299,9 +262,6 @@ export function SeatDetailPanel({
               seatType={seat.type as SeatType}
               setStartTime={setStartTime}
               setEndTime={setEndTime}
-              onRangeSelect={() => {
-
-              }}
               onSystemOnlyWarning={setHasSystemOnlyInRange}
             />
           </div>
@@ -330,6 +290,7 @@ export function SeatDetailPanel({
         onClose={() => {
           closeModal();
           setVerifiedReservationInfo(null);
+          setVerifiedReservationWarning(null);
         }}
         onConfirm={handleConfirmFinalSubmission}
         pending={finalSubmissionPending}
@@ -370,7 +331,7 @@ function TimeSlotGridContainer({
       seatNumber,
     },
     {
-      enabled: Boolean(date && seatType && seatNumber),
+      enabled: Boolean(date && seatType && seatNumber !== null && seatNumber !== undefined),
     },
   );
 

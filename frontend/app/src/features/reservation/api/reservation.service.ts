@@ -42,7 +42,7 @@ export type ScheduleSlotStatus =
   | "reserved_by_user_with_system_reservation"
   | "reserved_by_others"
   | "reserved_by_others_with_system_reservation"
-  | "event"; // event is lab meeting (technicaly "disabled").
+  | "event"; // event is lab meeting (technically "disabled").
 
 export interface ScheduleSlot {
   timeslot_number: number;
@@ -131,7 +131,7 @@ export interface ActiveReservations {
   reservation_type: ReservationType;
   start_time: string;
   end_time: string;
-  seat_type: string;
+  seat_type: SeatType;
   seat_number: number;
 }
 export interface GetUserActiveReservationsResponse {
@@ -174,9 +174,8 @@ export async function make_reservation(input: ReservationInfo) {
 export async function weekly_schedule_timeslots(
   input: WeeklyScheduleTimeslotsInput,
 ) {
-  // TODO: report to backend and fix the API response type. (data instead of schedule)
   const res = await apiFetch<WeeklyScheduleTimeslotsResponse>(
-    "reservation/weekly_schedule_timeslots",
+    "/reservation/weekly_schedule_timeslots",
     {
       method: "POST",
       body: input,
@@ -205,7 +204,7 @@ export async function open_dates_for_user(seat_type: SeatType) {
 
   // if api status is 2xx but success is false throw err.
   if (!res.success) {
-    throw new HttpError(res.message || "دریافت روز های قابل رزرو ناموفق بود", 400, res);
+    throw new HttpError(res.message || "دریافت روزهای قابل رزرو ناموفق بود", 400, res);
   }
   return res;
 }
@@ -273,7 +272,7 @@ export async function weekly_schedule_intervals(
 
   // if api status is 2xx but success is false throw err.
   if (!res.success) {
-    throw new HttpError(res.message || "خطا در دریافت رزروه های هفته خواسته شده", 400, res);
+    throw new HttpError(res.message || "خطا در دریافت رزروهای هفته مورد نظر", 400, res);
   }
 
   return res;
@@ -291,7 +290,7 @@ export async function get_user_active_reservations() {
   );
   // if api status is 2xx but success is false throw err.
   if (!res.success) {
-    throw new HttpError(res.message || "خطا در دریافت رزرو های فعال", 400, res);
+    throw new HttpError(res.message || "خطا در دریافت رزروهای فعال", 400, res);
   }
 
   return res;

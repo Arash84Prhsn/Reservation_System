@@ -91,14 +91,14 @@ const ReserveList = () => {
 
   return (
     <>
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <DesktopReserveList {...commonProps} />
       </div>
 
-      <div className="md:hidden">
+      <div className="lg:hidden">
         <MobileReserveList {...commonProps} />
       </div>
-      <div className="md:hidden">
+      <div className="lg:hidden">
         <MobileCalendar groupedReservations={groupedReservations} />
       </div>
 

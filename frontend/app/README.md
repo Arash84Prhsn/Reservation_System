@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Reservation System Frontend
 
-## Getting Started
+This directory contains the Next.js frontend for the Financial Technologies Laboratory reservation system.
 
-First, run the development server:
+For the full project overview, architecture, features, and academic project information, see [`../../README.md`](../../README.md).
+
+## Quick Start on Ubuntu
 
 ```bash
+cd frontend/app
+cp ../../.env.example .env.local
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000` in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The backend must be running at the address configured by `NEXT_PUBLIC_API_BASE`. The frontend automatically calls endpoints under `${NEXT_PUBLIC_API_BASE}/api/...` and sends cookies with `credentials: "include"`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Validation Before Submission
 
-## Learn More
+```bash
+npm run typecheck
+npm run lint
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Frontend Source Layout
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```text
+src/
+├── app/                 # Next.js routes and layouts
+├── features/
+│   ├── auth/            # Authentication UI, hooks, and API service
+│   ├── reservation/     # Desktop/mobile booking flows
+│   └── user-profile/    # Profile display and update flow
+└── shared/
+    ├── components/      # Reusable UI components
+    ├── context/         # Auth, theme, and responsive-layout state
+    ├── layout/          # Desktop/mobile navigation shell
+    └── lib/             # API client, errors, React Query, utilities
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Technical documentation is available under [`docs/`](docs/).

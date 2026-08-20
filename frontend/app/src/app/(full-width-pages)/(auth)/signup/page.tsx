@@ -1,13 +1,11 @@
 import NewSignUpForm from "@/features/auth/components/NewSignUpForm";
-// import SignUpForm from "@/components/auth/SignUpForm";
-// import { Metadata } from "next";
+import type { Metadata } from "next";
 
-// export const metadata: Metadata = {
-//   title: "Next.js SignUp Page | TailAdmin - Next.js Dashboard Template",
-//   description: "This is Next.js SignUp Page TailAdmin Dashboard Template",
-// other metadata
-// };
+export const metadata: Metadata = {
+  title: "ثبت نام",
+  description: "ایجاد حساب کاربری در سامانه رزرو آزمایشگاه فناوری‌های مالی.",
+};
 
-export default function SignUp() {
+export default function SignUpPage() {
   return <NewSignUpForm />;
 }

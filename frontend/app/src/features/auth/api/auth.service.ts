@@ -3,7 +3,7 @@ import { apiFetch } from "@/shared/lib/api/core/http";
 
 export interface LogoutResponse {
   message: string;
-  success: string;
+  success: boolean;
 }
 
 // ─── Types & Enums ────────────────────────────────────────────
