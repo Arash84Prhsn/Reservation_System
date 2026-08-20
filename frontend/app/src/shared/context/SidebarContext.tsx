@@ -1,5 +1,6 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect } from "react";
+
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 type SidebarContextType = {
   isExpanded: boolean;
@@ -7,6 +8,7 @@ type SidebarContextType = {
   isHovered: boolean;
   activeItem: string | null;
   isMobile: boolean;
+  isViewportInitialized: boolean;
   openSubmenu: string | null;
   toggleSidebar: () => void;
   toggleMobileSidebar: () => void;
@@ -31,14 +33,18 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isViewportInitialized, setIsViewportInitialized] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [activeItem, setActiveItem] = useState<string | null>(null);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth < 768;
+      // Keep the JavaScript responsive mode aligned with Tailwind's `lg` breakpoint.
+      const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
+      setIsViewportInitialized(true);
+
       if (!mobile) {
         setIsMobileOpen(false);
       }
@@ -47,9 +53,7 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
     handleResize();
     window.addEventListener("resize", handleResize);
 
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const toggleSidebar = () => {
@@ -71,6 +75,7 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
         isMobileOpen,
         isHovered,
         isMobile,
+        isViewportInitialized,
         activeItem,
         openSubmenu,
         toggleSidebar,

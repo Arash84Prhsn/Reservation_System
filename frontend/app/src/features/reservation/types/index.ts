@@ -5,7 +5,7 @@
  * live here. This prevents circular dependencies and keeps types centralized.
  */
 
-import { EventInput } from "@fullcalendar/core/index.js";
+import type { EventInput } from "@fullcalendar/core";
 import { SeatType } from "../api";
 
 // ─── Desktop Seat ─────────────────────────────────────────

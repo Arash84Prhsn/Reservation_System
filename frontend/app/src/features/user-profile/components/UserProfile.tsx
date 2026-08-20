@@ -14,6 +14,7 @@ import { Loader2 } from "lucide-react";
 import CustomPhoneInput from "@/shared/components/form/group-input/CustomPhoneInput";
 import { getAssociationStatusLabel } from "@/features/auth/api";
 import { toPersianDigits } from "@/shared/lib/utils";
+import { useAuth } from "@/shared/context/AuthContext";
 
 interface FormData {
   username: string;
@@ -30,6 +31,7 @@ export default function UserProfile() {
     association: "",
   });
   const [isSaving, setIsSaving] = useState(false);
+  const { login: updateLocalUser } = useAuth();
 
   const { isOpen, openModal, closeModal } = useModal();
 
@@ -69,9 +71,19 @@ export default function UserProfile() {
         promises.push(updateUsernameMutation.mutateAsync(formData.username));
       }
       await Promise.all(promises);
+
+      if (user) {
+        updateLocalUser({
+          ...user,
+          username: formData.username,
+          email: formData.email,
+          phone: formData.phone,
+        });
+      }
+
       closeModal();
-    } catch (error) {
-      console.error("Error updating profile:", error);
+    } catch {
+      // Individual mutations display their own user-facing error messages.
     } finally {
       setIsSaving(false);
     }
@@ -210,7 +222,7 @@ export default function UserProfile() {
                   <Label>نام کاربری</Label>
                   <Input
                     type="text"
-                    defaultValue={formData.username}
+                    value={formData.username}
                     onChange={handleInputChange("username")}
                   />
                 </div>
@@ -218,7 +230,7 @@ export default function UserProfile() {
                 <div className="col-span-2 lg:col-span-1 text-right">
                   <Label>تلفن</Label>
                   <CustomPhoneInput
-                    defaultValue={formData.phone}
+                    value={formData.phone}
                     onChange={handleInputChange("phone")}
                   />
                 </div>
@@ -227,7 +239,7 @@ export default function UserProfile() {
                   <Label>آدرس ایمیل</Label>
                   <Input
                     type="email"
-                    defaultValue={formData.email}
+                    value={formData.email}
                     onChange={handleInputChange("email")}
                   />
                 </div>
