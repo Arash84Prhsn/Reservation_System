@@ -58,11 +58,14 @@ The mobile home screen uses a proportional laboratory seat map. Seat positions a
 
 When a reservable seat is selected:
 
-1. the detail panel requests the seat's available dates/times;
-2. the user selects a reservation type and date;
-3. `TimeSlotGrid` shows free, occupied, system-only, and laboratory-event slots;
-4. the user selects a start/end range;
-5. the shared two-step confirmation flow is used.
+1. the user selects a date and reservation type;
+2. the detail panel requests the backend time-slot schedule for that selected date/week;
+3. `TimeSlotGrid` shows free, occupied, system-only, user-owned, and laboratory-event slots;
+4. past slots returned by the backend remain visible for schedule inspection but are not selectable for new reservations;
+5. the user selects a valid start/end range for a new reservation;
+6. the shared two-step confirmation flow is used.
+
+The mobile date picker is intentionally not bounded to only `open_dates_for_user` results. This keeps historical/current schedule data navigable in a way that is closer to the desktop calendar. Availability for a new reservation is still enforced at the slot level and validated again by the backend.
 
 Manager seats are displayed but disabled for normal reservation selection.
 
@@ -96,7 +99,7 @@ Available reservation-type choices are filtered by seat type in `config/reservat
 | POST | `/reservation/final_reservation_submission` | Commit the confirmed reservation |
 | POST | `/reservation/weekly_schedule_intervals` | Desktop weekly schedule |
 | POST | `/reservation/weekly_schedule_timeslots` | Mobile day/time-slot schedule |
-| POST | `/reservation/open_dates_for_user` | Bookable dates for a seat type |
+| POST | `/reservation/open_dates_for_user` | Available in the reservation service for bookable-date queries; the current mobile picker is not bounded by it |
 | GET | `/reservation/get_user_active_reservations` | Current user's active reservations |
 | PUT | `/reservation/cancel_reservation_by_id` | Cancel a reservation |
 

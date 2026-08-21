@@ -649,6 +649,12 @@ input, button, select, textarea {
   border: none;
   color: black;
 }
+
+/* Selection feedback for a new reservation. Keep it visually distinct from
+   the red lab-meeting events. */
+.custom-calendar .fc-highlight {
+  background-color: rgba(34, 197, 94, 0.16);
+}
 .custom-calendar .fc.fc-media-screen {
   @apply min-h-[calc(100vh-130px)];
 }

@@ -12,6 +12,7 @@ export interface TimeSlot {
   endTime?: string;
   status: SlotStatus;
   systemOnly?: boolean;
+  isPast?: boolean;
 }
 
 interface TimeSlotGridProps {
@@ -24,9 +25,11 @@ interface TimeSlotGridProps {
 }
 
 function isSelectableSlot(slot: TimeSlot) {
+  if (slot.isPast) return false;
+
   return (
     slot.status === "free" ||
-    (slot.status === "reserved_by_others" && slot.systemOnly === true)
+    slot.systemOnly === true
   );
 }
 
@@ -107,6 +110,9 @@ export function TimeSlotGrid({
           slot.status === "reserved_by_user_with_system_reservation",
         "bg-gradient-to-r from-res-gray-dark/30 from-50% to-res-orange to-50% text-white":
           slot.status === "reserved_by_others_with_system_reservation",
+        "cursor-not-allowed opacity-70": slot.isPast,
+        "bg-gray-100 text-gray-400 hover:border-gray-200 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-500":
+          slot.isPast && slot.status === "free",
       },
     );
   };
@@ -121,7 +127,11 @@ export function TimeSlotGrid({
           className={getSlotStyle(slot)}
           disabled={!isSelectableSlot(slot)}
           aria-label={`${formatPersianTime(slot.time)} - ${
-            isSelectableSlot(slot) ? "قابل انتخاب" : "غیرقابل انتخاب"
+            slot.isPast
+              ? "زمان گذشته"
+              : isSelectableSlot(slot)
+                ? "قابل انتخاب"
+                : "غیرقابل انتخاب"
           }`}
         >
           {formatPersianTime(slot.time)}

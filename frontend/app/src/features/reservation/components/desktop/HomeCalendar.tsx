@@ -261,6 +261,9 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     setStartTime(formatTimeForApi(start));
     setEndTime(formatTimeForApi(end));
 
+    // Clear FullCalendar's temporary selection before opening the modal.
+    // This avoids the selection mirror being rendered like a lab meeting event.
+    calendarRef.current?.getApi().unselect();
     openMakeReservationModal();
   };
 
@@ -508,7 +511,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
           eventBorderColor="transparent"
           eventTextColor="inherit"
           nowIndicator={true}
-          selectMirror={true}
+          selectMirror={false}
           // some configuration
           eventOverlap={false}
           selectOverlap={true}
@@ -658,6 +661,7 @@ const ReservationModalContent = ({
     | number
     | undefined;
   const isMine = user?.id != null && reservedByID === user?.id;
+  const isLabMeeting = selectedEvent?.extendedProps?.type === "event";
 
   return (
     <Modal
@@ -675,8 +679,7 @@ const ReservationModalContent = ({
         {isSystemOverride && (
           <div className="fa my-2 rounded-lg border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-800">
             ⚠️ این بازه زمانی رزرو سیستمی دارد (درسان دسک / محاسبات). صندلی
-            فیزیکی آزاد است، اما سیستم در دسترس نیست. می‌توانید صندلی را فقط
-            برای استفاده از سخت‌افزار رزرو کنید.
+            فیزیکی آزاد است، اما سیستم در دسترس نیست.
           </div>
         )}
 
@@ -688,7 +691,9 @@ const ReservationModalContent = ({
               </label>
 
               <div className="h-11 w-full rounded-lg border border-gray-200 bg-res-green-100 px-4 py-2.5 text-sm text-gray-700">
-                {selectedDate ? toPersianDigits(selectedDate.format("YYYY/MM/DD")) : "-"}
+                {selectedDate
+                  ? toPersianDigits(selectedDate.format("YYYY/MM/DD"))
+                  : "-"}
               </div>
             </div>
 
@@ -697,16 +702,24 @@ const ReservationModalContent = ({
                 تایپ رزرویشن
               </label>
 
-              <Select
-                options={reservationOptions}
-                value={reservationType ?? ""}
-                placeholder="انتخاب کنید"
-                onChange={(value) =>
-                  onReservationTypeChange(value as ReservationType)
-                }
-                className="fa dark:bg-dark-900"
-                disabled={isReadOnly}
-              />
+              {isLabMeeting ? (
+                <div className="fa h-11 w-full bg-gray-50 rounded-lg border border-gray-200  px-4 py-2.5 text-sm text-gray-700">
+                  جلسه آزمایشگاه
+                </div>
+              ) : (
+                <Select
+
+                  options={reservationOptions}
+                  value={reservationType ?? ""}
+                  placeholder="انتخاب کنید"
+                  onChange={(value) =>
+                    onReservationTypeChange(value as ReservationType)
+                  }
+                  className="fa dark:bg-dark-900 "
+                  disabled={isReadOnly}
+
+                />
+              )}
             </div>
           </div>
 
