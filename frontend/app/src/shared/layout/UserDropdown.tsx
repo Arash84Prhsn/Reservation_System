@@ -1,44 +1,43 @@
 "use client";
-import Link from "next/link";
-import React, { useState } from "react";
-import { Dropdown } from "../components/ui/dropdown/Dropdown";
-import { DropdownItem } from "../components/ui/dropdown/DropdownItem";
+
 import Image from "next/image";
+import { useState } from "react";
 import { useAuth } from "@/shared/context/AuthContext";
 import { useLogout } from "@/features/auth/hooks/use-logout";
+import { Dropdown } from "../components/ui/dropdown/Dropdown";
+import { DropdownItem } from "../components/ui/dropdown/DropdownItem";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, logout: LocalLogout } = useAuth();
-  const { mutate: serverLogout } = useLogout();
+  const { user } = useAuth();
+  const { mutate: serverLogout, isPending } = useLogout();
 
-  function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-    e.stopPropagation();
-    setIsOpen((prev) => !prev);
-  }
+  const closeDropdown = () => setIsOpen(false);
 
-  const handleLogout = () => {
-    serverLogout(undefined, {
-      onSuccess: () => {
-        LocalLogout();
-      },
-    });
-  };
-  function closeDropdown() {
-    setIsOpen(false);
-  }
   return (
-    <div className="relative">
+    <div className="relative" dir="rtl">
       <button
-        onClick={toggleDropdown}
-        className="flex items-center gap-2 rounded-2xl border border-gray-200/80 bg-white/80 px-2.5 py-1.5 text-gray-700 shadow-2xs backdrop-blur-sm transition-all hover:border-gray-300 hover:bg-white dark:border-gray-800 dark:bg-gray-900/80 dark:text-gray-200 dropdown-toggle"
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          setIsOpen((prev) => !prev);
+        }}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        className="dropdown-toggle flex items-center gap-2 rounded-2xl border border-gray-200/80 bg-white/90 px-2.5 py-1.5 text-gray-700 shadow-2xs backdrop-blur-sm transition-all hover:border-gray-300 hover:bg-white dark:border-gray-800 dark:bg-gray-900/90 dark:text-gray-200"
       >
         <span className="relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-100 ring-2 ring-emerald-200 dark:bg-emerald-950/60 dark:ring-emerald-800">
-          <Image width={24} height={24} src="/images/user.png" alt="User" className="object-cover" />
+          <Image
+            width={24}
+            height={24}
+            src="/images/user.png"
+            alt="تصویر کاربر"
+            className="object-cover"
+          />
         </span>
 
-        <span className="font-semibold text-xs text-gray-800 dark:text-gray-200">
-          {user?.username}
+        <span className="max-w-28 truncate text-xs font-semibold text-gray-800 dark:text-gray-200">
+          {user?.username || "کاربر"}
         </span>
 
         <svg
@@ -50,6 +49,7 @@ export default function UserDropdown() {
           viewBox="0 0 18 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
         >
           <path
             d="M4.3125 8.65625L9 13.3437L13.6875 8.65625"
@@ -64,66 +64,57 @@ export default function UserDropdown() {
       <Dropdown
         isOpen={isOpen}
         onClose={closeDropdown}
-        className="absolute left-0 mt-2 flex w-60 flex-col rounded-2xl border border-gray-200 bg-white/95 p-3 shadow-xl backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/95 z-50"
+        className="left-0 z-50 mt-2 flex w-60 flex-col rounded-2xl border border-gray-200 bg-white/95 p-3 shadow-xl backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/95"
       >
-        <div>
-          <span className=" block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            {user?.username}
+        <div className="min-w-0 border-b border-gray-100 pb-3 dark:border-gray-800">
+          <span className="block truncate text-sm font-medium text-gray-700 dark:text-gray-300">
+            {user?.username || "-"}
           </span>
-          <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            {user?.email}
+          <span className="mt-0.5 block truncate text-xs text-gray-500 dark:text-gray-400">
+            {user?.email || "-"}
           </span>
         </div>
 
-        <ul className="fa flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200 dark:border-gray-800">
+        <ul className="fa flex flex-col gap-1 py-3">
           <li>
             <DropdownItem
               onItemClick={closeDropdown}
               tag="a"
               href="/profile"
-              className="flex items-center   gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5"
             >
               <svg
-                className="fill-gray-500 group-hover:fill-gray-700 dark:fill-gray-400 dark:group-hover:fill-gray-300"
-                width="24"
-                height="24"
+                className="h-5 w-5 fill-gray-500"
                 viewBox="0 0 24 24"
-                fill="none"
                 xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
               >
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M12 3.5C7.30558 3.5 3.5 7.30558 3.5 12C3.5 14.1526 4.3002 16.1184 5.61936 17.616C6.17279 15.3096 8.24852 13.5955 10.7246 13.5955H13.2746C15.7509 13.5955 17.8268 15.31 18.38 17.6167C19.6996 16.119 20.5 14.153 20.5 12C20.5 7.30558 16.6944 3.5 12 3.5ZM17.0246 18.8566V18.8455C17.0246 16.7744 15.3457 15.0955 13.2746 15.0955H10.7246C8.65354 15.0955 6.97461 16.7744 6.97461 18.8455V18.856C8.38223 19.8895 10.1198 20.5 12 20.5C13.8798 20.5 15.6171 19.8898 17.0246 18.8566ZM2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12ZM11.9991 7.25C10.8847 7.25 9.98126 8.15342 9.98126 9.26784C9.98126 10.3823 10.8847 11.2857 11.9991 11.2857C13.1135 11.2857 14.0169 10.3823 14.0169 9.26784C14.0169 8.15342 13.1135 7.25 11.9991 7.25ZM8.48126 9.26784C8.48126 7.32499 10.0563 5.75 11.9991 5.75C13.9419 5.75 15.5169 7.32499 15.5169 9.26784C15.5169 11.2107 13.9419 12.7857 11.9991 12.7857C10.0563 12.7857 8.48126 11.2107 8.48126 9.26784Z"
-                  fill=""
-                />
+                <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5 0-9 2.5-9 5.5V22h18v-2.5C21 16.5 17 14 12 14Z" />
               </svg>
               پروفایل
             </DropdownItem>
           </li>
         </ul>
-        <Link
-          href="/signin"
-          onClick={handleLogout}
-          className="fa flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() => {
+            closeDropdown();
+            serverLogout();
+          }}
+          className="fa flex w-full items-center gap-3 rounded-lg px-3 py-2 font-medium text-gray-700 transition hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-60 dark:text-gray-300 dark:hover:bg-red-950/30 dark:hover:text-red-300"
         >
           <svg
-            className="fill-gray-500 group-hover:fill-gray-700 dark:group-hover:fill-gray-300"
-            width="24"
-            height="24"
+            className="h-5 w-5 fill-current"
             viewBox="0 0 24 24"
-            fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
           >
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M15.1007 19.247C14.6865 19.247 14.3507 18.9112 14.3507 18.497L14.3507 14.245H12.8507V18.497C12.8507 19.7396 13.8581 20.747 15.1007 20.747H18.5007C19.7434 20.747 20.7507 19.7396 20.7507 18.497L20.7507 5.49609C20.7507 4.25345 19.7433 3.24609 18.5007 3.24609H15.1007C13.8581 3.24609 12.8507 4.25345 12.8507 5.49609V9.74501L14.3507 9.74501V5.49609C14.3507 5.08188 14.6865 4.74609 15.1007 4.74609L18.5007 4.74609C18.9149 4.74609 19.2507 5.08188 19.2507 5.49609L19.2507 18.497C19.2507 18.9112 18.9149 19.247 18.5007 19.247H15.1007ZM3.25073 11.9984C3.25073 12.2144 3.34204 12.4091 3.48817 12.546L8.09483 17.1556C8.38763 17.4485 8.86251 17.4487 9.15549 17.1559C9.44848 16.8631 9.44863 16.3882 9.15583 16.0952L5.81116 12.7484L16.0007 12.7484C16.4149 12.7484 16.7507 12.4127 16.7507 11.9984C16.7507 11.5842 16.4149 11.2484 16.0007 11.2484L5.81528 11.2484L9.15585 7.90554C9.44864 7.61255 9.44847 7.13767 9.15547 6.84488C8.86248 6.55209 8.3876 6.55226 8.09481 6.84525L3.52309 11.4202C3.35673 11.5577 3.25073 11.7657 3.25073 11.9984Z"
-              fill=""
-            />
+            <path d="M10 17v-2h5V9h-5V7l-5 5 5 5Zm8-14h-8a2 2 0 0 0-2 2v2h2V5h8v14h-8v-2H8v2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z" />
           </svg>
-          خروج
-        </Link>
+          {isPending ? "در حال خروج..." : "خروج"}
+        </button>
       </Dropdown>
     </div>
   );

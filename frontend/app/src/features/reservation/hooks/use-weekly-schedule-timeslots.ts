@@ -14,9 +14,14 @@ export function useWeeklyScheduleTimeslots(
 
   const query = useQuery({
     queryKey: [...reservationKeys.all, "timeslots", date, seatType, seatNumber],
-    enabled: !!(enabled && date && seatType && seatNumber),
+    enabled:
+      enabled &&
+      Boolean(date) &&
+      Boolean(seatType) &&
+      seatNumber !== undefined &&
+      seatNumber !== null,
     queryFn: async () => {
-      if (!date || !seatType || !seatNumber) {
+      if (!date || !seatType || seatNumber === undefined || seatNumber === null) {
         throw new Error("Missing required parameters for weekly timeslots");
       }
 
@@ -32,6 +37,6 @@ export function useWeeklyScheduleTimeslots(
   return {
     schedule: query.data ?? [],
     loading: query.isLoading,
-    error: query.error?.message ?? null
+    error: query.error?.message ?? null,
   };
 }

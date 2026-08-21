@@ -1,28 +1,24 @@
+import { useAuth } from "@/shared/context/AuthContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { logout, LogoutResponse } from "../api";
+import { toast } from "sonner";
+import { logout, type LogoutResponse } from "../api";
 
 export function useLogout() {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { logout: clearLocalSession } = useAuth();
 
   return useMutation<LogoutResponse, Error, void>({
-    mutationFn: async () => {
-      return logout();
-    },
+    mutationFn: logout,
     onSuccess: (response) => {
-      toast.success(response.message || "خروج با موفقیت انجام شد");
-
-      // Clear all cached queries (user data, etc.)
+      clearLocalSession();
       queryClient.clear();
-
-      // Redirect to login page
-      router.push("/signin");
+      toast.success(response.message || "خروج با موفقیت انجام شد");
+      router.replace("/signin");
     },
-    onError: (error: Error) => {
+    onError: (error) => {
       toast.error(error.message || "خطا در خروج از حساب");
-      console.error("Logout failed:", error);
     },
   });
 }

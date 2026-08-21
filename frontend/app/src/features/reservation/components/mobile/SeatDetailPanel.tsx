@@ -16,9 +16,7 @@ import { useWeeklyScheduleTimeslots } from "@/features/reservation/hooks/use-wee
 
 import { useFinalReservationSubmission } from "@/features/reservation/hooks/use-final-reservation-submission";
 import { useModal } from "@/shared/hooks/useModal";
-import useOpenDatesForUser from "@/features/reservation/hooks/use-open-dates-for-user";
 import { FinalReservationModal } from "@/features/reservation/components/shared/FinalReservationModal";
-import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { reservationKeys } from "@/features/reservation/queryKeys";
 import {
@@ -58,13 +56,12 @@ export function SeatDetailPanel({
   const [verifiedReservationInfo, setVerifiedReservationInfo] =
     useState<FinalReservationSubmissionInput | null>(null);
 
-  // ADD THIS LINE ↓
   const [verifiedReservationWarning, setVerifiedReservationWarning] =
     useState<Warning | null>(null);
 
-  const [hasSystemOnlyInRange, setHasSystemOnlyInRange] = useState(false); // 👈 new
+  const [hasSystemOnlyInRange, setHasSystemOnlyInRange] = useState(false);
 
-  const queryClient = useQueryClient(); // ← ADD THIS
+  const queryClient = useQueryClient();
 
   const { isOpen, openModal, closeModal } = useModal();
   // make reservation
@@ -96,9 +93,6 @@ export function SeatDetailPanel({
   const { submitFinalReservation, pending: finalSubmissionPending } =
     useFinalReservationSubmission();
 
-  // open dates for user
-  const { openDates } = useOpenDatesForUser(seat.type as SeatType);
-
   // Determine which reservation type options to show based on seat type
   const reservationOptions = seat.type === "laptop"
     ? LAPTOP_RESERVATION_OPTIONS
@@ -107,35 +101,6 @@ export function SeatDetailPanel({
   // full label for seat (e.g. "صندلی داتین ۱")
   const fullLabel = `${getSeatTypeLabel(seat.type as SeatType)} ${toPersianDigits(seat.number)}`;
 
-  const finalSubmissionInput =
-    useMemo<FinalReservationSubmissionInput | null>(() => {
-      if (
-        !reservationDate ||
-        !reservationType ||
-        !startTime ||
-        !endTime ||
-        !seat.type ||
-        !seat.number
-      ) {
-        return null;
-      }
-
-      return {
-        reservation_date: reservationDate,
-        reservation_type: reservationType,
-        start_time: startTime,
-        end_time: endTime,
-        seat_type: seat.type as SeatType,
-        seat_number: seat.number,
-      };
-    }, [
-      reservationDate,
-      reservationType,
-      startTime,
-      endTime,
-      seat.type,
-      seat.number,
-    ]);
 
   useEffect(() => {
     setSeatType(seat.type as SeatType);
@@ -156,17 +121,14 @@ export function SeatDetailPanel({
     const gregorianDate = `${year}-${month}-${day}`;
 
     setReservationDate(gregorianDate);
+    setStartTime("");
+    setEndTime("");
+    setHasSystemOnlyInRange(false);
     onDateChange?.(gregorianDate);
   }
 
   async function handleOpenFinalModal() {
     await handleSubmitReservation();
-    if (!finalSubmissionInput) {
-      toast.error("DEV ERR: Reservation form is incomplete");
-      return;
-    }
-
-    openModal();
   }
 
   /**
@@ -229,8 +191,7 @@ export function SeatDetailPanel({
           {hasSystemOnlyInRange && (
             <div className="fa my-2 rounded-lg border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-800">
               ⚠️ این بازه زمانی رزرو سیستمی دارد (درسان دسک / محاسبات). صندلی
-              فیزیکی آزاد است، اما سیستم در دسترس نیست. می‌توانید صندلی را فقط
-              برای استفاده از سخت‌افزار رزرو کنید.
+              فیزیکی آزاد است، اما سیستم در دسترس نیست.
             </div>
           )}
         </div>
@@ -243,8 +204,6 @@ export function SeatDetailPanel({
               </label>
 
               <DatePicker
-                minDate={openDates && openDates[0] ? new DateObject(openDates[0]) : undefined}
-                maxDate={openDates && openDates.length > 0 ? new DateObject(openDates[openDates.length - 1]) : undefined}
                 editable={false}
                 calendar={persian}
                 locale={persian_fa}
@@ -264,11 +223,11 @@ export function SeatDetailPanel({
 
               <Select
                 options={reservationOptions}
+                value={reservationType ?? ""}
                 placeholder="انتخاب کنید"
                 className="relative text-black"
-                // defaultValue={reservationType}
                 onChange={(value) =>
-                  setReservationType(value as ReservationType | null)
+                  setReservationType(value as ReservationType)
                 }
               />
             </div>
@@ -299,9 +258,6 @@ export function SeatDetailPanel({
               seatType={seat.type as SeatType}
               setStartTime={setStartTime}
               setEndTime={setEndTime}
-              onRangeSelect={() => {
-
-              }}
               onSystemOnlyWarning={setHasSystemOnlyInRange}
             />
           </div>
@@ -330,6 +286,7 @@ export function SeatDetailPanel({
         onClose={() => {
           closeModal();
           setVerifiedReservationInfo(null);
+          setVerifiedReservationWarning(null);
         }}
         onConfirm={handleConfirmFinalSubmission}
         pending={finalSubmissionPending}
@@ -338,6 +295,16 @@ export function SeatDetailPanel({
       />
     </>
   );
+}
+
+// A past slot should remain visible for schedule/history inspection,
+// but it must never be selectable for a new reservation.
+function isPastTimeslot(date: string, startTime: string) {
+  const parsed = new Date(`${date}T${startTime}`);
+  if (Number.isNaN(parsed.getTime())) return false;
+
+  const nowWithBuffer = Date.now() - 2 * 60 * 1000;
+  return parsed.getTime() < nowWithBuffer;
 }
 
 // time slot container
@@ -370,7 +337,7 @@ function TimeSlotGridContainer({
       seatNumber,
     },
     {
-      enabled: Boolean(date && seatType && seatNumber),
+      enabled: Boolean(date && seatType && seatNumber !== null && seatNumber !== undefined),
     },
   );
 
@@ -388,6 +355,7 @@ function TimeSlotGridContainer({
       systemOnly:
         slot.reservation_type === "dorsan desk" ||
         slot.reservation_type === "only running programs",
+      isPast: isPastTimeslot(selectedDay.date, slot.start_time),
     }));
   }, [schedule, date]);
 

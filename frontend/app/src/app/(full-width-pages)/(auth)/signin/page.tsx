@@ -1,11 +1,11 @@
 import NewSignInForm from "@/features/auth/components/NewSignInForm";
-// import { Metadata } from "next";
+import type { Metadata } from "next";
 
-// export const metadata: Metadata = {
-//   title: "Next.js SignIn Page | TailAdmin - Next.js Dashboard Template",
-//   description: "This is Next.js Signin Page TailAdmin Dashboard Template",
-// };
+export const metadata: Metadata = {
+  title: "ورود",
+  description: "ورود به سامانه رزرو آزمایشگاه فناوری‌های مالی.",
+};
 
-export default function SignIn() {
+export default function SignInPage() {
   return <NewSignInForm />;
 }

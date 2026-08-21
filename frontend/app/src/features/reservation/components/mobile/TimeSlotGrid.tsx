@@ -1,3 +1,8 @@
+import { ScheduleSlotStatus } from "../../api";
+import { formatPersianTime } from "@/features/reservation/utils/date";
+import clsx from "clsx";
+import { toast } from "sonner";
+
 export type SlotStatus = "selected" | ScheduleSlotStatus;
 
 export interface TimeSlot {
@@ -7,22 +12,26 @@ export interface TimeSlot {
   endTime?: string;
   status: SlotStatus;
   systemOnly?: boolean;
+  isPast?: boolean;
 }
 
 interface TimeSlotGridProps {
   slots: TimeSlot[];
-
   startTime: string;
   endTime: string;
-
   setStartTime: (time: string) => void;
   setEndTime: (time: string) => void;
-
   onRangeSelect?: (start: string, end: string) => void;
 }
-import { ScheduleSlotStatus } from "../../api";
-import clsx from "clsx"; // برای مدیریت کاندیشنال کلاس‌ها
-import { formatPersianTime } from "@/features/reservation/utils/date";
+
+function isSelectableSlot(slot: TimeSlot) {
+  if (slot.isPast) return false;
+
+  return (
+    slot.status === "free" ||
+    slot.systemOnly === true
+  );
+}
 
 export function TimeSlotGrid({
   slots,
@@ -33,40 +42,42 @@ export function TimeSlotGrid({
   setEndTime,
 }: TimeSlotGridProps) {
   const handleSlotClick = (slot: TimeSlot) => {
-    const { status, systemOnly = false, time } = slot;
-    const slotStart = slot.startTime || time;
-    const slotEnd = slot.endTime || time;
+    if (!isSelectableSlot(slot)) return;
 
-    if (
-      (status === "reserved_by_others" && !systemOnly) ||
-      status === "reserved_by_user" ||
-      status === "reserved_by_user_with_system_reservation" ||
-      status === "reserved_by_others_with_system_reservation" ||
-      status === "event"
-    )
-      return;
+    const slotStart = slot.startTime || slot.time;
+    const slotEnd = slot.endTime || slot.time;
 
-    if (!startTime || (startTime && endTime)) {
-      // شروع یک انتخاب جدید
+    if (!startTime || endTime) {
       setStartTime(slotStart);
       setEndTime("");
       return;
-    } else {
-      // انتخاب پایان
-      if (slotStart > startTime) {
-        // زمانی که کاربر روی اسلات بعد از شروع کلیک می‌کند، پایان باید زمان پایان آن اسلات باشد
-        setEndTime(slotEnd);
-        onRangeSelect?.(startTime, slotEnd);
-      } else if (slotStart === startTime) {
-        // کلیک دوباره روی همان اسلات، بازه را به همان تک‌اسلات تنظیم می‌کند
-        setEndTime(slotEnd);
-        onRangeSelect?.(startTime, slotEnd);
-      } else {
-        // اگر کاربر روی زمانی قبل از شروع کلیک کرد، آن را به عنوان شروع جدید در نظر بگیر
-        setStartTime(slotStart);
-        setEndTime("");
-      }
     }
+
+    if (slotStart < startTime) {
+      setStartTime(slotStart);
+      setEndTime("");
+      return;
+    }
+
+    const startIndex = slots.findIndex(
+      (candidate) => (candidate.startTime || candidate.time) === startTime,
+    );
+    const endIndex = slots.findIndex((candidate) => candidate.id === slot.id);
+
+    if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
+      setStartTime(slotStart);
+      setEndTime("");
+      return;
+    }
+
+    const range = slots.slice(startIndex, endIndex + 1);
+    if (!range.every(isSelectableSlot)) {
+      toast.warning("بازه انتخابی شامل زمان رزروشده یا غیرقابل استفاده است");
+      return;
+    }
+
+    setEndTime(slotEnd);
+    onRangeSelect?.(startTime, slotEnd);
   };
 
   const getSlotStyle = (slot: TimeSlot) => {
@@ -83,19 +94,25 @@ export function TimeSlotGrid({
     return clsx(
       "flex h-12 cursor-pointer items-center justify-center rounded-lg border text-xs font-medium transition-all duration-150 active:scale-95",
       {
-        "bg-res-red text-white cursor-not-allowed opacity-80":
+        "cursor-not-allowed bg-res-red text-white opacity-80":
           slot.status === "event" && !isSystemOnly,
-        "bg-res-orange text-white cursor-not-allowed opacity-80":
+        "cursor-not-allowed bg-res-orange text-white opacity-80":
           slot.status === "reserved_by_others" && !slot.systemOnly,
-        "bg-res-green-success text-white font-semibold": slot.status === "reserved_by_user",
-        "bg-res-gray-dark/30 text-gray-700 dark:text-gray-200 hover:bg-res-gray-dark/50": isSystemOnly && !isSelected,
-        "bg-blue-500 text-white font-bold ring-2 ring-blue-400 ring-offset-1 shadow-md scale-[1.03] z-10": isSelected,
-        "bg-white text-gray-800 hover:bg-emerald-50 hover:border-emerald-300 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700":
+        "bg-res-green-success font-semibold text-white":
+          slot.status === "reserved_by_user",
+        "bg-res-gray-dark/30 text-gray-700 hover:bg-res-gray-dark/50 dark:text-gray-200":
+          isSystemOnly && !isSelected,
+        "z-10 scale-[1.03] bg-blue-500 font-bold text-white shadow-md ring-2 ring-blue-400 ring-offset-1":
+          isSelected,
+        "bg-white text-gray-800 hover:border-emerald-300 hover:bg-emerald-50 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700":
           slot.status === "free" && !isSelected && !isSystemOnly,
         "bg-gradient-to-r from-res-gray-dark/30 from-50% to-res-green-success to-50% text-white":
           slot.status === "reserved_by_user_with_system_reservation",
         "bg-gradient-to-r from-res-gray-dark/30 from-50% to-res-orange to-50% text-white":
           slot.status === "reserved_by_others_with_system_reservation",
+        "cursor-not-allowed opacity-70": slot.isPast,
+        "bg-gray-100 text-gray-400 hover:border-gray-200 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-500":
+          slot.isPast && slot.status === "free",
       },
     );
   };
@@ -108,13 +125,14 @@ export function TimeSlotGrid({
           type="button"
           onClick={() => handleSlotClick(slot)}
           className={getSlotStyle(slot)}
-          disabled={
-            (slot.status === "reserved_by_others" && !slot.systemOnly) ||
-            slot.status === "reserved_by_user" ||
-            slot.status === "reserved_by_user_with_system_reservation" ||
-            slot.status === "reserved_by_others_with_system_reservation" ||
-            slot.status === "event"
-          }
+          disabled={!isSelectableSlot(slot)}
+          aria-label={`${formatPersianTime(slot.time)} - ${
+            slot.isPast
+              ? "زمان گذشته"
+              : isSelectableSlot(slot)
+                ? "قابل انتخاب"
+                : "غیرقابل انتخاب"
+          }`}
         >
           {formatPersianTime(slot.time)}
         </button>

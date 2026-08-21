@@ -1,11 +1,12 @@
 "use client";
-import { User } from "@/features/auth/api/auth.service";
+
+import type { User } from "@/features/auth/api/auth.service";
 import {
   createContext,
   useContext,
-  useState,
   useEffect,
-  ReactNode,
+  useState,
+  type ReactNode,
 } from "react";
 
 type AuthContextType = {
@@ -32,13 +33,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("auth_user");
+
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser) as User);
+      } catch {
+        localStorage.removeItem("auth_user");
+      }
     }
+
     setIsUserInitialized(true);
   }, []);
 
-  // lestening to dispatch event which http.ts would send (for logout)
   useEffect(() => {
     const handleAuthLogout = () => {
       setUser(null);
@@ -48,10 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     window.addEventListener("auth:logout", handleAuthLogout);
-
-    return () => {
-      window.removeEventListener("auth:logout", handleAuthLogout);
-    };
+    return () => window.removeEventListener("auth:logout", handleAuthLogout);
   }, []);
 
   const login = (userData: User) => {
@@ -63,6 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem("auth_user");
+    localStorage.removeItem("auth_token");
     setIsUserInitialized(true);
   };
 
@@ -70,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: !!user,
+        isAuthenticated: Boolean(user),
         login,
         logout,
         isUserInitialized,

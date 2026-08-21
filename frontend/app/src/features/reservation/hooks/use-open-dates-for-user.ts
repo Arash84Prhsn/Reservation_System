@@ -1,7 +1,4 @@
-import {
-  open_dates_for_user,
-  SeatType,
-} from "../api";
+import { open_dates_for_user, type SeatType } from "../api";
 import { useEffect, useState } from "react";
 
 export default function useOpenDatesForUser(seatType: SeatType) {
@@ -12,30 +9,32 @@ export default function useOpenDatesForUser(seatType: SeatType) {
   useEffect(() => {
     let cancelled = false;
 
-    (async () => {
+    const loadOpenDates = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const res = await open_dates_for_user(seatType);
-
+        const response = await open_dates_for_user(seatType);
         if (!cancelled) {
-          setOpenDates(res.dates ?? []);
+          setOpenDates(response.dates ?? []);
         }
-      } catch (e) {
+      } catch (err) {
         if (!cancelled) {
           setOpenDates([]);
           setError(
-            e instanceof Error ? e.message : "Failed to load open dates",
+            err instanceof Error
+              ? err.message
+              : "خطا در دریافت روزهای قابل رزرو",
           );
-          throw e;
         }
       } finally {
         if (!cancelled) {
           setLoading(false);
         }
       }
-    })();
+    };
+
+    void loadOpenDates();
 
     return () => {
       cancelled = true;

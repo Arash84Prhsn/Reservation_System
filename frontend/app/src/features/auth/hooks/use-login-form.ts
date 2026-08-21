@@ -6,43 +6,35 @@ import { toast } from "sonner";
 
 export function useLoginForm() {
   const router = useRouter();
-
-  //STATES
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { login: localLogin } = useAuth();
 
-  //HOOKS
-  const { login: LocalLogin } = useAuth();
+  async function onSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (pending) return;
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+    const normalizedUsername = username.trim();
+    if (!normalizedUsername || !password) {
+      const message = "نام کاربری و رمز عبور را وارد کنید";
+      setError(message);
+      toast.error(message);
+      return;
+    }
+
     setPending(true);
     setError(null);
 
     try {
-      const {
-        data: receivedUser,
-        // success,
-        message,
-      } = await login({
-        username,
+      const { data: receivedUser, message } = await login({
+        username: normalizedUsername,
         password,
       });
 
       toast.success(message || "ورود با موفقیت انجام شد");
-
-      // set user to local storage
-      LocalLogin({
-        email: receivedUser.email,
-        username: receivedUser.username,
-        id: receivedUser.id,
-        association: receivedUser.association,
-        phone: receivedUser.phone,
-      });
-
-      // go to dashboard
+      localLogin(receivedUser);
       router.replace("/");
     } catch (err) {
       const message =
@@ -65,9 +57,7 @@ export function useLoginForm() {
     password,
     setPassword,
     pending,
-    setPending,
     error,
-    setError,
     onSubmit,
   };
 }

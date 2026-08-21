@@ -97,7 +97,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
   // ─── Verified reservation state (from Step 1 API response) ──
   const [verifiedReservationInfo, setVerifiedReservationInfo] =
     useState<FinalReservationSubmissionInput | null>(null);
-  const [verifiedReservationWanring, setVerifiedReservationWanring] =
+  const [verifiedReservationWarning, setVerifiedReservationWarning] =
     useState<Warning | null>(null);
 
   // Tracks whether user is selecting over system-only events
@@ -261,6 +261,9 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     setStartTime(formatTimeForApi(start));
     setEndTime(formatTimeForApi(end));
 
+    // Clear FullCalendar's temporary selection before opening the modal.
+    // This avoids the selection mirror being rendered like a lab meeting event.
+    calendarRef.current?.getApi().unselect();
     openMakeReservationModal();
   };
 
@@ -394,7 +397,7 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
     if (!result.ok) return;
 
     setVerifiedReservationInfo(result.reservation_info);
-    setVerifiedReservationWanring(result.warning);
+    setVerifiedReservationWarning(result.warning);
     closeMakeReservationModal();
     openFinalReservationModal();
     resetModalFields();
@@ -478,11 +481,17 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
   const confirmCancel = async () => {
     const reservationId = selectedEvent?.extendedProps?.reservationId;
 
+    if (!reservationId) {
+      toast.error("شناسه رزرو معتبر نیست");
+      setIsCancelModalOpen(false);
+      return;
+    }
+
     try {
-      if (reservationId) await cancelReservation(reservationId);
+      await cancelReservation(reservationId);
       closeMakeReservationModal();
     } catch {
-      toast.error("حذف رزرو انجام نشد");
+      // The mutation hook already shows the backend error to the user.
     } finally {
       setIsCancelModalOpen(false);
     }
@@ -502,10 +511,10 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
           eventBorderColor="transparent"
           eventTextColor="inherit"
           nowIndicator={true}
-          selectMirror={true}
+          selectMirror={false}
           // some configuration
           eventOverlap={false}
-          selectOverlap={false}
+          selectOverlap={true}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           locale={faLocale}
           editable={false}
@@ -577,11 +586,12 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
         onClose={() => {
           closeFinalReservationModal();
           setVerifiedReservationInfo(null);
+          setVerifiedReservationWarning(null);
         }}
         onConfirm={handleConfirmFinalSubmission}
         pending={finalSubmissionPending}
         reservationInfo={verifiedReservationInfo}
-        reservationWarning={verifiedReservationWanring}
+        reservationWarning={verifiedReservationWarning}
       />
 
       <ConfirmModal
@@ -651,6 +661,7 @@ const ReservationModalContent = ({
     | number
     | undefined;
   const isMine = user?.id != null && reservedByID === user?.id;
+  const isLabMeeting = selectedEvent?.extendedProps?.type === "event";
 
   return (
     <Modal
@@ -668,8 +679,7 @@ const ReservationModalContent = ({
         {isSystemOverride && (
           <div className="fa my-2 rounded-lg border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-800">
             ⚠️ این بازه زمانی رزرو سیستمی دارد (درسان دسک / محاسبات). صندلی
-            فیزیکی آزاد است، اما سیستم در دسترس نیست. می‌توانید صندلی را فقط
-            برای استفاده از سخت‌افزار رزرو کنید.
+            فیزیکی آزاد است، اما سیستم در دسترس نیست.
           </div>
         )}
 
@@ -681,7 +691,9 @@ const ReservationModalContent = ({
               </label>
 
               <div className="h-11 w-full rounded-lg border border-gray-200 bg-res-green-100 px-4 py-2.5 text-sm text-gray-700">
-                {selectedDate ? toPersianDigits(selectedDate.format("YYYY/MM/DD")) : "-"}
+                {selectedDate
+                  ? toPersianDigits(selectedDate.format("YYYY/MM/DD"))
+                  : "-"}
               </div>
             </div>
 
@@ -690,17 +702,24 @@ const ReservationModalContent = ({
                 تایپ رزرویشن
               </label>
 
-              <Select
-                key={`${mode}-${reservationType ?? "empty"}`}
-                options={reservationOptions}
-                placeholder="انتخاب کنید"
-                onChange={(value) =>
-                  onReservationTypeChange(value as ReservationType)
-                }
-                defaultValue={reservationType || ""}
-                className="fa dark:bg-dark-900"
-                disabled={isReadOnly}
-              />
+              {isLabMeeting ? (
+                <div className="fa h-11 w-full bg-gray-50 rounded-lg border border-gray-200  px-4 py-2.5 text-sm text-gray-700">
+                  جلسه آزمایشگاه
+                </div>
+              ) : (
+                <Select
+
+                  options={reservationOptions}
+                  value={reservationType ?? ""}
+                  placeholder="انتخاب کنید"
+                  onChange={(value) =>
+                    onReservationTypeChange(value as ReservationType)
+                  }
+                  className="fa dark:bg-dark-900 "
+                  disabled={isReadOnly}
+
+                />
+              )}
             </div>
           </div>
 

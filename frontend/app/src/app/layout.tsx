@@ -1,10 +1,15 @@
-// import { Outfit } from "next/font/google";
+import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 
-// const outfit = Outfit({
-//   subsets: ["latin"],
-// });
+export const metadata: Metadata = {
+  title: {
+    default: "سامانه رزرو آزمایشگاه",
+    template: "%s | سامانه رزرو آزمایشگاه",
+  },
+  description:
+    "سامانه رزرو صندلی و تجهیزات آزمایشگاه فناوری‌های مالی دانشگاه فردوسی مشهد",
+};
 
 export default function RootLayout({
   children,
@@ -12,8 +17,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html className={` dark:bg-gray-900`}>
-      <body>
+    <html lang="fa" suppressHydrationWarning>
+      <body className="min-h-dvh bg-white text-gray-900 antialiased dark:bg-gray-900 dark:text-white">
         <Providers>{children}</Providers>
       </body>
     </html>
