@@ -48,12 +48,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
           <Button
             size="sm"
-            variant={isDestructive ? "primary" : "primary"} // Assuming primary can be styled, or we can use raw class for destructive
-            className={
-              isDestructive
-                ? "bg-red-500 hover:bg-red-600 text-white border-red-500"
-                : ""
-            }
+            variant={isDestructive ? "destructive" : "primary"}
             onClick={onConfirm}
             disabled={isLoading}
           >
