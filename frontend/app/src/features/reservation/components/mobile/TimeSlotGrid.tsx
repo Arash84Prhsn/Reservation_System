@@ -29,7 +29,7 @@ function isSelectableSlot(slot: TimeSlot) {
 
   return (
     slot.status === "free" ||
-    slot.systemOnly === true
+    (slot.systemOnly === true && slot.status === "reserved_by_others")
   );
 }
 
@@ -97,18 +97,18 @@ export function TimeSlotGrid({
         "cursor-not-allowed bg-res-red text-white opacity-80":
           slot.status === "event" && !isSystemOnly,
         "cursor-not-allowed bg-res-orange text-white opacity-80":
-          slot.status === "reserved_by_others" && !slot.systemOnly,
-        "bg-res-green-success font-semibold text-white":
+          slot.status === "reserved_by_others" && !isSystemOnly,
+        "cursor-not-allowed bg-res-green-success font-semibold text-white":
           slot.status === "reserved_by_user",
         "bg-res-gray-dark/30 text-gray-700 hover:bg-res-gray-dark/50 dark:text-gray-200":
-          isSystemOnly && !isSelected,
+          slot.status === "reserved_by_others" && isSystemOnly && !isSelected,
         "z-10 scale-[1.03] bg-blue-500 font-bold text-white shadow-md ring-2 ring-blue-400 ring-offset-1":
           isSelected,
         "bg-white text-gray-800 hover:border-emerald-300 hover:bg-emerald-50 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700":
           slot.status === "free" && !isSelected && !isSystemOnly,
-        "bg-gradient-to-r from-res-gray-dark/30 from-50% to-res-green-success to-50% text-white":
+        "cursor-not-allowed bg-gradient-to-r from-res-gray-dark/30 from-50% to-res-green-success to-50% text-white":
           slot.status === "reserved_by_user_with_system_reservation",
-        "bg-gradient-to-r from-res-gray-dark/30 from-50% to-res-orange to-50% text-white":
+        "cursor-not-allowed bg-gradient-to-r from-res-gray-dark/30 from-50% to-res-orange to-50% text-white":
           slot.status === "reserved_by_others_with_system_reservation",
         "cursor-not-allowed opacity-70": slot.isPast,
         "bg-gray-100 text-gray-400 hover:border-gray-200 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-500":

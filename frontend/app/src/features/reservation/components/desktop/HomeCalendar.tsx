@@ -285,8 +285,12 @@ const HomeCalendar = ({ seat }: HomeCalendarProps) => {
       | undefined;
     const isMine = user?.id != null && reservedByID === user?.id;
 
-    if (isSystemOnly && !isMine) {
-      // System-only event by someone else → allow creating on top of it
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - 2);
+    const isPast = event.start ? event.start < now : false;
+
+    if (isSystemOnly && !isMine && !isPast) {
+      // System-only event by someone else, in the future → allow creating on top of it
       resetModalFields();
       setMode("create");
       setSelectedEvent(null);

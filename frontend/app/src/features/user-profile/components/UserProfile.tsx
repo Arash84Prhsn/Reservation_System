@@ -210,7 +210,7 @@ export default function UserProfile() {
       {/* مودال ویرایش */}
       <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
         <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-6 dark:bg-gray-900 lg:p-8" dir="rtl">
-          <div className="text-right border-b border-gray-100 pb-3 dark:border-gray-800">
+          <div className="text-right border-b border-gray-100 pb-3 pr-12 sm:pr-16 dark:border-gray-800">
             <h4 className="text-xl font-bold text-gray-900 dark:text-white">
               ویرایش اطلاعات حساب کاربری
             </h4>
