@@ -208,12 +208,8 @@ class ReservationServices:
     def get_user_active_reservations(user_id):
         """
         Get all the currently active reservations for a user
-        
-        :param user_id: The id of the user used for identification of the user
-        :returns: A list of dicts with the following stucture: {"date", "day_of_week",
-        "reservation_type", "start_time", "end_time"}
         """
-
+        from backend.models.seats import Seat
         with get_db_connection() as conn:
             
             stmnt = select(
@@ -224,6 +220,8 @@ class ReservationServices:
                 Reservation.id,
                 Seat.seat_type,
                 Seat.seat_number
+            ).join(
+                Seat, Reservation.seat_id == Seat.id
             ).where(
                 Reservation.seat_id == Seat.id,
                 Reservation.user_id == user_id,
@@ -234,26 +232,23 @@ class ReservationServices:
             results = []
             
             for row in rows:
-                start_time: time = row[0]
-                end_time: time = row[1]
-                reservation_type: str = row[2]
-                reservation_date: date = row[3]
+                start_time = row[0]
+                end_time = row[1]
+                reservation_type = row[2]
+                reservation_date = row[3]
                 id = row[4]
                 seat_type = row[5]
                 seat_number = row[6]
-                day_of_week: str = ReservationServices.get_day_of_week_from_date(reservation_date)
-                start_time = start_time.isoformat()
-                end_time = end_time.isoformat()
-                reservation_date = reservation_date.isoformat()
-
+                day_of_week = ReservationServices.get_day_of_week_from_date(reservation_date)
+                
                 d = {'reservation_id' : id,
-                     'date' : reservation_date,
+                     'date' : reservation_date.isoformat(),
                      'day_of_week' : day_of_week,
                      'reservation_type' : reservation_type,
-                     'start_time' : start_time,
-                     'end_time' : end_time,
-                     'seat_type' : seat_type,
-                     'seat_number' : seat_number}
+                     'start_time' : start_time.isoformat(),
+                     'end_time' : end_time.isoformat(),
+                     'seat_type': seat_type,
+                     'seat_number': seat_number}
                 
                 results.append(d)
             
@@ -525,83 +520,62 @@ class ReservationServices:
                     })
                     continue
                 
-                # Find ALL reservations that cover this time slot
-                matching_reservations = []
+                # Check if this specific seat is reserved for this slot
+                overlapping_reservations = []
                 for res in day_reservations:
                     if res['start'] < slot_end and res['end'] > slot_start:
-                        matching_reservations.append(res)
+                        overlapping_reservations.append(res)
                 
-                if matching_reservations:
-                    # Separate regular and system-only reservations
-                    regular_reservations = [r for r in matching_reservations if not r['is_system_only']]
-                    system_reservations = [r for r in matching_reservations if r['is_system_only']]
+                if overlapping_reservations:
+                    from backend.models.enums import SYSTEM_ONLY_RESERVATION_TYPES
                     
-                    # Check if there's a system-only reservation present
-                    has_system_reservation = len(system_reservations) > 0
-                    
-                    if regular_reservations:
-                        # There is at least one regular reservation
-                        # Take the first regular reservation (there should only be one)
-                        regular = regular_reservations[0]
-                        
-                        if regular['user_id'] == current_user_id:
-                            # Current user's regular reservation
-                            if has_system_reservation:
-                                status = 'reserved_by_user_with_system_reservation'
-                            else:
-                                status = 'reserved_by_user'
+                    sys_res = next((r for r in overlapping_reservations if r['type'] in SYSTEM_ONLY_RESERVATION_TYPES), None)
+                    reg_res = next((r for r in overlapping_reservations if r['type'] not in SYSTEM_ONLY_RESERVATION_TYPES), None)
+
+                    if sys_res and reg_res:
+                        if reg_res['user_id'] == current_user_id:
+                            status = 'reserved_by_user_with_system_reservation'
                         else:
-                            # Someone else's regular reservation
-                            if has_system_reservation:
-                                status = 'reserved_by_others_with_system_reservation'
-                            else:
-                                status = 'reserved_by_others'
+                            status = 'reserved_by_others_with_system_reservation'
                         
                         day_schedule.append({
                             'timeslot_number': slot['timeslot_number'],
                             'start_time': slot['start_time'],
                             'end_time': slot['end_time'],
                             'status': status,
-                            'reservation_type': regular['type'],
-                            'reserved_by': regular['user_id'],
-                            'reservation_id': regular['reservation_id']
+                            'reservation_type': sys_res['type'],
+                            'reserved_by': reg_res['user_id'],
+                            'reservation_id': reg_res['reservation_id']
                         })
-                    elif has_system_reservation:
-                        # Only system-only reservations (no regular reservations)
-                        
-                        reservation = system_reservations[0]
-
-                        if reservation['user_id'] == current_user_id:
-                            day_schedule.append({
-                                'timeslot_number': slot['timeslot_number'],
-                                'start_time': slot['start_time'],
-                                'end_time': slot['end_time'],
-                                'status': 'reserved_by_user',
-                                'reservation_type': reservation['type'],
-                                'reserved_by': reservation['user_id'],
-                                'reservation_id': reservation['reservation_id']
-                            })
+                    elif sys_res:
+                        if sys_res['user_id'] == current_user_id:
+                            status = 'reserved_by_user'
                         else:
-                            day_schedule.append({
-                                'timeslot_number': slot['timeslot_number'],
-                                'start_time': slot['start_time'],
-                                'end_time': slot['end_time'],
-                                'status': 'reserved_others',
-                                'reservation_type': reservation['type'],
-                                'reserved_by': reservation['user_id'],
-                                'reservation_id': reservation['reservation_id']
-                            })
-
-                    else:
-                        # No reservations (should not happen since matching_reservations is not empty)
+                            status = 'reserved_by_others'
+                            
                         day_schedule.append({
                             'timeslot_number': slot['timeslot_number'],
                             'start_time': slot['start_time'],
                             'end_time': slot['end_time'],
-                            'status': 'free',
-                            'reservation_type': None,
-                            'reserved_by': None,
-                            'reservation_id': None
+                            'status': status,
+                            'reservation_type': sys_res['type'],
+                            'reserved_by': sys_res['user_id'],
+                            'reservation_id': sys_res['reservation_id']
+                        })
+                    else:
+                        if reg_res['user_id'] == current_user_id:
+                            status = 'reserved_by_user'
+                        else:
+                            status = 'reserved_by_others'
+                            
+                        day_schedule.append({
+                            'timeslot_number': slot['timeslot_number'],
+                            'start_time': slot['start_time'],
+                            'end_time': slot['end_time'],
+                            'status': status,
+                            'reservation_type': reg_res['type'],
+                            'reserved_by': reg_res['user_id'],
+                            'reservation_id': reg_res['reservation_id']
                         })
                 else:
                     # No reservations at all
