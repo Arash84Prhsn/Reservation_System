@@ -5,6 +5,9 @@ import { BsQuestionCircle, BsChevronDown } from "react-icons/bs";
 import { useRouter } from "next/navigation";
 import { cn } from "@/shared/lib/utils";
 import { useSidebar } from "@/shared/context/SidebarContext";
+import { Table } from "@/features/reservation/components/mobile/Table";
+import { SeatComponent } from "@/features/reservation/components/mobile/Seat";
+import { useSeatMap } from "@/features/reservation/utils/SeatMap.utils";
 
 // ============================================================
 // LEGEND DATA
@@ -19,6 +22,50 @@ const CALENDAR_LEGEND_ITEMS = [
 ] as const;
 
 
+// ============================================================
+// MINI SEAT MAP COMPONENT
+// ============================================================
+
+function MiniSeatMap() {
+  const { seats, config: mergedConfig } = useSeatMap({});
+  const countBySide = {
+    top: mergedConfig.top,
+    bottom: mergedConfig.bottom,
+    left: mergedConfig.left,
+    right: mergedConfig.right,
+  };
+
+  return (
+    <div className="relative aspect-square w-full overflow-hidden rounded-lg border border-white/10 bg-[#EBFFEE]" dir="rtl">
+      {/* Background patterns */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundSize: "10px 10px",
+          backgroundImage: "radial-gradient(circle, #00000010 1px, transparent 1px)"
+        }}
+      />
+      <div className="absolute inset-0 flex items-center justify-center">
+        {/* Render at a larger fixed size so text/proportions look right, then scale down */}
+        <div 
+          className="relative w-[320px] h-[320px]" 
+          style={{ transform: "scale(1)", transformOrigin: "center" }}
+        >
+          <Table />
+          {seats.map((seat) => (
+            <SeatComponent
+              key={seat.id}
+              seat={seat}
+              total={countBySide[seat.side]}
+              isSelected={false}
+              onSelect={() => {}}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ============================================================
 // MAIN COLOR LEGEND COMPONENT
@@ -204,12 +251,7 @@ export default function ColorLegend({
               <h4 className="mb-2 text-xs font-medium text-gray-300">
                 🗺️ موقعیت صندلی‌ها
               </h4>
-              <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg border border-white/10 bg-white/5">
-                <div className="flex h-full flex-col items-center justify-center p-2 text-center text-gray-400">
-                  <p className="text-2xl">🗺️</p>
-                  <p className="text-[10px]">نقشه صندلی‌ها</p>
-                </div>
-              </div>
+              <MiniSeatMap />
             </div>
 
             {/* Action Buttons - Reordered */}

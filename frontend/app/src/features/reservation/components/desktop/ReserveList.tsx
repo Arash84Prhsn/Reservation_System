@@ -302,6 +302,9 @@ const MobileReserveList: React.FC<ReserveListUIProps> = ({
                     <p className="text-sm text-gray-600">
                       نوع: {getReservationTypeLabel(reservation.reservation_type)}
                     </p>
+                    <p className="text-sm text-gray-600">
+                      صندلی: {getSeatTypeLabel(reservation.seat_type)} {toPersianDigits(String(reservation.seat_number))}
+                    </p>
                   </div>
                 );
               })}
@@ -349,7 +352,7 @@ export const MobileCalendar = ({
                     key={res.reservation_id}
                     className="flex flex-col rounded-xl border border-gray-100 bg-white p-3 shadow-sm transition hover:shadow-md"
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-2">
                       <span className="rounded-full bg-res-green-100 px-2 py-0.5 text-[10px] text-res-green-success">
                         {getReservationTypeLabel(res.reservation_type)}
                       </span>
@@ -358,6 +361,9 @@ export const MobileCalendar = ({
                         {formatPersianTime(res.start_time)} -{" "}
                         {formatPersianTime(res.end_time)}
                       </span>
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      صندلی: {getSeatTypeLabel(res.seat_type)} {toPersianDigits(String(res.seat_number))}
                     </div>
                   </div>
                 ))}
